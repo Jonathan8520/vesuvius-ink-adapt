@@ -94,8 +94,11 @@ publié par d'autres. Ne pas le reprendre.
 - **Segments réservés** : les 9 `reserved_validation_cases` figurent dans la liste d'entraînement des
   checkpoints. Seule une zone par cas est tenue à l'écart. Le dépôt 9 µm publie le masque de 3 cas
   (0139-w016, 0814-46527, 1667-w029 : 0,66 cm²). Les 6 autres zones (0139-w028, w029 ; 1667-w018, w023, w028,
-  w031 : 3,52 cm², loin des pixels d'entraînement) sont sur S3 :
-  `<segment>/ink-labels/<volume 2,4 µm>/20260918/validation.zarr`, niveau 2. Audit : `scripts/audit_reserved_validation.py`.
+  w031 : 3,52 cm², loin des pixels d'entraînement) sont publiques dans le repère 2,4 µm : dossier `ink/` du
+  bucket Hugging Face (`*_validation_mask_v2.tif`, depuis le 07/07/2026) et S3
+  (`<segment>/ink-labels/<volume 2,4 µm>/20260918/validation.zarr`, niveau 2 = repère des étiquettes 9,6 µm).
+  Trois d'entre elles (0139-w028, w029, 1667-w028) ont été supervisées par pseudo-étiquettes dans la lignée
+  ink9um-dense (reader-v2, reader-v3, argus). Audit : `scripts/audit_reserved_validation.py`.
 - Étiquettes 2,4 µm de l'équipe republiées sur S3 le 18/09/2026 : `<segment>/ink-labels/<volume>/20260918/`
   (`inklabels`, `supervision`, `validation`, Zarr v3 shardé, 2D, 6 niveaux).
 - Étiquettes de la communauté : `paranke/vesuvius-814-841-9b-studio-training-data` (corrigées à la main, 0814,

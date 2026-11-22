@@ -24,9 +24,11 @@
 3. **Cible de départ : PHerc0500P2**, ses 8 couches numérotées. La carte 2 µm y montre des lignes de lettres, et
    7 couches n'ont aucune étiquette humaine à ~9 µm. La 8e (`--1`), annotée par l'équipe, servira d'étalon.
    Aussi libres : son outil d'étiquetage (non publié) et la mesure du gain par heure de correction.
-4. **Les 6 zones de validation cachées sont confirmées** : le checkpoint tardif y obtient un F1 de 0,44 à 0,74,
-   contre 0,91 à 0,99 sur ses pixels d'entraînement. Elles sont aussi plus difficiles que les 3 masques publiés
-   (AUC 0,83 contre 0,92), ce qui en fait une mesure plus honnête.
+4. **Les 6 zones de validation sont bien tenues à l'écart d'`ink_9um`** : le checkpoint tardif y obtient un F1
+   de 0,44 à 0,74, contre 0,91 à 0,99 sur ses pixels d'entraînement. Elles sont plus difficiles que les 3 masques
+   publiés (AUC 0,83 contre 0,92). **Correction :** leurs masques ne sont pas « cachés ». Ils sont dans le dossier
+   `ink/` du bucket Hugging Face depuis juillet et sur S3 depuis septembre. Ils manquent seulement dans le
+   dossier 9 µm. `docs/DISCORD-FAITS.md` est corrigé.
 
 ## Prochaine étape
 

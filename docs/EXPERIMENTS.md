@@ -69,11 +69,14 @@ Ne jamais noter ici de découverte de lettres sur un rouleau éligible au First 
 - Données : masques de supervision et de validation du dépôt 9 µm (Hugging Face, `ink_9um/`), masques
   `validation.zarr` du bucket S3 (`ink-labels/<volume>/20260918/`, niveau 2), étiquettes natives du segment w044.
 - Réglages : aucun modèle. Distance aux pixels d'entraînement calculée par îlot.
-- Résultat : 3 zones publiées à 9 µm (721 550 px, 0,66 cm²) et 6 zones présentes seulement sur S3 (3 818 877 px,
+- Résultat : 3 zones publiées à 9 µm (721 550 px, 0,66 cm²) et 6 zones absentes du dossier 9 µm (3 818 877 px,
   3,52 cm²). Recouvrement avec la supervision d'entraînement : 0 pixel pour les 9. Part des pixels à moins de
   256 px d'un pixel d'entraînement : 99 %, 88 %, 45 % pour les zones publiées (w016, 0814, 1667-w029) ; 9 %, 0 %,
   3,5 %, 0 %, 0 %, 0 % pour les autres (0139-w028, 0139-w029, 1667-w018, w023, w028, w031). Le jumeau natif w044
   ne couvre pas la zone réservée de 0139-w028 (distance médiane 522 px). Tableau complet dans `docs/RESEARCH.md`.
+- Correction du 22/11 (21 h 40 UTC) : ces 6 masques sont aussi dans le dossier `ink/` du bucket Hugging Face
+  depuis le 07/07/2026 (`*_validation_mask_v2.tif`, vérifié par listing), et l'audit de nestorvfx du 24/09 les
+  recense. Ils ne manquent que dans `ink_9um/labels`.
 - Contrôle : sur les 3 masques publiés, on retrouve l'audit de khj1222 (59,3 %, 45,0 %, 23,2 % à moins de 128 px ;
   publié 58,6 %, 45,0 %, 23,2 %). Notre masque de w016 compte 178 146 px, le sien 175 222 : écart non expliqué.
 - Conclusion : la validation tenue à l'écart d'`ink_9um` est 5,3 fois plus grande que ce que le dépôt 9 µm laisse

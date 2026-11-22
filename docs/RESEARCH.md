@@ -19,8 +19,9 @@ citer en public).
 3. **Les mesures sont limitées par les données de validation, pas par les idées.** Les trois masques publiés
    font 0,66 cm², collés aux pixels d'entraînement (88 à 99 % à moins de deux patchs pour deux d'entre eux), avec
    un bruit entre graines de 0,02 à 0,13. Plusieurs « gains » publiés sont du niveau du bruit.
-4. **Trouvaille du jour [N] : les 9 cas réservés ont chacun une zone de validation exclue de l'entraînement, mais
-   le dépôt 9 µm n'en publie que 3.** Les 6 autres zones sont publiques sur S3 (étiquettes 2,4 µm du 18/09) et
+4. **Constat du jour [N] : les 9 cas réservés ont chacun une zone de validation exclue de l'entraînement, mais
+   le dossier 9 µm n'en publie que 3.** Les 6 autres masques sont publics dans le repère 2,4 µm (dossier `ink/`
+   du bucket Hugging Face depuis le 07/07, S3 depuis le 18/09, recensés par nestorvfx le 24/09) et
    n'ont aucun pixel commun avec les masques d'entraînement publiés. Elles pèsent 3,5 cm² (5,3 fois plus) et sont
    loin des pixels d'entraînement. Le test de mémorisation le confirme sur les 6 zones. Détail en section 3.
 5. **Le jury** : gros montants pour des modèles adoptés et pour le déroulage ; 250 à 1 000 $ pour des correctifs
@@ -92,7 +93,7 @@ citer en public).
 
 ## 3. Données de validation publiques
 
-### Les 9 cas réservés d'`ink_9um` : 3 masques publiés, 6 zones oubliées [N]
+### Les 9 cas réservés d'`ink_9um` : 3 masques dans le dossier 9 µm, 6 absents [N]
 
 Mesuré le 22/11 sur les masques seuls (aucun modèle). Repère : étiquettes 9,6 µm. « Proche » : part des pixels de
 la zone à moins de 128 px puis 256 px d'un pixel de supervision d'entraînement (méthode de khj1222, docs/17).
@@ -113,6 +114,19 @@ la zone à moins de 128 px puis 256 px d'un pixel de supervision d'entraînement
 - Source des 6 zones : `<segment>/ink-labels/<volume 2,4 µm>/20260918/validation.zarr` sur S3 (Zarr v3, niveau 2,
   même repère que les étiquettes 9,6 µm). Pour les 2 cas publiés qui ont aussi ce fichier, l'IoU avec le masque
   HF est de 0,995.
+- Antériorité (correction du 22/11, 21 h 40 UTC) : ces masques sont aussi dans le dossier `ink/` du bucket
+  Hugging Face `scrollprize/datasets` depuis le 07/07/2026 (`ink/<objet>/<segment>/<segment>_validation_mask_v2.tif`,
+  15 segments dont les 9 cas, vérifié par listing). L'audit de nestorvfx du 24/09
+  (https://huggingface.co/datasets/nestorvfx/vesuvius-ink-training, `records/validation_audit.json`) fait la
+  correspondance entre ces 15 fichiers et les `validation.zarr` de S3, avec les décalages de canevas (environ 20 px
+  pour PHerc1667 ; 0139/w028 republié « without provenance », IoU 0,9884 au décalage [-460, -83]). Il ne dit pas
+  que 6 masques manquent dans `ink_9um/labels`. Ce n'est donc pas une découverte de données : c'est un trou dans
+  le dossier 9 µm, plus nos mesures (recouvrement, distance, mémorisation).
+- Contamination par pseudo-étiquettes : `domenicor046/ink9um-dense-labels` (7 segments, 288,7 M px) définit
+  `supervision_mask = render-valid AND NOT validation_mask` et ne retire que les 3 masques publiés. Ses jeux pour
+  pherc0139-w028 (canevas couvert à 88,8 %), pherc0139-w029 (88,2 %) et pherc1667-w028 (81,8 %) couvrent donc
+  très probablement leurs zones réservées. Les modèles qui en descendent (reader-v2, reader-v3, argus-v3) ne sont
+  pas propres sur ces 3 zones. Restent propres pour tous : 1667-w018, w023, w031 (2,87 cm²). Déduit de la fiche.
 - Pour les 8 cas présents sur S3 : surface de supervision HF = supervision S3 moins validation S3. Le dépôt 9 µm
   a donc été construit en retirant la zone réservée des 9 cas, et n'a republié le masque que pour les 3 cas
   « online ».

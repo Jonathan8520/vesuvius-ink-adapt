@@ -68,8 +68,10 @@ plusieurs montrent qu'ils sont collés aux pixels d'entraînement.
 Ce que nous avons mesuré sur les masques publics (aucun modèle) :
 
 - Les 9 cas ont chacun une zone réservée. Le dépôt 9 µm (Hugging Face, `ink_9um/`) ne publie le masque que pour
-  3 cas. Les 6 autres zones sont sur S3 : `<segment>/ink-labels/<volume 2,4 µm>/20260918/validation.zarr`,
-  niveau 2, même repère que les étiquettes 9,6 µm.
+  3 cas. Les 6 autres zones sont publiques dans le repère 2,4 µm : dossier `ink/` du même bucket
+  (`*_validation_mask_v2.tif`, depuis le 07/07/2026, recensés par nestorvfx le 24/09) et S3
+  (`<segment>/ink-labels/<volume 2,4 µm>/20260918/validation.zarr`, niveau 2, même repère que les étiquettes
+  9,6 µm). Ce n'est donc pas une découverte de masques : ce qui manque, c'est leur version dans `ink_9um/labels`.
 - Ces 6 zones n'ont **aucun pixel commun** avec les masques de supervision d'entraînement publiés. Elles pèsent
   3 818 877 px (3,52 cm²) contre 721 550 px (0,66 cm²) pour les 3 masques publiés, soit 5,3 fois plus.
 - Elles sont **loin des pixels d'entraînement** : 0 à 9 % de leurs pixels à moins de 256 px d'un pixel

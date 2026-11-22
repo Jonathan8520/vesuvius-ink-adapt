@@ -5,22 +5,32 @@ Ce fichier ne contient donc que des faits, des chiffres et des chemins. Les mess
 Si tu postes dans #robots, ajoute une ligne « AI disclosure ». Les identifiants entre accents graves sont à
 recopier tels quels (ils sont en anglais dans les données).
 
-## Message 1 : six zones de validation absentes du dépôt d'étiquettes 9 µm
+## Message 1 : six masques de validation absents du dossier d'étiquettes 9 µm
+
+**Corrigé le 22/11 à 21 h 40 UTC.** La première version disait que les 6 zones n'existaient que sur S3 : c'est
+faux. Ne pas présenter ces masques comme une découverte. Ce qui est nouveau, c'est qu'ils manquent dans le
+dossier 9 µm, et les mesures ci-dessous.
 
 ### L'essentiel
 
 - Les checkpoints `scrollprize/ink_9um` listent 9 `reserved_validation_cases` et 3 `online_validation_cases`
   (champ `data_provenance` de la config embarquée, vérifié dans `hybrid_3d2d-seed43/step-020000.pth`).
-- Le dépôt d'étiquettes (bucket Hugging Face `scrollprize/datasets`, dossier
+- Le dossier d'étiquettes 9 µm (bucket Hugging Face `scrollprize/datasets`, dossier
   `ink_9um/labels/aligned-scrollprizeorg-21slices/`) ne contient un `_validation_mask.zarr` que pour les 3 cas
   « online » : `pherc0139-w016`, `pherc0814-46527`, `pherc1667-w029`.
-- Pour les 6 autres cas, la zone réservée existe bien, mais seulement dans les étiquettes 2,4 µm republiées sur
-  S3 le 18/09/2026 : `<segment>/ink-labels/<volume 2,4 µm>/20260918/validation.zarr`. Son niveau 2 a exactement
-  la forme des étiquettes 9,6 µm du dépôt (même repère).
+- Les masques des 6 autres cas sont publics, mais seulement dans le repère du scan 2,4 µm :
+  - dossier `ink/` du même bucket Hugging Face : `ink/<objet>/<segment>/<segment>_validation_mask_v2.tif`,
+    en ligne depuis le 7 juillet 2026 (15 segments ont ce fichier, dont les 9 cas réservés) ;
+  - S3, depuis le 18/09/2026 : `<segment>/ink-labels/<volume 2,4 µm>/20260918/validation.zarr`. Son niveau 2 a
+    exactement la forme des étiquettes 9,6 µm du dossier `ink_9um` (même repère).
+- Antériorité : l'audit de nestorvfx du 24/09/2026 (`nestorvfx/vesuvius-ink-training`, fichier
+  `records/validation_audit.json`) recense ces 15 masques et leur republication sur S3. Il ne dit pas qu'ils
+  manquent dans `ink_9um/labels`. Nous n'avons trouvé personne qui le dise.
 - Ces 6 zones n'ont aucun pixel commun avec le `_supervision_mask` d'entraînement publié. Elles font 5,3 fois la
   surface des 3 masques publiés, et elles sont loin des pixels d'entraînement.
-- Conséquence pratique : toute la communauté évalue les modèles 9 µm sur 0,66 cm² collés à l'entraînement, alors
-  que 3,52 cm² bien isolés existent déjà.
+- Conséquence pratique : les évaluations 9 µm que nous avons lues (Domenico Russo, khj1222, Erwin Nieuwlaar)
+  n'utilisent que les 3 masques, soit 0,66 cm² collés à l'entraînement, alors que 3,52 cm² bien isolés existent.
+  La fiche `domenicor046/ink9um-dense-labels` parle de « the three held-out validation regions ».
 
 ### Chiffres (repère des étiquettes 9,6 µm)
 
@@ -62,8 +72,15 @@ Totaux : 721 550 px (0,66 cm²) publiés, 3 818 877 px (3,52 cm²) non publiés 
 
 - Les étiquettes d'encre du dépôt 9 µm (`_inklabels.zarr`) couvrent déjà ces zones. Il ne manque que le masque.
 - `pherc0139-w016` (segment public `…w029_2025010827`) n'a pas de dossier `ink-labels` sur S3.
-- Ces zones ne sont tenues à l'écart que pour la recette `ink_9um`. Les modèles distillés à partir de cartes
-  entières (reader-v2, reader-v3, hecate) les ont probablement vues.
+- Ces zones ne sont tenues à l'écart que pour la recette `ink_9um`. Trois d'entre elles (0139-w028, 0139-w029,
+  1667-w028) sont couvertes par les pseudo-étiquettes denses de `domenicor046/ink9um-dense-labels` : sa fiche
+  écrit `supervision_mask = render-valid AND NOT validation_mask`, et seuls les 3 masques publiés y sont retirés
+  (canevas couverts à 82 à 89 %). Les modèles qui en descendent (reader-v2, reader-v3, argus) ont donc été
+  supervisés dans ces 3 zones, avec les cartes du modèle 2 µm. Pour eux, seules 1667-w018, w023 et w031
+  (2,87 cm²) restent propres. Déduit de la fiche, pas mesuré par nous.
+- L'audit de nestorvfx signale un décalage de canevas entre les masques de `ink/` et leur version S3 (environ
+  20 px pour PHerc1667, et [-460, -83] px pour 0139/w028, IoU 0,9884). Nos mesures utilisent la version S3, qui
+  est dans le repère des étiquettes 9,6 µm (vérifié : supervision 9 µm = supervision S3 moins validation S3).
 - Elles restent dans des rouleaux vus à l'entraînement : ce n'est pas une mesure entre rouleaux.
 - On ne sait pas si l'équipe les a laissées de côté exprès. C'est la question à poser.
 - Nos chiffres des 3 masques publiés recoupent ceux déjà publiés : Domenico Russo (précision équilibrée et AUC
@@ -72,9 +89,9 @@ Totaux : 721 550 px (0,66 cm²) publiés, 3 818 877 px (3,52 cm²) non publiés 
 
 ### Ce qu'on peut demander
 
-- Les 6 zones sont-elles bien des zones de validation tenues à l'écart des checkpoints publiés ?
-- L'équipe peut-elle ajouter les 6 `_validation_mask.zarr` au dossier `ink_9um`, ou préfère-t-elle qu'on publie
-  un petit jeu communautaire au même format ?
+- Les 6 zones sont-elles bien tenues à l'écart des checkpoints `ink_9um` publiés, comme les 3 autres ?
+- L'équipe peut-elle ajouter les 6 `_validation_mask.zarr` au dossier `ink_9um/labels`, ou préfère-t-elle qu'on
+  publie un petit jeu communautaire au même format (conversion du niveau 2 de la version S3) ?
 
 ### Pour vérifier soi-même
 
