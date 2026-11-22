@@ -25,6 +25,27 @@ Projet de Jonathan (GitHub : Jonathan8520) pour le Vesuvius Challenge (lecture d
 - **Communication avec Jonathan** : en français, direct, sans tirets cadratins. Il lit souvent sur téléphone :
   réponses courtes, images utiles plutôt que longs tableaux.
 
+## Méthode de travail
+
+- **Chercher avant de coder.** Avant chaque étape et avant toute nouvelle idée, faire l'état de l'art sur
+  Internet : site et blog du challenge (scrollprize.org, page des lauréats, scrollprize.substack.com), dépôt
+  ScrollPrize/villa (code, tickets « help wanted », pull requests, `ink-detection/configs/README.md`),
+  Hugging Face `scrollprize`, solutions publiées des compétitions Kaggle Vesuvius (Ink Detection 2023,
+  Surface Detection 2026), arXiv (préprint 2606.29085 sur les scans 2026, littérature sur l'adaptation au
+  moment du test), dépôts GitHub de la communauté. Ne jamais développer ce qui existe déjà : réutiliser le code
+  sous licence permissive en le citant.
+- Noter chaque trouvaille utile dans `docs/RESEARCH.md` : lien, ce que ça apporte, ce qu'on en fait.
+- La page Open Problems signale qu'un essaim d'agents autonomes (inspiré de karpathy/autoresearch) a déjà fait
+  progresser la généralisation d'un rouleau à l'autre : trouver ce qui a été fait et s'en démarquer.
+- **Autonomie.** Avancer sans attendre Jonathan : décider, justifier la décision dans les docs, continuer.
+  Ne le solliciter que pour : (1) Discord, qu'il lit et où il poste lui-même ; (2) le formulaire de soumission ;
+  (3) toute découverte de lettres (règle First Letters) ; (4) toute action irréversible ou payante, ou
+  l'usage d'un compte qui n'est pas le sien.
+- **Calcul.** Lancer les runs GPU Kaggle le plus tôt possible et préparer la suite pendant l'attente ; préparer
+  les données d'évaluation une seule fois dans un dataset Kaggle privé ; garder une version CPU de secours.
+- **Compte rendu.** Tenir `docs/EXPERIMENTS.md` à jour à chaque essai et, en fin de journée, écrire un point
+  court dans `docs/STATUS.md`, lisible sur téléphone : fait, résultats, prochaine étape, besoins éventuels.
+
 ## Conventions techniques validées (ne pas modifier sans relancer la validation)
 
 - **Rendu tifxyz** : pixel (r, c) ↔ grille (r·scale, c·scale), interpolation bilinéaire ;
