@@ -2,17 +2,25 @@
 
 Projet de Jonathan (GitHub : Jonathan8520) pour le Vesuvius Challenge (lecture des rouleaux carbonisés d'Herculanum).
 
-**Objectif du sprint :** une soumission aux **Progress Prizes de novembre 2026** (meilleure soumission du mois : 20 000 $).
-**Date limite : 30 novembre 2026 à 23 h 59, heure du Pacifique** (1er décembre à 8 h 59 à Paris).
+**Objectif (cap du 22 novembre 2026) :** publier d'ici le **31 décembre 2026** des étiquettes d'encre vérifiées à
+la main par Jonathan, avec la preuve qu'elles améliorent un modèle, pour la soumission aux **Progress Prizes de
+décembre**. Ensuite, utiliser ce modèle pour **First Letters** (50 000 $ par rouleau, jusqu'au 25 juin 2027).
 
-**État au 22 novembre 2026 : sprint arrêté par Jonathan.** Lire `docs/STATUS.md` avant toute chose. Ne pas
-reprendre `docs/PLAN.md` ni lancer de calcul sans nouvelle consigne.
+**Répartition :** Jonathan donne 3 à 5 heures par semaine de correction au stylet sur sa tablette Android
+(Galaxy Tab S6 Lite). La session fait tout le reste : données, pré-étiquettes, appli, export, entraînement, mesure.
+
+Le sprint de novembre (adaptation sans étiquette d'`ink_9um`) a été arrêté le 22 novembre : tout avait déjà été
+publié par d'autres. Ne pas le reprendre.
 
 À lire avant toute chose :
-1. `docs/HANDOFF.md` : ce qui est fait, ce qui marche, les chiffres de validation, les leçons.
-2. `docs/PLAN.md` : le plan du sprint, jour par jour, avec les critères de réussite.
-3. `docs/CONTEXT.md` : les règles du prix et ce que le jury favorise.
-4. `docs/EXPERIMENTS.md` : le journal des expériences (à tenir à jour à chaque essai).
+1. `docs/STATUS.md` : le point le plus récent, court.
+2. `docs/PLAN.md` : le cap, les étapes, les jalons et les critères d'arrêt.
+3. `docs/INVENTAIRE.md` : rouleaux, scans et étiquettes d'encre déjà publiées (régénéré par `scripts/inventory.py`).
+4. `docs/RESEARCH.md` : état de l'art (qui a fait quoi), à compléter avant chaque étape.
+5. `docs/HANDOFF.md` : ce qui marche, comment c'est vérifié, les leçons.
+6. `docs/EXPERIMENTS.md` : le journal des expériences (à tenir à jour à chaque essai).
+7. `docs/DISCORD-FAITS.md` : faits préparés pour les messages que Jonathan écrit lui-même.
+8. `docs/CONTEXT.md` (règles des prix) et `docs/VEILLE-2026-11-22.md` (veille de Jonathan).
 
 ## Règles absolues
 
@@ -20,11 +28,18 @@ reprendre `docs/PLAN.md` ni lancer de calcul sans nouvelle consigne.
   Jamais de ligne `Co-Authored-By` ni de lien `Claude-Session` dans les messages de commit.
 - **Secrets** : le dépôt est public. Aucun token ni mot de passe dans le code, les notebooks, les logs ou les docs.
   Kaggle : variable `KAGGLE_API_TOKEN` ou fichier `~/.kaggle/access_token`, toujours hors dépôt.
+- **Jamais d'étiquettes sur un rouleau éligible à First Letters** (liste : `prizeEligibility.json` de villa,
+  reprise en tête de `docs/INVENTAIRE.md`). Ni annotation, ni correction, ni pré-étiquette publiée.
+- **Jamais d'étiquette ni d'entraînement dans les 9 zones de validation réservées d'`ink_9um`**, quelle que soit
+  la représentation (2,4 µm réduit ou natif) : ce sont nos données de mesure.
 - **Règle First Letters** : si des lettres apparaissent sur un rouleau éligible au prix First Letters, ne rien
   committer ni publier (images, coordonnées, noms de segments). Le règlement interdit de rendre une découverte
   publique avant l'annonce officielle. Garder ces résultats hors du dépôt et prévenir Jonathan.
 - **Licences** : données CT sous CC BY-NC 4.0 (citer « Vesuvius Challenge - CT Scans of Herculaneum Papyri » ou
   « EduceLab-Scrolls » selon le scan) ; poids `scrollprize/ink_9um` sous licence MIT ; notre code sous MIT.
+- **Discord** : aucun message rédigé par la session. Elle prépare les faits et les chiffres dans
+  `docs/DISCORD-FAITS.md`, Jonathan écrit et poste lui-même (règle du serveur du 29/07/2026 ; dans #robots,
+  ajouter une ligne « AI disclosure »).
 - **Communication avec Jonathan** : en français, direct, sans tirets cadratins. Il lit souvent sur téléphone :
   réponses courtes, images utiles plutôt que longs tableaux.
 
@@ -74,8 +89,19 @@ reprendre `docs/PLAN.md` ni lancer de calcul sans nouvelle consigne.
 - Bucket public : `s3://vesuvius-challenge-open-data/`, lisible en HTTPS sans compte :
   https://vesuvius-challenge-open-data.s3.us-east-1.amazonaws.com/ (listing S3 avec `?list-type=2&prefix=...`).
 - Volumes éligibles aux prix : `scrollprize.org/src/data/prizeEligibility.json` dans le dépôt ScrollPrize/villa.
-- Étiquettes d'encre 9 µm (dont les 9 segments réservés à la validation) : bucket Hugging Face
-  `scrollprize/datasets`, dossier `ink_9um/` (API : https://huggingface.co/api/buckets/scrollprize/datasets/tree/ink_9um).
+- Étiquettes d'encre 9 µm de l'équipe : bucket Hugging Face `scrollprize/datasets`, dossier `ink_9um/`
+  (API : https://huggingface.co/api/buckets/scrollprize/datasets/tree/ink_9um).
+- **Segments réservés** : les 9 `reserved_validation_cases` figurent dans la liste d'entraînement des
+  checkpoints. Seule une zone par cas est tenue à l'écart. Le dépôt 9 µm publie le masque de 3 cas
+  (0139-w016, 0814-46527, 1667-w029 : 0,66 cm²). Les 6 autres zones (0139-w028, w029 ; 1667-w018, w023, w028,
+  w031 : 3,52 cm², loin des pixels d'entraînement) sont sur S3 :
+  `<segment>/ink-labels/<volume 2,4 µm>/20260918/validation.zarr`, niveau 2. Audit : `scripts/audit_reserved_validation.py`.
+- Étiquettes 2,4 µm de l'équipe republiées sur S3 le 18/09/2026 : `<segment>/ink-labels/<volume>/20260918/`
+  (`inklabels`, `supervision`, `validation`, Zarr v3 shardé, 2D, 6 niveaux).
+- Étiquettes de la communauté : `paranke/vesuvius-814-841-9b-studio-training-data` (corrigées à la main, 0814,
+  0841, 0009B), `domenicor046/reader-v2-labels` (sorties de modèle, 6 objets), voir `docs/INVENTAIRE.md`.
+- Catalogue du bucket S3 : `metadata.json` à la racine (compressé en gzip) : scans, segments, surfaces, cartes
+  d'encre et étiquettes par objet.
 - Checkpoints : https://huggingface.co/scrollprize/ink_9um (seed42 et seed43, steps 10k à 75k).
 - Code de référence de l'équipe : https://github.com/ScrollPrize/villa (dossiers `vesuvius/`, `vc_reader/`).
 

@@ -1,44 +1,46 @@
-# Point du 22 novembre 2026 (nuit) : sprint arrêté
+# Point du 22 novembre 2026 (nuit) : nouveau cap, étiquettes vérifiées à la main
 
-## Décision
+## Où on en est
 
-Jonathan arrête le sprint Progress Prizes de novembre. Pas de soumission. Plus aucun calcul lancé.
+- Le sprint de novembre est arrêté (tout avait déjà été publié par d'autres).
+- Nouveau cap : publier d'ici le 31 décembre des étiquettes d'encre vérifiées à la main par toi, avec la preuve
+  qu'elles améliorent un modèle, puis viser First Letters. Plan : `docs/PLAN.md`.
 
-## Pourquoi on s'arrête
+## Fait ce soir
 
-- **Tout notre plan a déjà été fait par d'autres**, souvent avec un résultat négatif : score de référence
-  d'`ink_9um`, choix de profondeur sans étiquette, TENT, ensembles de checkpoints, chaîne sans C++.
-  Liens et chiffres : `docs/VEILLE-2026-11-22.md` et `docs/RESEARCH.md`.
-- **La référence à 9 µm a changé** : c'est reader-v3 (Domenico Russo), plus `ink_9um`.
-- **First Letters sur PHerc. 1203** : déjà travaillé par des équipes mieux équipées, y compris avec le scan à
-  2,4 µm (constat de Jonathan). Notre balayage des 22 surfaces n'avait rien montré.
-- **Gain espéré faible** : sur cet axe, le jury donne 250 à 1 000 $ et décourage les outils d'évaluation isolés.
+- Lu le billet sur PHerc. 211 et les dépôts de Priyank Aranke.
+- Inventaire des rouleaux, scans et étiquettes existantes : `docs/INVENTAIRE.md`.
+- `CLAUDE.md` mis à jour, veille corrigée, plan réécrit avec jalons et critères d'arrêt.
+- Test de mémorisation terminé sur les 9 zones réservées.
+- Faits prêts pour tes deux messages Discord : `docs/DISCORD-FAITS.md`.
 
-## Ce qui marche (vérifié le 22/11)
+## Ce qu'il faut savoir
 
-- `python tests/validate_against_official.py` : `VALIDATION OK`. Rendu 0,933. Encre **0,9999** contre la sortie
-  officielle (c'était 0,912 : l'écart venait seulement du découpage des tuiles, corrigé par `core.infer_roi`).
-- Lecture des données publiques sans dépendance : `vesuvius_ink_adapt/zarrio.py` (étiquettes Hugging Face et S3).
-- Notre chaîne retrouve les chiffres publiés par d'autres : s43-75k sur le masque de w016, précision équilibrée
-  0,810 et AUC 0,937 (Domenico Russo : 0,810 et 0,937).
+1. **La méthode visée est déjà publiée pour les trois objets les plus utiles.** Priyank Aranke a mis en ligne
+   environ 250 cm² d'étiquettes corrigées à la main sur PHerc0814, 0841 et 0009B, avec code et modèle. On ne les
+   refait pas.
+2. **Ce qui reste libre est étroit.** On ne peut corriger à la main que là où la carte du modèle 2 µm est
+   lisible. Sur les couches cachées de PHerc0343P, elle ne montre que des taches : inutilisable.
+3. **Cible de départ : PHerc0500P2**, ses 8 couches numérotées. La carte 2 µm y montre des lignes de lettres, et
+   7 couches n'ont aucune étiquette humaine à ~9 µm. La 8e (`--1`), annotée par l'équipe, servira d'étalon.
+   Aussi libres : son outil d'étiquetage (non publié) et la mesure du gain par heure de correction.
+4. **Les 6 zones de validation cachées sont confirmées** : le checkpoint tardif y obtient un F1 de 0,44 à 0,74,
+   contre 0,91 à 0,99 sur ses pixels d'entraînement. Elles sont aussi plus difficiles que les 3 masques publiés
+   (AUC 0,83 contre 0,92), ce qui en fait une mesure plus honnête.
 
-## Ce qu'on a appris
+## Prochaine étape
 
-1. **Chercher avant de coder.** Une soirée de veille a invalidé une semaine de plan.
-2. **Les 9 segments « réservés » ne sont pas des rouleaux jamais vus** : ils sont dans la liste d'entraînement.
-   Seule une zone par segment est tenue à l'écart.
-3. **Observation nouvelle (à notre connaissance)** : le dépôt 9 µm ne publie la zone tenue à l'écart que pour
-   3 des 9 segments. Les 6 autres zones existent sur S3, n'ont aucun pixel commun avec les masques d'entraînement
-   publiés, et pèsent 5 fois plus (3,5 cm² contre 0,66 cm²), loin des pixels d'entraînement. Test de
-   mémorisation : voir `docs/HANDOFF.md` pour les segments vérifiés.
-4. **Les « gains » publiés sur 3 petits masques sont souvent du niveau du bruit** (0,02 à 0,13 entre graines).
+- Étape 2 : pré-étiquettes pour les 8 couches de PHerc0500P2 (recalage, carte de reader-v3 à calculer).
+- Étape 3 : l'appli au stylet, après vérification qu'aucun outil existant ne convient.
+- Jalon : première séance de 20 minutes sur ta tablette le 29/11 (couche `--1`, en aveugle).
+
+## Ce que j'attends de toi
+
+- Écrire et poster les deux messages Discord (faits dans `docs/DISCORD-FAITS.md`).
+- Me dire si la cible de départ (PHerc0500P2) te convient, ou attendre la réponse de l'équipe.
+- Me dire si je peux pousser sur `main` comme la dernière fois. Pour l'instant tout est sur la branche
+  `claude/jolly-shannon-2xycqz`.
 
 ## Kaggle
 
-- Aucun run lancé le 22/11 au soir, aucun en file, aucun en cours. Rien à annuler.
-- Les deux notebooks privés existants sont terminés. Quota GPU restant : 28,6 h jusqu'au 28/11.
-
-## Besoins éventuels
-
-- Aucun. Une seule chose à décider si tu le souhaites : signaler à l'équipe les 6 masques de validation absents
-  du dépôt 9 µm (ticket sur villa ou message sur Discord, écrit par toi). Tout est dans `docs/HANDOFF.md`.
+Aucun run lancé. Quota GPU restant : 28,6 h jusqu'au 28/11.

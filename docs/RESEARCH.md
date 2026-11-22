@@ -1,7 +1,8 @@
 # État de l'art
 
 Une entrée par source : lien, ce que ça apporte, décision (réutiliser, s'en inspirer, écarter).
-Dernière mise à jour : 22 novembre 2026 (soir). Ce fichier fusionne `docs/VEILLE-2026-11-22.md` (veille de
+Dernière mise à jour : 22 novembre 2026 (nuit). Pour le cap « étiquettes vérifiées à la main », aller
+directement à la section 9. Ce fichier fusionne `docs/VEILLE-2026-11-22.md` (veille de
 Jonathan sur Discord et GitHub), nos lectures du dépôt villa et du site, et la lecture de 25 dépôts
 communautaires clonés. Origine de chaque fait : **[V]** veille de Jonathan, **[N]** vérifié par nous sur le code
 ou les données, **[L]** lu dans un dépôt cloné ou une page publique (rapport de lecture, à revérifier avant de
@@ -21,7 +22,7 @@ citer en public).
 4. **Trouvaille du jour [N] : les 9 cas réservés ont chacun une zone de validation exclue de l'entraînement, mais
    le dépôt 9 µm n'en publie que 3.** Les 6 autres zones sont publiques sur S3 (étiquettes 2,4 µm du 18/09) et
    n'ont aucun pixel commun avec les masques d'entraînement publiés. Elles pèsent 3,5 cm² (5,3 fois plus) et sont
-   loin des pixels d'entraînement. Détail en section 3. À confirmer par un test de mémorisation.
+   loin des pixels d'entraînement. Le test de mémorisation le confirme sur les 6 zones. Détail en section 3.
 5. **Le jury** : gros montants pour des modèles adoptés et pour le déroulage ; 250 à 1 000 $ pour des correctifs
    fusionnés, des défauts de données et des mesures utiles ; « We discourage standalone analytic, auditing or
    evaluation tools ». Le mainteneur bruniss refuse les contrôles automatiques de « formes d'encre ».
@@ -120,8 +121,9 @@ la zone à moins de 128 px puis 256 px d'un pixel de supervision d'entraînement
 - Jumeau natif : le cas pherc0139-w028 est le segment physique w044, présent à l'entraînement en version native.
   Sa supervision native ne touche pas la zone réservée (recouvrement nul, distance médiane 522 px).
 - Aucune des sources lues ne mentionne ces 6 zones : toutes écrivent que seuls 3 masques sont tenus à l'écart.
-- Reste à faire : test de mémorisation (un checkpoint tardif doit y avoir le score d'une zone jamais vue, pas
-  celui d'un pixel d'entraînement), et recherche d'antériorité.
+- Test de mémorisation (s43-75k) fait sur les 9 cas : F1 de 0,44 à 0,74 dans les 6 zones non publiées, de 0,71 à
+  0,76 dans les 3 zones publiées, de 0,91 à 0,99 sur les pixels d'entraînement des mêmes segments. AUC moyenne
+  pondérée par pixel : 0,83 (non publiées) contre 0,92 (publiées). Tableau : `docs/HANDOFF.md`.
 
 ### Jeux étiquetés hors entraînement d'`ink_9um`
 
@@ -196,6 +198,76 @@ réservées d'`ink_9um` ne sont probablement pas tenues à l'écart pour eux. À
 - **Mémoire** : les transformées de distance sur un segment entier de 1667 (260 Mpx) dépassent la mémoire
   partagée ; travailler par îlot.
 
-## 8. Besoin non couvert : candidats et décision
+## 8. Besoin non couvert : décision
 
-Voir `docs/PLAN.md` (section « Décision du 23 novembre »).
+Le balayage lancé le 22/11 a été interrompu par l'arrêt du sprint. Le nouveau cap (étiquettes vérifiées à la
+main) est décrit dans `docs/PLAN.md` ; l'état de l'art qui le concerne est en section 9.
+
+## 9. Étiquettes d'encre à ~9 µm : qui publie quoi (cap du 22 novembre)
+
+Chiffres par objet : `docs/INVENTAIRE.md` (`scripts/inventory.py`).
+
+### La méthode de Priyank Aranke (First Letters PHerc. 211) [N]
+
+- Billet du 15/11/2026 : https://scrollprize.substack.com/p/first-letters-emerge-from-pherc-211
+- Ce qu'il écrit : « the training data mattered much more » que l'architecture. Il a comparé les rouleaux par un
+  DINO 3D auto-supervisé : « PHerc0009B and PHerc0841 ranked in the top three ink-bearing scrolls for all 23 unread
+  scrolls, and PHerc0814 usually came fourth or fifth (while the already-deciphered scrolls were almost always among
+  the least similar) ». Puis : « I then ran the team's published 2 µm ink model on the high-resolution scans of the
+  same papyrus, and transferred its predictions, together with the team's released 2 µm labels, onto the ~9 µm
+  segments, where they seeded sparse ink/background labels that I checked and corrected by hand. Distilling the
+  high-resolution ink onto these low-resolution segments was likely the single biggest driver in improving the
+  quality of ink detection. »
+- Concurrence : « In total we received 37 submissions on PHerc. 211 from 15 individual contestants and teams. »
+- Publié : code MIT https://github.com/priyankaranke/vesuvius-studio-multiscroll-cpt ; modèle et données sous
+  CC BY-NC 4.0 ; fork de VC3D (GPL-3.0) https://github.com/priyankaranke/vc3d-manual. Son outil d'étiquetage
+  (« Donor Studio ») et le dépôt d'entraînement d'Expanded9 ne sont pas publics.
+- Moyens : entraînement sur une GH200 (96 Go de mémoire GPU), toutes les tuiles gardées sur le GPU.
+- Décision : ne pas refaire ses trois objets. Reprendre sa méthode là où elle n'a pas été appliquée, et publier
+  l'outil qui lui manque.
+
+### Jeux d'étiquettes publiés
+
+| Jeu | Contenu | Vérifié à la main ? | Format et licence | Décision |
+| --- | --- | --- | --- | --- |
+| https://huggingface.co/datasets/paranke/vesuvius-814-841-9b-studio-training-data [N] | PHerc0814 (69 segments, 82 cm²), PHerc0841 (81, 120 cm²), PHerc0009B (60, 48 cm²) : 98,6 millions de pixels d'encre et 196 millions de fond, sur les surfaces de l'auteur (spirales et croissance de surface) | oui : pré-étiquettes du modèle 2 µm et de ses propres modèles, corrigées à la main (médiane de 21 révisions par segment) | tuiles `npy` 512 × 512 × 16, étiquette 0 inconnu / 1 fond / 2 encre ; CC BY-NC 4.0 | ne pas refaire ; à utiliser comme données d'entraînement de comparaison |
+| https://huggingface.co/datasets/paranke/vesuvius-expanded9-training-data [N] | 113 représentations de 12 groupes de rouleaux : reprise des étiquettes `ink_9um` de l'équipe, des fragments exposés, de la reproduction du Grand Prize, et de ses jeux 0814, 0841, 0009B | « not an independently certified ground-truth collection » | tuiles Blosc ; CC BY-NC 4.0 | pas d'étiquette nouvelle pour les autres rouleaux |
+| https://huggingface.co/datasets/domenicor046/reader-v2-labels [N] | 70 segments natifs de 6 objets : PHerc0139 (20), 0814 (8), 0500P2 (18), 0009B (14), 0343P (6), 0172 (4) | non : « the teacher maps are model outputs, not human annotations » ; encre si carte ≥ 128, fond si ≤ 64, bande intermédiaire hors supervision | format des dossiers `ink_9um` (Zarr v2, plan médian) ; MIT | point de départ de nos pré-étiquettes ; notre apport est la vérification humaine |
+| Étiquettes de l'équipe sur S3, jeu `20260918` [N] | 33 entrées : PHercParis4 (8 segments, 82 cm²), 1667 (6, 28,7 cm²), 0139 (8 à 2,4 µm et 5 natifs), 0841 (3), 0009B (1), 0500P2 (1), 0814 (1) | oui (annotation de l'équipe, affinée par pseudo-étiquetage) | Zarr v3 2D, 6 niveaux, `inklabels`, `supervision`, `validation` | référence et zones de mesure |
+| `ink_9um` de l'équipe (Hugging Face) [N] | 24 segments 2,4 µm réduits et 5 natifs (0139) | oui | Zarr v2, 21 ou 28 couches | format cible de notre export |
+| https://huggingface.co/datasets/YoussefMoNader/ink-8um-pherc1447-surfaces [L] | PHerc1447 : w058, w060 | oui (auteur) | couches TIFF et PNG ; CC BY-NC 4.0 | hors de notre périmètre (rouleau du Grand Prize) |
+
+### Ce qui manque [N]
+
+- Aucune étiquette vérifiée à la main à ~9 µm pour **PHerc0343P** (8 segments) ni pour **PHerc0500P2**
+  (46 segments, hors 1 segment de l'équipe à 2,2 µm). Pour **PHerc0139**, 5 segments natifs seulement.
+- Aucun outil d'étiquetage ouvert pensé pour corriger des pré-étiquettes sur tablette (à confirmer : recherche en
+  cours le 22/11).
+- Aucune mesure publiée du gain apporté par la correction humaine par rapport aux étiquettes de modèle seules.
+
+### Essai de faisabilité sur PHerc0343P [N]
+
+Segment `20250902170435--5_b2`, cartes publiées par l'équipe (aucun calcul de modèle de notre côté) :
+
+- la carte du modèle 2 µm (12 800 × 9 440 px) et les cartes à 8,64 µm (3 280 × 2 420 px) partagent le même repère
+  (rapport 3,902 pour 3,901 attendu) ; le meilleur recalage est un décalage de (−1, −8) px ;
+- corrélation avec la carte 2 µm ramenée à 8,64 µm : reader-v3 0,57, argus-v3 0,52, `ink_9um` s43-20k 0,06 ;
+  reader-v3 et argus-v3 entre eux : 0,93 ;
+- pré-étiquette selon la règle de reader-v2-labels : encre 0,23 cm² (5,8 %), fond 3,45 cm², bande incertaine
+  0,22 cm² (5,7 %) ; désaccords avec les modèles 9 µm : 0,21 cm² ;
+- 69 tuiles de 256 px sur 89 contiennent plus de 1 000 pixels à revoir : l'incertitude est répartie partout, il
+  faudra la montrer à l'intérieur de chaque tuile plutôt que trier les tuiles.
+- Ordre de grandeur : environ 0,4 cm² à revoir par segment.
+
+### Tri de lisibilité des cartes 2 µm [N]
+
+Regardé sur les planches réduites publiées par l'équipe (`ink-detection/downsampled`), objets non éligibles :
+
+- PHerc0343P : seul `20250511003658-tifxyz` montre des lettres (trois lignes). Les 7 couches `_b2` ne montrent que
+  des taches : rien à vérifier à la main.
+- PHerc0500P2 : les 8 couches numérotées (`500P2_front`, `--1`, `0`, `--2`, `1`, `2`, `3`, `4`) montrent des lignes de
+  lettres, nettes sur `front`, `--1` et `--2`, partielles ailleurs. Les segments `z_dbg_gen` regardés ne montrent que
+  des taches. Or reader-v2-labels couvre `front` et 17 segments `z_dbg_gen`, mais aucune des 7 autres couches
+  numérotées ; l'équipe n'a annoté que `--1`.
+- PHerc0139 : lignes de texte sur les 6 segments regardés.
+- Décision : cible de départ PHerc0500P2, couches numérotées.

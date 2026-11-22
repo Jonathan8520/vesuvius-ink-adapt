@@ -1,16 +1,19 @@
-# Passation : état au 22 novembre 2026 (nuit), sprint arrêté
+# Passation : état au 22 novembre 2026 (nuit)
 
 ## En bref
 
-- **Le sprint Progress Prizes de novembre est arrêté** (décision de Jonathan, 22/11 au soir). Pas de soumission.
-- **Aucun calcul en cours** : aucun run Kaggle en file ou en cours, aucune tâche locale.
-- **Ce qui reste utilisable** : une chaîne `ink_9um` validée contre les outils officiels, un lecteur des données
-  publiques, des notes de recherche à jour, et une observation sur les données de validation (section dédiée).
-- À lire : `docs/STATUS.md` (court), `docs/VEILLE-2026-11-22.md` (veille de Jonathan), `docs/RESEARCH.md`
-  (veille fusionnée avec la lecture de 25 dépôts).
-- `docs/PLAN.md` est conservé pour mémoire. Il n'est plus à exécuter.
+- **Le sprint Progress Prizes de novembre est arrêté** (décision de Jonathan, 22/11) : tout le plan avait déjà été
+  publié par d'autres. Raisons ci-dessous.
+- **Nouveau cap, le même soir** : publier d'ici le 31 décembre des étiquettes d'encre vérifiées à la main par
+  Jonathan, avec la preuve qu'elles améliorent un modèle, puis viser First Letters. Voir `docs/PLAN.md`.
+- **Fait pour ce cap** : lecture de la méthode de Priyank Aranke, inventaire (`docs/INVENTAIRE.md`), test de
+  mémorisation terminé sur les 9 zones réservées, faits pour Discord (`docs/DISCORD-FAITS.md`).
+- **Ce qui reste utilisable de novembre** : une chaîne `ink_9um` validée contre les outils officiels, un lecteur
+  des données publiques, des notes de recherche à jour.
+- **Aucun calcul en cours** : aucun run Kaggle en file ou en cours.
+- À lire : `docs/STATUS.md` (court), `docs/PLAN.md`, `docs/RESEARCH.md` (section 9 pour les étiquettes).
 
-## Pourquoi on s'arrête
+## Pourquoi le sprint de novembre a été arrêté
 
 | Étape de l'ancien plan | Déjà fait par | Résultat |
 | --- | --- | --- |
@@ -56,7 +59,7 @@ Ce qui a changé le 22/11 au soir :
   bicubique. D'autres rendus Python atteignent 0,9999 avec ces conventions (AndreasHad04/villa-apple-silicon).
 - `imagecodecs` ajouté aux dépendances (les TIFF officiels sont compressés en LZW).
 
-## Observation sur les données de validation (non exploitée)
+## Les 9 zones de validation réservées (nos données de mesure)
 
 Les checkpoints `ink_9um` déclarent 9 `reserved_validation_cases`. Les sources que nous avons lues (veille de
 Jonathan, 25 dépôts) écrivent toutes que seuls 3 masques de validation sont tenus à l'écart (0,66 cm²), et
@@ -74,32 +77,42 @@ Ce que nous avons mesuré sur les masques publics (aucun modèle) :
 - Les étiquettes d'encre du dépôt 9 µm couvrent déjà ces zones. Il ne manque que le fichier de masque.
 - Le jumeau natif du cas pherc0139-w028 (segment w044) ne couvre pas sa zone réservée.
 
-Test de mémorisation (checkpoint s43-75k, fenêtre centrée, sens direct), interrompu à l'arrêt du sprint.
+Test de mémorisation (checkpoint s43-75k, fenêtre centrée, sens direct), terminé le 22/11 sur les 9 cas.
 Un checkpoint tardif retrouve presque parfaitement ses pixels d'entraînement ; une zone jamais vue reste bien
-en dessous.
+en dessous. Colonnes : précision équilibrée à 0,5 / F1 à 0,5 / AUC.
 
-| Cas | Masque publié à 9 µm ? | Zone réservée : précision équilibrée / F1 / AUC | Pixels d'entraînement du même segment |
+| Cas | Masque publié à 9 µm ? | Zone réservée | Pixels d'entraînement du même segment |
 | --- | --- | --- | --- |
 | pherc0139-w016 | oui | 0,810 / 0,720 / 0,937 | 0,975 / 0,955 / 0,994 |
 | pherc0814-46527 | oui | 0,773 / 0,712 / 0,863 | 0,992 / 0,988 / 0,9998 |
+| pherc1667-w029 | oui | 0,838 / 0,758 / 0,930 | 0,989 / 0,983 / 0,9996 |
 | pherc0139-w028 | non (S3) | 0,731 / 0,610 / 0,841 | 0,989 / 0,980 / 0,9995 |
 | pherc0139-w029 | non (S3) | 0,783 / 0,700 / 0,879 | 0,936 / 0,911 / 0,976 |
-| pherc1667-w018, w023, w028, w031 (non publiés) et w029 (publié) | | non testés | |
+| pherc1667-w018 | non (S3) | 0,734 / 0,600 / 0,830 | 0,944 / 0,909 / 0,986 |
+| pherc1667-w023 | non (S3) | 0,643 / 0,439 / 0,769 | 0,980 / 0,966 / 0,998 |
+| pherc1667-w028 | non (S3) | 0,818 / 0,737 / 0,926 | 0,992 / 0,987 / 0,9996 |
+| pherc1667-w031 | non (S3) | 0,687 / 0,539 / 0,810 | 0,986 / 0,976 / 0,9992 |
 
-Lecture : les deux zones non publiées testées se comportent comme des zones jamais vues, pas comme des pixels
-d'entraînement.
+Lecture : les 6 zones non publiées ont le score d'une zone jamais vue (F1 de 0,44 à 0,74, AUC de 0,77 à 0,93),
+très loin des pixels d'entraînement des mêmes segments (F1 de 0,91 à 0,99). En moyenne pondérée par pixel, l'AUC
+vaut 0,83 dans les 6 zones non publiées contre 0,92 dans les 3 zones publiées : les zones isolées de
+l'entraînement sont plus difficiles. C'est un indice de fuite sur les 3 masques publiés, pas une preuve (ce ne
+sont pas les mêmes zones).
+
+Contrôle : sur les 3 masques publiés, on retrouve les chiffres de Domenico Russo pour s43-75k (0,810 / 0,937,
+0,772 / 0,863, 0,837 / 0,930 en précision équilibrée et AUC).
 
 Limites à garder en tête :
 
-- 2 zones non publiées sur 6 passées au test de mémorisation. L'audit des masques, lui, couvre les 9 cas.
-- La recherche d'antériorité n'est pas terminée : aucune des 25 sources lues ne mentionne ces zones, mais le
-  balayage systématique (tickets et PR de villa, notes de khj1222) a été interrompu.
+- Un seul checkpoint testé (s43-75k). Les pixels d'entraînement sont un échantillon de 6 îlots au plus par segment.
+- La recherche d'antériorité n'a rien trouvé dans les 25 sources lues, mais n'est pas exhaustive.
 - Ces zones ne sont tenues à l'écart que pour la recette `ink_9um`. Les modèles distillés (reader-v2, reader-v3,
   hecate) ont appris sur des cartes couvrant des segments entiers.
 - Elles restent dans des rouleaux vus à l'entraînement : ce n'est pas une mesure de généralisation entre rouleaux.
+- Règle du projet : jamais d'étiquette ni d'entraînement dans ces 9 zones.
 
 Reproduire : `python scripts/audit_reserved_validation.py` (masques seuls, quelques minutes sur CPU), puis
-`--memo s43-75k` pour le test de mémorisation (30 à 60 min sur CPU).
+`--memo s43-75k` pour le test de mémorisation (environ 20 min sur CPU).
 
 ## Ce qu'on a appris d'autre
 
@@ -137,17 +150,16 @@ Reproduire : `python scripts/audit_reserved_validation.py` (masques seuls, quelq
 - `vesuvius_ink_adapt/evalset.py` : segments étiquetés publics, étiquettes, découpage en zones, entrées réduites
   à 21 couches. **Expérimental.**
 - `scripts/audit_reserved_validation.py` : audit des zones réservées et test de mémorisation.
+- `scripts/inventory.py` : inventaire des scans, surfaces, cartes d'encre et étiquettes publiées, écrit
+  `docs/INVENTAIRE.md`.
 - `scripts/build_evalset.py` : construction de zones d'évaluation. **Expérimental**, essayé sur deux segments.
 - `scripts/` (autres) : outils CPU d'origine (listing S3, rendu CPU, inférence CPU).
 - `kaggle/vesuvius_pherc1203_sweep.py` : script du balayage E2. Il n'a pas `infer_roi` et n'en a pas besoin
   (surfaces entières).
 - `tests/validate_against_official.py` : la validation ci-dessus.
 
-## Si quelqu'un reprend un jour (pistes, pas un plan)
+## Pistes notées, hors du plan actuel
 
-- Signaler à l'équipe les 6 masques de validation absents du dépôt 9 µm (ticket sur villa ou message Discord
-  écrit par Jonathan). C'est la seule chose de ce dépôt que nous n'avons vue nulle part ailleurs.
-- Finir le test de mémorisation sur les 4 zones restantes de PHerc. 1667, et chercher l'antériorité.
 - Tickets ouverts de villa repérés et non étudiés : #1481 (zéros de remplissage dans la normalisation robuste de
   l'inférence), #1845 (maillage grossier, −0,04 d'AUC), #2627 (profondeur inversée du modèle 2,4 µm).
 - Corriger les conventions du rendu (centre du pixel, couches centrées sur (N − 1) / 2) et relancer la validation.

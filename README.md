@@ -4,14 +4,20 @@ Run the [Vesuvius Challenge](https://scrollprize.org) 9 µm ink-detection pipeli
 Kaggle GPU: stream a scroll's CT volume from the public bucket, render any `tifxyz` surface, and run the
 [`scrollprize/ink_9um`](https://huggingface.co/scrollprize/ink_9um) models, with no C++ build and no local GPU.
 
-**Status (22 November 2026): the sprint for the November 2026 Progress Prizes was stopped, with no submission.**
-A prior-art survey showed that every step of the plan (baseline scores of `ink_9um`, label-free depth selection,
-test-time entropy minimisation, checkpoint ensembles, C++-free inference) had already been published by others,
-often with negative results. See [`docs/STATUS.md`](docs/STATUS.md), [`docs/HANDOFF.md`](docs/HANDOFF.md) and
-[`docs/RESEARCH.md`](docs/RESEARCH.md) (in French). The code below works and stays available.
-`docs/HANDOFF.md` also records one observation that we did not see elsewhere: six of the nine reserved validation
-zones of `ink_9um` are missing from the 9 µm label release but are public on the open-data bucket
-(`scripts/audit_reserved_validation.py`; partly verified, see the caveats there).
+**Status (22 November 2026).** The November sprint (label-free adaptation of `ink_9um`) was stopped: a prior-art
+survey showed that every step of that plan had already been published by others, often with negative results
+([`docs/RESEARCH.md`](docs/RESEARCH.md), in French).
+
+**New goal:** publish hand-verified ink labels at ~9 µm by the end of December 2026, together with a labelling
+tool that works with a stylus on a tablet and a measurement of what the labels bring to a model. Hand-corrected
+labels already exist for PHerc0814, PHerc0841 and PHerc0009B (Priyank Aranke); we target objects where only
+model-derived labels exist. Plan: [`docs/PLAN.md`](docs/PLAN.md). Inventory of scans and existing labels:
+[`docs/INVENTAIRE.md`](docs/INVENTAIRE.md). No labels are ever made on a scroll eligible for the First Letters
+prize.
+
+One observation recorded in [`docs/HANDOFF.md`](docs/HANDOFF.md): six of the nine reserved validation zones of
+`ink_9um` are missing from the 9 µm label release but are public on the open-data bucket
+(`scripts/audit_reserved_validation.py`).
 
 ## What works today
 
@@ -45,6 +51,7 @@ prob, n_patches = core.infer(surface, model, start=6, reverse=False)       # ink
 - `vesuvius_ink_adapt/evalset.py` and `scripts/build_evalset.py`: labelled public segments cut into small
   evaluation zones (experimental).
 - `scripts/audit_reserved_validation.py`: mask-only audit of the reserved validation zones of `ink_9um`.
+- `scripts/inventory.py`: inventory of scans, surfaces, ink maps and published ink labels per scroll.
 - `kaggle/`: the self-contained Kaggle script used for the PHerc. 1203 sweep, and a metadata template.
 - `scripts/`: CPU-only tools (S3 listing and download, CPU renderer, CPU inference).
 - `tests/validate_against_official.py`: reproduces the checks above.
