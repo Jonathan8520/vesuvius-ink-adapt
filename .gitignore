@@ -1,0 +1,19 @@
+# données et sorties (lourdes, et jamais de résultat First Letters dans le dépôt public)
+data/
+outputs/
+renders/
+preds/
+kaggle_out/
+*.zarr/
+*.npy
+*.pth
+*.ckpt
+# secrets
+.env
+kaggle.json
+access_token
+kernel-metadata.json
+# Python
+__pycache__/
+*.pyc
+.venv/

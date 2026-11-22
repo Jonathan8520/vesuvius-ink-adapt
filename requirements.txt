@@ -1,0 +1,8 @@
+numpy>=1.26
+torch>=2.1
+tifffile
+requests
+pillow
+scipy
+zarr<3
+numcodecs
