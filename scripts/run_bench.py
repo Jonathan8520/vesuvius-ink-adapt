@@ -73,6 +73,7 @@ def main():
     ap.add_argument("--batch", type=int, default=64)
     ap.add_argument("--shard", default="0/1", help="i/n : ne lance que les couples (branche, graine) d'indice i modulo n")
     ap.add_argument("--eval-only", nargs="*", help="noms de segments d'évaluation à garder (essais)")
+    ap.add_argument("--eval-at", default="", help="pas intermédiaires où noter aussi, séparés par des virgules")
     a = ap.parse_args()
     out = a.out or os.path.join(a.bench, "results")
     os.makedirs(out, exist_ok=True)
@@ -107,7 +108,8 @@ def main():
             log(f"{len(packs[key])} paquets de tuiles chargés en {round(time.time() - t0)} s")
         log(f"--- branche {arm}, graine {seed}, {steps} pas, quotas {quotas}")
         res, _ = FT.run_arm(a.bench, a.ckpt, arm, seed, steps, quotas, versions, lr=a.lr, warmup=a.warmup,
-                            packs=packs.get(key, []), log=log, eval_only=a.eval_only)
+                            packs=packs.get(key, []), log=log, eval_only=a.eval_only,
+                            eval_at=[int(v) for v in a.eval_at.split(",") if v], out=out)
         res["checkpoint"] = a.ckpt
         for s, v in sorted(res["scores"].items()):
             log(f"  {s:22s} BA {v['ba']:.4f}  F1 {v['f1']:.4f}  AUC {v['auc']:.4f}  ({v['px']} px)")

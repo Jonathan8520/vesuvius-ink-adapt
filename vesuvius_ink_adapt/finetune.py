@@ -139,10 +139,15 @@ def scores(prob, ink):
                 f1=round(2 * tp / max(1, 2 * tp + (int(pred.sum()) - tp) + (pos - tp)), 4), auc=round(float(auc), 4))
 
 
-def evaluate(model, eval_dir, only=None):
-    """Note le modèle sur chaque segment d'évaluation (grille de tuiles officielle, fenêtre centrée, sens direct)."""
+def evaluate(model, eval_dir, only=None, block=128):
+    """Note le modèle sur chaque segment d'évaluation (grille de tuiles officielle, fenêtre centrée, sens direct).
+
+    Renvoie (scores par segment, histogrammes par bloc). Les histogrammes (256 classes de probabilité, encre et
+    fond, par bloc de `block` px de la grille globale) servent au bootstrap par blocs ; le seuil 0,5 est la
+    classe 128.
+    """
     model.eval()
-    by_seg = {}
+    by_seg, hists = {}, {}
     for path in sorted(glob.glob(os.path.join(eval_dir, "*.npz"))):
         seg = os.path.basename(path).rsplit("_", 1)[0]
         if only and seg not in only:
@@ -161,12 +166,35 @@ def evaluate(model, eval_dir, only=None):
         prob, _ = core.infer_roi(read, (int(H), int(W)), roi, model, core.center_window(img.shape[0]))
         sl = (slice(roi[0] - y0, roi[1] - y0), slice(roi[2] - x0, roi[3] - x0))
         m = mask[sl]
-        by_seg.setdefault(seg, []).append((prob[m], ink[sl][m]))
-    return {seg: scores(np.concatenate([p for p, _ in v]), np.concatenate([y for _, y in v])) for seg, v in by_seg.items()}
+        p, y = prob[m], ink[sl][m]
+        by_seg.setdefault(seg, []).append((p, y))
+        yy, xx = np.nonzero(m)
+        key = ((roi[0] + yy) // block) * 100000 + (roi[2] + xx) // block
+        keys, inv = np.unique(key, return_inverse=True)
+        bins = np.minimum((p * 256).astype(np.int64), 255)
+        h = np.zeros((2, len(keys), 256), np.uint32)
+        np.add.at(h, (y.astype(np.int64), inv, bins), 1)          # h[1] : encre, h[0] : fond
+        hists.setdefault(seg, []).append((keys, h))
+    scores_by_seg = {seg: scores(np.concatenate([p for p, _ in v]), np.concatenate([y for _, y in v])) for seg, v in by_seg.items()}
+    blocks = {}
+    for seg, v in hists.items():
+        allk = np.unique(np.concatenate([k for k, _ in v]))
+        hh = np.zeros((2, len(allk), 256), np.uint32)
+        for k, h in v:
+            hh[:, np.searchsorted(allk, k)] += h
+        blocks[seg] = (allk, hh)
+    return scores_by_seg, blocks
+
+
+def save_blocks(path, blocks):
+    arrays = {}
+    for seg, (keys, h) in blocks.items():
+        arrays[seg + "__cles"], arrays[seg + "__hist"] = keys, h
+    np.savez_compressed(path, **arrays)
 
 
 # ------------------------------------------------------------------ affinage
-def finetune(model, sampler, steps, lr=0.002, warmup=100, seed=0, log_every=50, log=print):
+def finetune(model, sampler, steps, lr=0.002, warmup=100, seed=0, log_every=50, log=print, eval_at=(), eval_fn=None):
     dev = next(model.parameters()).device
     amp = dev.type == "cuda"
     opt = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.99, nesterov=True, weight_decay=3e-5)
@@ -196,22 +224,36 @@ def finetune(model, sampler, steps, lr=0.002, warmup=100, seed=0, log_every=50, 
             curve.append((step + 1, round(run / n, 4)))
             log(f"pas {step + 1}/{steps} perte {run / n:.4f} {(time.time() - t0) / (step + 1):.2f} s/pas")
             run = 0.0
+        if eval_fn is not None and (step + 1) in eval_at and step + 1 < steps:
+            eval_fn(step + 1)
+            model.train()
     model.eval()
     return curve
 
 
-def run_arm(bench, ckpt, arm, seed, steps, quotas, versions, lr=0.002, warmup=100, packs=None, log=print, eval_only=None):
-    """Une branche : part du checkpoint, affine, note. `versions` : nom du pack -> "h" ou "t"."""
+def run_arm(bench, ckpt, arm, seed, steps, quotas, versions, lr=0.002, warmup=100, packs=None, log=print,
+            eval_only=None, eval_at=(), out=None):
+    """Une branche : part du checkpoint, affine, note. `versions` : nom du pack -> "h" ou "t".
+    Si `out` est donné, les histogrammes par bloc de chaque notation y sont écrits."""
     torch.manual_seed(seed)
     np.random.seed(seed)
     model = core.load_model(ckpt)
-    t0, curve = time.time(), []
+    t0, curve, stages = time.time(), [], {}
+
+    def note(step):
+        res, blocks = evaluate(model, os.path.join(bench, "eval"), eval_only)
+        stages[str(step)] = res
+        if out:
+            save_blocks(os.path.join(out, f"blocs_{arm}_g{seed}_p{step}.npz"), blocks)
+        return res
+
     if steps:
         packs = packs if packs is not None else load_packs(bench, quotas)
-        curve = finetune(model, Sampler(packs, quotas, versions, seed), steps, lr=lr, warmup=warmup, seed=seed, log=log)
-    res = evaluate(model, os.path.join(bench, "eval"), eval_only)
+        curve = finetune(model, Sampler(packs, quotas, versions, seed), steps, lr=lr, warmup=warmup, seed=seed,
+                         log=log, eval_at=eval_at, eval_fn=note)
+    res = note(steps)
     return dict(branche=arm, graine=seed, pas=steps, lr=lr, quotas=quotas, versions=versions, courbe=curve,
-                secondes=round(time.time() - t0), scores=res), model
+                secondes=round(time.time() - t0), scores=res, etapes=stages), model
 
 
 def load_packs(bench, quotas):

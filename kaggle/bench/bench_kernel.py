@@ -16,13 +16,14 @@ import time
 CONFIG = {
     "branch": "claude/jolly-shannon-2xycqz",
     "ckpt": "s43-75k",
-    "arms": "base,C,T,H",
-    "seeds": "0",
-    "steps": 30,
+    "arms": "base,C,T,H",       # base : checkpoint publié ; C : témoin ; T : carte du modèle 2 µm ; H : étiquettes humaines
+    "seeds": "0,1,2,3,4",
+    "steps": 1000,
     "lr": 0.002,
-    "warmup": 10,
+    "warmup": 100,
     "batch": 64,
-    "eval_only": ["pherc0814-46527", "pherc0139-w016"],   # liste vide : tous les segments d'évaluation
+    "eval_at": "250,500",       # notations intermédiaires
+    "eval_only": [],            # liste vide : tous les segments d'évaluation
 }
 WORK = os.environ.get("OUT_DIR", "/kaggle/working")
 T0 = time.time()
@@ -85,7 +86,7 @@ def main():
         cmd = [sys.executable, os.path.join(repo, "scripts", "run_bench.py"), "--bench", bench, "--out", out,
                "--ckpt", CONFIG["ckpt"], "--arms", CONFIG["arms"], "--seeds", CONFIG["seeds"],
                "--steps", str(CONFIG["steps"]), "--lr", str(CONFIG["lr"]), "--warmup", str(CONFIG["warmup"]),
-               "--batch", str(CONFIG["batch"]), "--shard", f"{i}/{n}"]
+               "--batch", str(CONFIG["batch"]), "--shard", f"{i}/{n}", "--eval-at", CONFIG.get("eval_at", "")]
         if CONFIG["eval_only"]:
             cmd += ["--eval-only"] + CONFIG["eval_only"]
         env = dict(os.environ, CUDA_VISIBLE_DEVICES=str(i), CKPT_DIR="/tmp/ink_9um", PYTHONUNBUFFERED="1")
