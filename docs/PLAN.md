@@ -92,11 +92,14 @@ de reader-v2, donc pas dans l'entraînement de reader-v3. À confirmer par la r�
       - [x] a. Tri de lisibilité (22/11).
       - [x] b. Recalage du scan fin vers la surface 9 µm : `scripts/register_fine_to_native.py`, résidu médian
             0,4 px sur les 8 couches de PHerc0500P2 (A7).
-      - [ ] c. Pré-étiquette : carte du modèle 2 µm reportée, encre si ≥ 128, fond si ≤ 64 (le meilleur seuil
-            mesuré sur `--1` est 121). Carte de reader-v3 à calculer pour comparaison.
+      - [x] c. Pré-étiquette : carte du modèle 2 µm reportée (`scripts/make_prelabels.py`, faite pour les 8
+            couches), encre si ≥ 128, fond si ≤ 64 (le meilleur seuil mesuré sur `--1` est 121).
+            Reste à faire : carte de reader-v3 pour comparaison.
       - [ ] d. Choix des tuiles : moitié par incertitude (confiance du modèle 2 µm), moitié au hasard parmi les
             tuiles qui contiennent de l'encre. On mesure laquelle sert le plus : c'est une question ouverte.
-- [ ] **3. Appli web au stylet.** Page statique sans serveur, à écrire (rien d'existant ne convient) : canvas 2D
+- [ ] **3. Appli web au stylet.** Version 0.1 écrite et essayée dans un navigateur de test (`app/index.html`,
+      journal A9), publiée en page privée avec le lot d'étalonnage. Reste à faire : l'essai sur la tablette.
+      Page statique sans serveur (rien d'existant ne convient) : canvas 2D
       et Pointer Events, le stylet peint, deux doigts déplacent, trois états (encre, fond, je ne sais pas),
       couches CT et carte du modèle à bascule, minuteur de 20 minutes, sauvegarde locale, export à chaque fin de
       séance, journal des traits (preuve de la vérification humaine et mesure du temps).

@@ -56,6 +56,9 @@ prob, n_patches = core.infer(surface, model, start=6, reverse=False)       # ink
 - `scripts/build_bench.py`, `vesuvius_ink_adapt/finetune.py`, `scripts/run_bench.py`, `kaggle/bench/`: a small
   paired fine-tuning bench: same recipe, only the source of the added labels changes (human or 2 µm model map).
 - `scripts/teacher_vs_team.py`: the team's 2 µm model map against the team's human labels.
+- `app/index.html`: a static, dependency-free page to verify ink pre-labels with a stylus on a tablet (pen paints,
+  two fingers pan and zoom, three classes, fill, undo, 20-minute timer). Tiles come from
+  `scripts/make_app_tiles.py`; `scripts/read_app_labels.py` decodes and scores what the page saves.
 - `scripts/audit_reserved_validation.py`: mask-only audit of the reserved validation zones of `ink_9um`.
 - `scripts/inventory.py`: inventory of scans, surfaces, ink maps and published ink labels per scroll.
 - `kaggle/`: the self-contained Kaggle script used for the PHerc. 1203 sweep, and a metadata template.

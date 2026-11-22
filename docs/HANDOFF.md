@@ -172,6 +172,11 @@ Reproduire : `python scripts/audit_reserved_validation.py` (masques seuls, quelq
   d'étiquettes) et zones d'évaluation du banc.
 - `vesuvius_ink_adapt/finetune.py`, `scripts/run_bench.py`, `kaggle/bench/` : affinage court d'`ink_9um`,
   notation, branches `base`, `C`, `T`, `H`, et script Kaggle.
+- `app/index.html` : l'appli d'étiquetage au stylet (page statique). Publiée en artifact privé
+  https://claude.ai/artifact/KkqKvAT9n2jTRyAqYhKrh9 (seul Jonathan peut l'ouvrir), avec le lot `etalon-m1` ; ses
+  étiquettes arrivent dans la base de l'artifact, collection `etiquettes`.
+- `scripts/make_prelabels.py`, `scripts/make_app_tiles.py`, `scripts/read_app_labels.py` : cartes de
+  pré-étiquettes sur le canevas natif, tuiles de l'appli, relecture et score des étiquettes rendues.
 - `scripts/audit_reserved_validation.py` : audit des zones réservées et test de mémorisation.
 - `scripts/inventory.py` : inventaire des scans, surfaces, cartes d'encre et étiquettes publiées, écrit
   `docs/INVENTAIRE.md`.

@@ -257,3 +257,32 @@ Ne jamais noter ici de découverte de lettres sur un rouleau éligible au First 
   de test dessinées par l'équipe comme celles de la branche `H` (avantage de style possible).
 - Fichiers : `scripts/build_bench.py`, `vesuvius_ink_adapt/finetune.py`, `scripts/run_bench.py`,
   `kaggle/bench/bench_kernel.py`.
+
+## A9 : appli au stylet, version 0.1, et lot d'étalonnage (22 et 23/11/2026)
+
+- But : étape 3 du plan. Une page que Jonathan ouvre sur sa tablette pour vérifier les pré-étiquettes, et un
+  premier lot en aveugle sur la couche `--1` de PHerc0500P2, déjà annotée par l'équipe.
+- Tuiles (`scripts/make_app_tiles.py`) : 6 tuiles sans recouvrement, chacune de 1 536 px natifs de côté (14,4 mm),
+  travaillées à demi-résolution (768 px, 18,7 µm par pixel) pour voir plusieurs lettres et deux ou trois lignes à
+  la fois. Par tuile : une planche JPEG de 7 panneaux (composite CT, 5 couches CT, carte du modèle 2 µm reportée)
+  et une pré-étiquette PNG (encre si carte ≥ 128, fond si ≤ 64, « je ne sais pas » entre les deux, hors papyrus
+  verrouillé). 8,1 Mo en tout. Le lot couvre 2,46 cm² supervisés par l'équipe ; les étiquettes de l'équipe ne sont
+  pas dans le lot. La zone montrée dans `docs/img/pherc0500p2_m1_carte_vs_humain.png` est retirée du score.
+- Appli (`app/index.html`, page statique sans dépendance) : le stylet ou la souris peint, deux doigts déplacent et
+  zooment, trois classes, pinceaux de trois tailles, « Remplir » pour accepter ou rejeter une tache entière,
+  annuler et rétablir, bascule carte ou couches CT, contour franc et remplissage translucide réglable, minuteur de
+  20 minutes de travail effectif, reprise là où l'on s'est arrêté, journal des traits. « Valider » signifie que
+  toute la tuile a été regardée : est supervisé tout ce qui n'est pas « je ne sais pas ».
+- Stockage : base de l'artifact (collection `etiquettes`, un document par tuile, étiquettes codées en plages,
+  environ 23 Ko), copie locale dans le navigateur dans tous les cas, « copie de secours » à copier si la base ne
+  répond pas.
+- Essais (Chromium sans écran, 1 333 × 800, tactile) : trait à la souris, annulation, remplissage, trait au stylet
+  (événement `pointerType: pen`), zoom à deux doigts, changement de vue, validation, rechargement avec reprise à
+  la tuile suivante, largeur de téléphone sans défilement horizontal, aucune erreur de console. Base de
+  l'artifact : écriture, lecture et suppression d'un document d'essai par la session.
+- Pas encore essayé : l'écriture par la page elle-même dans la base (seulement dans le visualiseur de claude.ai),
+  et le stylet réel de la Galaxy Tab S6 Lite. C'est l'objet de la première séance.
+- Relecture et score (`scripts/read_app_labels.py`) : décode les documents, compare aux étiquettes de l'équipe
+  (IoU, précision, rappel, part laissée en doute), et donne le débit en cm² par heure. Contrôle : sur une tuile non
+  corrigée, la pré-étiquette obtient un IoU de 0,68 avec l'équipe (précision 0,72, rappel 0,93).
+- Fichiers : `app/index.html`, `scripts/make_app_tiles.py`, `scripts/make_prelabels.py`, `scripts/read_app_labels.py`.

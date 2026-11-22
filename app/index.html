@@ -1,0 +1,446 @@
+<title>Atelier d'encre</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Mise en page : barre d'état en haut, image plein cadre, outils en bas. Thème sombre unique : on juge des gris. */
+:root {
+  --bg: #121418; --panel: #1c2027; --panel-2: #262b34; --line: #363d49;
+  --fg: #e8ebf0; --muted: #98a2b3;
+  --ink: #ff6a4d; --unknown: #f2c94c; --ok: #3ecf8e; --warn: #f2994a;
+  --ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --num: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--ui); font-size: 15px; display: flex; flex-direction: column; overflow: hidden; }
+.bar { background: var(--panel); border-bottom: 1px solid var(--line); flex: none; }
+.bar-in { padding-block: 8px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
+.name { font-weight: 650; letter-spacing: .01em; }
+.muted { color: var(--muted); }
+.num { font-family: var(--num); font-variant-numeric: tabular-nums; }
+.spacer { flex: 1 1 0; min-width: 0; }
+.pill { border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; font-size: 13px; white-space: nowrap; }
+.pill.ok { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 50%, var(--line)); }
+.pill.warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 50%, var(--line)); }
+#stage { position: relative; flex: 1 1 0; min-height: 0; background: #0b0c0f; }
+#cv { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; cursor: crosshair; }
+#toast { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; max-width: min(92%, 520px); text-align: center; pointer-events: none; }
+#viewtag { position: absolute; left: max(12px, env(safe-area-inset-left, 0px)); top: 10px; background: color-mix(in srgb, var(--panel) 82%, transparent); border: 1px solid var(--line); border-radius: 6px; padding: 3px 9px; font-size: 13px; pointer-events: none; }
+.tools { background: var(--panel); border-top: 1px solid var(--line); flex: none; }
+.tools .bar-in { gap: 8px 14px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+.group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.label { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+button { font: inherit; color: var(--fg); background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; min-height: 46px; min-width: 46px; padding: 6px 12px; cursor: pointer; touch-action: manipulation; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+button[aria-pressed="true"] { border-color: var(--fg); background: #343b47; }
+button:disabled { opacity: .4; cursor: default; }
+button.primary { background: var(--ok); border-color: var(--ok); color: #06281a; font-weight: 650; }
+.sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 7px; vertical-align: -1px; border: 1px solid #0006; }
+.sw.ink { background: var(--ink); } .sw.unk { background: var(--unknown); } .sw.bgc { background: #4b5563; }
+input[type="range"] { width: 110px; accent-color: var(--fg); }
+#help { position: absolute; inset: 0; background: #0b0c0fe6; display: flex; align-items: center; justify-content: center; padding: 16px; overflow: auto; }
+#help .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; max-width: 560px; line-height: 1.5; }
+#help h1 { font-size: 20px; margin: 0 0 10px; text-wrap: balance; }
+#help ul { margin: 8px 0 14px; padding-left: 20px; } #help li { margin: 5px 0; }
+#backup { width: 100%; height: 120px; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; font-family: var(--num); font-size: 12px; }
+@media (prefers-reduced-motion: no-preference) { button { transition: background .12s; } }
+</style>
+
+<header class="bar"><div class="bar-in">
+  <span class="name">Atelier d'encre</span>
+  <span class="muted" id="lot">chargement</span>
+  <span class="pill num" id="count">tuile 0 / 0</span>
+  <span class="spacer"></span>
+  <span class="pill num" id="timer" title="Temps de travail restant dans la séance">20:00</span>
+  <span class="pill" id="save">pas encore enregistré</span>
+</div></header>
+
+<main id="stage">
+  <canvas id="cv"></canvas>
+  <div id="viewtag">Carte du modèle</div>
+  <div id="toast" hidden></div>
+  <div id="help">
+    <div class="card">
+      <h1>Vérifier les lettres, tuile par tuile</h1>
+      <div>L'image grise est la carte d'un modèle : plus c'est clair, plus il pense voir de l'encre. La couleur par-dessus est la proposition à corriger.</div>
+      <ul>
+        <li><span class="sw ink"></span><b>Rouge</b> : encre. À garder seulement sur les traits nets, qui ressemblent à des morceaux de lettres.</li>
+        <li><span class="sw bgc"></span><b>Sans couleur</b> : fond, pas d'encre.</li>
+        <li><span class="sw unk"></span><b>Jaune</b> : je ne sais pas. À utiliser sans retenue dès qu'il y a un doute.</li>
+        <li>Le <b>stylet</b> peint. <b>Deux doigts</b> déplacent et zooment. « Remplir » change d'un coup toute une tache.</li>
+        <li>« Valider » veut dire : j'ai regardé toute la tuile. Ce qui reste en rouge ou sans couleur est vérifié par toi.</li>
+      </ul>
+      <div class="muted" id="helpnote"></div>
+      <div class="muted" style="font-size:12px; margin-top:8px">Images dérivées de « Vesuvius Challenge - CT Scans of Herculaneum Papyri », CC BY-NC 4.0. Fragment PHerc. 500P2, qui n'est éligible à aucun prix.</div>
+      <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap">
+        <button class="primary" id="go" type="button">Commencer</button>
+        <button id="showbackup" type="button">Copie de secours</button>
+      </div>
+      <textarea id="backup" hidden readonly aria-label="Copie de secours des étiquettes"></textarea>
+    </div>
+  </div>
+</main>
+
+<footer class="tools"><div class="bar-in">
+  <div class="group" role="group" aria-label="Classe">
+    <button id="c2" type="button" aria-pressed="true"><span class="sw ink"></span>Encre</button>
+    <button id="c1" type="button" aria-pressed="false"><span class="sw bgc"></span>Fond</button>
+    <button id="c0" type="button" aria-pressed="false"><span class="sw unk"></span>Je ne sais pas</button>
+  </div>
+  <div class="group" role="group" aria-label="Outil">
+    <button id="fill" type="button" aria-pressed="false">Remplir</button>
+    <button id="r1" type="button" aria-pressed="false" aria-label="Petit pinceau">S</button>
+    <button id="r2" type="button" aria-pressed="true" aria-label="Pinceau moyen">M</button>
+    <button id="r3" type="button" aria-pressed="false" aria-label="Gros pinceau">L</button>
+    <button id="undo" type="button" disabled>Annuler</button>
+    <button id="redo" type="button" disabled>Rétablir</button>
+  </div>
+  <div class="group" role="group" aria-label="Affichage">
+    <button id="vmap" type="button" aria-pressed="true">Carte</button>
+    <button id="vct" type="button" aria-pressed="false">CT</button>
+    <button id="vprev" type="button" aria-label="Couche CT précédente">◀</button>
+    <button id="vnext" type="button" aria-label="Couche CT suivante">▶</button>
+    <button id="peek" type="button" aria-pressed="false">Cacher la couleur</button>
+    <label class="label" for="alpha">Opacité</label>
+    <input id="alpha" type="range" min="10" max="90" value="45">
+    <button id="fit" type="button">Recentrer</button>
+  </div>
+  <span class="spacer"></span>
+  <div class="group">
+    <button id="prev" type="button">Précédente</button>
+    <button id="help2" type="button">Aide</button>
+    <button id="pause" type="button" aria-pressed="false">Pause</button>
+    <button class="primary" id="next" type="button">Valider et suivante</button>
+  </div>
+</div></footer>
+
+<script>
+(function () {
+  "use strict";
+  var VERSION = "v0.1";
+  var SESSION_S = 20 * 60;
+  var RADII = { r1: 3, r2: 7, r3: 14 };            // rayon du pinceau en pixels de tuile
+  var COLORS = { 0: [242, 201, 76, 200], 2: [255, 106, 77, 255] };   // 1 (fond) et 3 (hors papyrus) : transparents
+  var $ = function (id) { return document.getElementById(id); };
+  var cv = $("cv"), ctx = cv.getContext("2d");
+  var S = 768, manifest = null, tiles = [], cur = -1;
+  var sprite = null, lab = null, pre = null, overlay = null, octx = null, oimg = null;
+  var view = { z: 1, tx: 0, ty: 0 }, panel = 6, ctPanel = 0, hideOverlay = false;
+  var tool = { cls: 2, r: RADII.r2, fill: false };
+  var undo = [], redo = [], stroke = null, journal = [], counts = { traits: 0, remplissages: 0 };
+  var tileSeconds = 0, sessionSeconds = 0, paused = true, lastTick = 0, dirty = false, raf = 0, sessionOver = false;
+  var pointers = new Map(), pinch = null, lastPen = 0, penDown = false;
+  var store = { db: null, ready: false, remote: {} };
+  var done = {};                                    // id de tuile -> document enregistré
+
+  // ---------- codage des étiquettes : suites (classe, longueur) en octets, puis base64
+  function rleEncode(a) {
+    var out = [], i = 0, n = a.length;
+    while (i < n) {
+      var v = a[i], j = i + 1;
+      while (j < n && a[j] === v) j++;
+      var run = j - i;
+      out.push(v);
+      while (run >= 128) { out.push((run & 127) | 128); run >>>= 7; }
+      out.push(run);
+      i = j;
+    }
+    var s = "";
+    for (var k = 0; k < out.length; k += 8192) s += String.fromCharCode.apply(null, out.slice(k, k + 8192));
+    return btoa(s);
+  }
+  function rleDecode(b64, n) {
+    var s = atob(b64), a = new Uint8Array(n), p = 0, i = 0;
+    while (i < s.length && p < n) {
+      var v = s.charCodeAt(i++), run = 0, shift = 0, b;
+      do { b = s.charCodeAt(i++); run |= (b & 127) << shift; shift += 7; } while (b & 128);
+      a.fill(v, p, p + run); p += run;
+    }
+    return a;
+  }
+
+  // ---------- stockage : base de l'artifact si elle répond, copie locale dans tous les cas
+  function localGet(key) { try { return JSON.parse(localStorage.getItem("atelier:" + key) || "null"); } catch (e) { return null; } }
+  function localSet(key, doc) { try { localStorage.setItem("atelier:" + key, JSON.stringify(doc)); return true; } catch (e) { return false; } }
+  function setSave(text, kind) { var el = $("save"); el.textContent = text; el.className = "pill" + (kind ? " " + kind : ""); }
+  function initStore() {
+    if (!(window.claude && typeof window.claude.use === "function")) { store.ready = true; return Promise.resolve(); }
+    var timeout = new Promise(function (res) { setTimeout(res, 10000, null); });
+    return Promise.race([window.claude.use("db"), timeout]).then(function (db) {
+      store.db = db || null; store.ready = true;
+      if (!db) return;
+      var limit = new Promise(function (res) { setTimeout(res, 10000, null); });
+      return Promise.race([db.collection("etiquettes").get(), limit]).then(function (snap) {
+        if (!snap) return;
+        snap.docs.forEach(function (d) { store.remote[d.id] = d.data(); });
+      }).catch(function () {});
+    }).catch(function () { store.ready = true; });
+  }
+  var saving = Promise.resolve();
+  function saveDoc(doc) {
+    var okLocal = localSet(doc.tuile, doc);
+    done[doc.tuile] = doc;
+    if (!store.db) { setSave(okLocal ? "copie locale seulement" : "non enregistré", "warn"); if (doc.valide) toast(okLocal ? "Tuile gardée sur cet appareil." : "Cette tuile n'a pas pu être gardée."); return Promise.resolve(false); }
+    setSave("enregistrement…");
+    saving = saving.then(function () {              // une écriture à la fois
+      return store.db.doc("etiquettes/" + doc.tuile).set(doc).then(function () {
+        setSave("enregistré", "ok"); if (doc.valide) toast("Tuile enregistrée."); return true;
+      }).catch(function (e) {
+        setSave(okLocal ? "copie locale seulement" : "non enregistré", "warn");
+        toast("L'enregistrement en ligne a échoué (" + ((e && e.code) || "erreur") + "). La copie locale est gardée.");
+        return false;
+      });
+    });
+    return saving;
+  }
+
+  // ---------- chargement des tuiles
+  function loadImage(src) {
+    return new Promise(function (res, rej) { var im = new Image(); im.onload = function () { res(im); }; im.onerror = rej; im.src = src; });
+  }
+  function classesFromPng(im) {
+    var c = document.createElement("canvas"); c.width = S; c.height = S;
+    var x = c.getContext("2d", { willReadFrequently: true }); x.drawImage(im, 0, 0);
+    var d = x.getImageData(0, 0, S, S).data, a = new Uint8Array(S * S);
+    for (var i = 0; i < a.length; i++) { var g = d[4 * i]; a[i] = g > 191 ? 2 : (g > 95 ? 1 : (g > 31 ? 3 : 0)); }   // 3 : hors papyrus
+    return a;
+  }
+  function openTile(i) {
+    if (i < 0 || i >= tiles.length) return Promise.resolve();
+    var t = tiles[i];
+    cur = i; stroke = null; undo = []; redo = []; journal = []; counts = { traits: 0, remplissages: 0 }; tileSeconds = 0;
+    $("count").textContent = "tuile " + (i + 1) + " / " + tiles.length;
+    return Promise.all([loadImage(t.planche), loadImage(t.pre)]).then(function (r) {
+      sprite = r[0]; pre = classesFromPng(r[1]);
+      var saved = done[t.id];
+      if (saved && saved.rle) { lab = rleDecode(saved.rle, S * S); tileSeconds = saved.secondes || 0; counts = { traits: saved.traits || 0, remplissages: saved.remplissages || 0 }; journal = saved.journal || []; }
+      else lab = pre.slice();
+      if (!overlay) { overlay = document.createElement("canvas"); overlay.width = S; overlay.height = S; octx = overlay.getContext("2d"); oimg = octx.createImageData(S, S); }
+      paintOverlay(0, 0, S, S);
+      fitView(); updateButtons(); setSave(saved ? (saved.valide ? "déjà validée" : "brouillon repris") : "pas encore enregistré", saved && saved.valide ? "ok" : "");
+      draw();
+    }).catch(function () { toast("Impossible de charger cette tuile. Vérifie la connexion, puis réessaie."); });
+  }
+
+  // ---------- dessin
+  function resize() {
+    var r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.max(1, Math.round(r.width * dpr)); cv.height = Math.max(1, Math.round(r.height * dpr));
+    cv._dpr = dpr; draw();
+  }
+  function fitView() {
+    var r = cv.getBoundingClientRect();
+    view.z = Math.min(r.width, r.height) / S * 0.98;
+    view.tx = (r.width - S * view.z) / 2; view.ty = (r.height - S * view.z) / 2;
+  }
+  function paintOverlay(x0, y0, x1, y1) {
+    // remplissage translucide (réglé par « Opacité ») et contour franc, pour voir la carte sous l'étiquette
+    x0 = Math.max(0, x0 - 1); y0 = Math.max(0, y0 - 1); x1 = Math.min(S, x1 + 1); y1 = Math.min(S, y1 + 1);
+    var d = oimg.data, fillA = Math.round((+$("alpha").value) / 100 * 255);
+    for (var y = y0; y < y1; y++) for (var x = x0; x < x1; x++) {
+      var i = y * S + x, v = lab[i], c = COLORS[v], k = 4 * i;
+      if (!c) { d[k + 3] = 0; continue; }
+      var edge = (x > 0 && lab[i - 1] !== v) || (x < S - 1 && lab[i + 1] !== v) || (y > 0 && lab[i - S] !== v) || (y < S - 1 && lab[i + S] !== v);
+      d[k] = c[0]; d[k + 1] = c[1]; d[k + 2] = c[2]; d[k + 3] = edge ? 255 : Math.round(fillA * c[3] / 255);
+    }
+    octx.putImageData(oimg, 0, 0, x0, y0, x1 - x0, y1 - y0);
+  }
+  function draw() { if (!raf) raf = requestAnimationFrame(render); }
+  function render() {
+    raf = 0;
+    var dpr = cv._dpr || 1;
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#0b0c0f"; ctx.fillRect(0, 0, cv.width, cv.height);
+    if (!sprite) return;
+    ctx.setTransform(dpr * view.z, 0, 0, dpr * view.z, dpr * view.tx, dpr * view.ty);
+    ctx.imageSmoothingEnabled = view.z < 3;
+    ctx.drawImage(sprite, panel * S, 0, S, S, 0, 0, S, S);
+    if (!hideOverlay) ctx.drawImage(overlay, 0, 0);
+    ctx.lineWidth = 1 / view.z; ctx.strokeStyle = "#5b6472"; ctx.strokeRect(0, 0, S, S);
+  }
+  function toTile(e) { var r = cv.getBoundingClientRect(); return [(e.clientX - r.left - view.tx) / view.z, (e.clientY - r.top - view.ty) / view.z]; }
+
+  // ---------- peinture
+  function stamp(cx, cy, r, cls, st) {
+    var x0 = Math.max(0, Math.floor(cx - r)), x1 = Math.min(S, Math.ceil(cx + r) + 1);
+    var y0 = Math.max(0, Math.floor(cy - r)), y1 = Math.min(S, Math.ceil(cy + r) + 1), r2 = r * r;
+    for (var y = y0; y < y1; y++) for (var x = x0; x < x1; x++) {
+      var dx = x - cx, dy = y - cy;
+      if (dx * dx + dy * dy <= r2) { var i = y * S + x; if (lab[i] !== cls && lab[i] !== 3) { if (!st.old.has(i)) st.old.set(i, lab[i]); lab[i] = cls; } }
+    }
+    st.x0 = Math.min(st.x0, x0); st.y0 = Math.min(st.y0, y0); st.x1 = Math.max(st.x1, x1); st.y1 = Math.max(st.y1, y1);
+    paintOverlay(x0, y0, x1, y1);
+  }
+  function segment(st, x, y) {
+    var px = st.lx, py = st.ly, d = Math.hypot(x - px, y - py), n = Math.max(1, Math.ceil(d / Math.max(1, st.r / 2)));
+    for (var k = 1; k <= n; k++) stamp(px + (x - px) * k / n, py + (y - py) * k / n, st.r, st.cls, st);
+    st.lx = x; st.ly = y;
+    if (st.pts.length < 128) st.pts.push(Math.round(x), Math.round(y));
+  }
+  function beginStroke(x, y) {
+    stroke = { cls: tool.cls, r: tool.r, old: new Map(), x0: S, y0: S, x1: 0, y1: 0, lx: x, ly: y, pts: [Math.round(x), Math.round(y)], t: Date.now() };
+    stamp(x, y, stroke.r, stroke.cls, stroke); draw();
+  }
+  function endStroke() {
+    if (!stroke) return;
+    var st = stroke; stroke = null;
+    if (!st.old.size) return;
+    pushUndo(st.old); counts.traits++;
+    if (journal.length < 300) journal.push({ o: "t", c: st.cls, r: st.r, s: Math.round(tileSeconds), ms: Date.now() - st.t, n: st.old.size, p: st.pts });
+    dirty = true; updateButtons();
+  }
+  function fillAt(x, y) {
+    x = Math.floor(x); y = Math.floor(y);
+    if (x < 0 || y < 0 || x >= S || y >= S) return;
+    var from = lab[y * S + x], cls = tool.cls;
+    if (from === cls || from === 3) return;
+    var seen = new Uint8Array(S * S), stack = new Int32Array(S * S), top = 0, list = [];
+    stack[top++] = y * S + x; seen[y * S + x] = 1;
+    while (top) {
+      var i = stack[--top]; list.push(i);
+      if (list.length > S * S * 0.15) { toast("Zone trop grande pour « Remplir ». Utilise le pinceau."); return; }
+      var cx = i % S, cy = (i - cx) / S, nb = [cx > 0 ? i - 1 : -1, cx < S - 1 ? i + 1 : -1, cy > 0 ? i - S : -1, cy < S - 1 ? i + S : -1];
+      for (var k = 0; k < 4; k++) { var j = nb[k]; if (j >= 0 && !seen[j] && lab[j] === from) { seen[j] = 1; stack[top++] = j; } }
+    }
+    var old = new Map();
+    list.forEach(function (i) { old.set(i, from); lab[i] = cls; });
+    paintOverlay(0, 0, S, S); pushUndo(old); counts.remplissages++;
+    if (journal.length < 300) journal.push({ o: "r", c: cls, de: from, s: Math.round(tileSeconds), n: list.length, p: [x, y] });
+    dirty = true; updateButtons(); draw();
+  }
+  function pushUndo(old) { undo.push(old); if (undo.length > 40) undo.shift(); redo = []; }
+  function applyStep(from, to) {
+    var st = from.pop(); if (!st) return;
+    var inv = new Map();
+    st.forEach(function (v, i) { inv.set(i, lab[i]); lab[i] = v; });
+    to.push(inv); paintOverlay(0, 0, S, S); dirty = true; updateButtons(); draw();
+  }
+
+  // ---------- gestes : le stylet (ou la souris) peint, les doigts déplacent et zooment
+  cv.addEventListener("pointerdown", function (e) {
+    if (!sprite || !$("help").hidden) return;
+    cv.setPointerCapture(e.pointerId);
+    if (e.pointerType === "touch") {
+      if (penDown) return;
+      pointers.set(e.pointerId, [e.clientX, e.clientY]);
+      if (pointers.size === 2) { var p = Array.from(pointers.values()); pinch = { d: Math.hypot(p[0][0] - p[1][0], p[0][1] - p[1][1]), cx: (p[0][0] + p[1][0]) / 2, cy: (p[0][1] + p[1][1]) / 2 }; }
+      return;
+    }
+    if (e.button !== 0) return;
+    if (e.pointerType === "pen") { lastPen = Date.now(); penDown = true; pointers.clear(); pinch = null; }
+    var q = toTile(e);
+    if (tool.fill) fillAt(q[0], q[1]); else beginStroke(q[0], q[1]);
+    e.preventDefault();
+  });
+  cv.addEventListener("pointermove", function (e) {
+    if (e.pointerType === "pen") lastPen = Date.now();
+    if (e.pointerType === "touch") {
+      var prev = pointers.get(e.pointerId); if (!prev) return;
+      pointers.set(e.pointerId, [e.clientX, e.clientY]);
+      var r = cv.getBoundingClientRect();
+      if (pointers.size === 1 && Date.now() - lastPen > 700) { view.tx += e.clientX - prev[0]; view.ty += e.clientY - prev[1]; draw(); }
+      else if (pointers.size === 2 && pinch) {
+        var p = Array.from(pointers.values()), d = Math.hypot(p[0][0] - p[1][0], p[0][1] - p[1][1]), cx = (p[0][0] + p[1][0]) / 2, cy = (p[0][1] + p[1][1]) / 2;
+        zoomAt(cx - r.left, cy - r.top, d / Math.max(1, pinch.d));
+        view.tx += cx - pinch.cx; view.ty += cy - pinch.cy; pinch = { d: d, cx: cx, cy: cy }; draw();
+      }
+      return;
+    }
+    if (!stroke) return;
+    var list = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+    if (!list.length) list = [e];
+    for (var k = 0; k < list.length; k++) { var q = toTile(list[k]); segment(stroke, q[0], q[1]); }
+    draw();
+  });
+  function pointerEnd(e) {
+    if (e.pointerType === "touch") { pointers.delete(e.pointerId); if (pointers.size < 2) pinch = null; return; }
+    if (e.pointerType === "pen") penDown = false;
+    endStroke();
+  }
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (n) { cv.addEventListener(n, pointerEnd); });
+  cv.addEventListener("wheel", function (e) { e.preventDefault(); var r = cv.getBoundingClientRect(); zoomAt(e.clientX - r.left, e.clientY - r.top, e.deltaY < 0 ? 1.15 : 1 / 1.15); draw(); }, { passive: false });
+  function zoomAt(px, py, f) {
+    var z = Math.min(12, Math.max(0.3, view.z * f)); f = z / view.z;
+    view.tx = px - (px - view.tx) * f; view.ty = py - (py - view.ty) * f; view.z = z;
+  }
+
+  // ---------- commandes
+  function press(ids, on) { ids.forEach(function (id) { $(id).setAttribute("aria-pressed", id === on ? "true" : "false"); }); }
+  function updateButtons() {
+    $("undo").disabled = !undo.length; $("redo").disabled = !redo.length;
+    $("prev").disabled = cur <= 0;
+    $("next").textContent = cur === tiles.length - 1 ? "Valider et finir" : "Valider et suivante";
+    $("viewtag").textContent = manifest ? manifest.panneaux[panel] : "";
+  }
+  [["c2", 2], ["c1", 1], ["c0", 0]].forEach(function (p) { $(p[0]).addEventListener("click", function () { tool.cls = p[1]; press(["c2", "c1", "c0"], p[0]); }); });
+  ["r1", "r2", "r3"].forEach(function (id) { $(id).addEventListener("click", function () { tool.r = RADII[id]; tool.fill = false; press(["r1", "r2", "r3"], id); $("fill").setAttribute("aria-pressed", "false"); }); });
+  $("fill").addEventListener("click", function () { tool.fill = !tool.fill; $("fill").setAttribute("aria-pressed", String(tool.fill)); });
+  $("undo").addEventListener("click", function () { applyStep(undo, redo); });
+  $("redo").addEventListener("click", function () { applyStep(redo, undo); });
+  function setPanel(p) { panel = p; if (p < 6) ctPanel = p; press(["vmap", "vct"], p === 6 ? "vmap" : "vct"); updateButtons(); draw(); }
+  $("vmap").addEventListener("click", function () { setPanel(6); });
+  $("vct").addEventListener("click", function () { setPanel(ctPanel); });
+  $("vprev").addEventListener("click", function () { setPanel((Math.min(panel, 5) + 5) % 6); });
+  $("vnext").addEventListener("click", function () { setPanel((Math.min(panel, 5) + 1) % 6); });
+  $("peek").addEventListener("click", function () { hideOverlay = !hideOverlay; $("peek").setAttribute("aria-pressed", String(hideOverlay)); draw(); });
+  $("alpha").addEventListener("input", function () { if (lab) { paintOverlay(0, 0, S, S); draw(); } });
+  $("fit").addEventListener("click", function () { fitView(); draw(); });
+
+  function currentDoc(validated) {
+    var t = tiles[cur];
+    return { lot: manifest.lot, tuile: t.id, segment: t.segment, y: t.y, x: t.x, taille: S, echelle: t.echelle || 1, tirage: t.tirage,
+      rle: rleEncode(lab), valide: !!validated, secondes: Math.round(tileSeconds), traits: counts.traits, remplissages: counts.remplissages,
+      journal: journal, quand: new Date().toISOString(), version: VERSION };
+  }
+  function leaveTile(validated) {
+    endStroke();
+    var had = done[tiles[cur].id];
+    if (!validated && !dirty && !(had && had.valide)) return Promise.resolve();
+    if (!validated && had && had.valide && !dirty) return Promise.resolve();
+    dirty = false;
+    return saveDoc(currentDoc(validated || (had && had.valide)));
+  }
+  $("next").addEventListener("click", function () {
+    if (cur < 0) return;
+    leaveTile(true).then(function () {
+      if (cur < tiles.length - 1) return openTile(cur + 1);
+      paused = true; showHelp("Lot terminé. " + Object.keys(done).filter(function (k) { return done[k].valide; }).length + " tuiles validées sur " + tiles.length + ". Tu peux fermer la page.");
+    });
+  });
+  $("prev").addEventListener("click", function () { if (cur > 0) leaveTile(false).then(function () { return openTile(cur - 1); }); });
+  $("pause").addEventListener("click", function () { paused = !paused; $("pause").setAttribute("aria-pressed", String(paused)); $("pause").textContent = paused ? "Reprendre" : "Pause"; });
+  $("help2").addEventListener("click", function () { showHelp(""); });
+  $("go").addEventListener("click", function () { $("help").hidden = true; paused = false; $("pause").setAttribute("aria-pressed", "false"); $("pause").textContent = "Pause"; lastTick = Date.now(); });
+  $("showbackup").addEventListener("click", function () {
+    var all = {}; tiles.forEach(function (t) { var d = done[t.id] || localGet(t.id); if (d) all[t.id] = d; });
+    var ta = $("backup"); ta.hidden = false; ta.value = JSON.stringify(all); ta.focus(); ta.select();
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).then(function () { toast("Copie de secours copiée dans le presse-papiers."); }).catch(function () {});
+  });
+  function showHelp(note) { $("helpnote").textContent = note || ""; $("help").hidden = false; paused = true; }
+  var toastTimer = 0;
+  function toast(msg) { var t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.hidden = true; }, 4200); }
+
+  // ---------- minuteur : ne compte que le temps où la page est visible et la séance en cours
+  setInterval(function () {
+    var now = Date.now(), dt = Math.min(2, (now - lastTick) / 1000); lastTick = now;
+    if (paused || document.hidden || cur < 0) return;
+    tileSeconds += dt; sessionSeconds += dt;
+    var left = Math.max(0, SESSION_S - sessionSeconds), m = Math.floor(left / 60), s = Math.floor(left % 60);
+    $("timer").textContent = (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+    if (left === 0 && !sessionOver) { sessionOver = true; $("timer").className = "pill num ok"; toast("20 minutes de travail : la séance est finie. Valide la tuile en cours, puis arrête-toi."); }
+  }, 1000);
+  document.addEventListener("visibilitychange", function () { lastTick = Date.now(); if (document.hidden && cur >= 0 && dirty) { localSet(tiles[cur].id, currentDoc(false)); } });
+
+  // ---------- démarrage
+  window.addEventListener("resize", resize);
+  resize();
+  Promise.all([fetch("manifest.json").then(function (r) { if (!r.ok) throw new Error("manifest"); return r.json(); }), initStore()]).then(function (r) {
+    manifest = r[0]; tiles = manifest.tuiles; S = manifest.taille;
+    $("lot").textContent = manifest.objet + " · lot " + manifest.lot + " · " + tiles.length + " tuiles";
+    tiles.forEach(function (t) { var d = store.remote[t.id] || localGet(t.id); if (d && d.rle) done[t.id] = d; });
+    var first = 0; while (first < tiles.length - 1 && done[tiles[first].id] && done[tiles[first].id].valide) first++;
+    var n = Object.keys(done).filter(function (k) { return done[k].valide; }).length;
+    $("helpnote").textContent = (store.db ? "Tes corrections sont enregistrées en ligne à chaque validation." : "Pas de stockage en ligne ici : tes corrections restent sur cet appareil. Utilise « Copie de secours » en fin de séance.") + (n ? " " + n + " tuile(s) déjà validée(s)." : "");
+    return openTile(first);
+  }).catch(function () { $("lot").textContent = "lot introuvable"; $("helpnote").textContent = "Le fichier manifest.json du lot n'a pas pu être chargé."; });
+  window.__atelier = { state: function () { return { cur: cur, lab: lab, pre: pre, undo: undo.length, done: done, view: view, tool: tool, panel: panel, counts: counts, db: !!store.db }; }, rleEncode: rleEncode, rleDecode: rleDecode };
+})();
+</script>
