@@ -400,3 +400,49 @@ def infer(vol, model, start, reverse, depth=17):
                 wsum[y:y + P, x:x + P] += HANN
     out = torch.where(wsum > 0, acc / wsum.clamp(min=1e-6), torch.zeros_like(acc))[:H, :W]
     return out.cpu().numpy(), len(tiles)
+
+
+def infer_roi(read, shape_hw, roi, model, idx, batch=BATCH):
+    """Inférence identique à l'outil officiel (`vesuvius.ink_detection.inference.infer`, option `--roi`).
+
+    Différences avec `infer` : les tuiles sont posées sur la grille GLOBALE de la surface entière (0, 64, 128, ...
+    plus la dernière position alignée sur le bord), même quand on ne calcule qu'une zone ; seules les tuiles
+    entièrement vides sont ignorées. Sur PHerc. 211, la corrélation avec la prédiction officielle passe ainsi de
+    0,912 (grille locale au recadrage) à 0,9999 (écart maximal : 1 niveau sur 255).
+
+    read(y0, y1, x0, x1) -> bloc uint8 (L, y1 - y0, x1 - x0) de la surface ; shape_hw = (H, W) de la surface
+    entière ; roi = (r0, r1, c0, c1) ; idx = couches de la fenêtre, dans l'ordre voulu (inversé = sens inverse).
+    Renvoie (probabilités float32 de la zone, nombre de tuiles calculées).
+    """
+    global HANN
+    if HANN is None:
+        w = torch.outer(torch.hann_window(P, periodic=False), torch.hann_window(P, periodic=False))
+        HANN = torch.clamp(w / w.max(), min=0.001).to(DEV)
+    H, W = shape_hw
+    r0, r1, c0, c1 = roi
+    ys = [y for y in positions(H, P, STRIDE) if y < r1 and y + P > r0]
+    xs = [x for x in positions(W, P, STRIDE) if x < c1 and x + P > c0]
+    Y0, Y1, X0, X1 = ys[0], min(H, ys[-1] + P), xs[0], min(W, xs[-1] + P)
+    reg = torch.from_numpy(np.ascontiguousarray(np.asarray(read(Y0, Y1, X0, X1))[list(idx)]))
+    hr, wr = reg.shape[1:]
+    if hr < P or wr < P:  # surface plus petite qu'une tuile : complétée par des zéros, comme l'outil officiel
+        reg = F.pad(reg, (0, max(0, P - wr), 0, max(0, P - hr)))
+    tiles = [(y, x) for y in ys for x in xs if bool(reg[:, y - Y0:y - Y0 + P, x - X0:x - X0 + P].any())]
+    acc = torch.zeros(reg.shape[1:], device=DEV)
+    wsum = torch.zeros(reg.shape[1:], device=DEV)
+    with torch.no_grad():
+        for b in range(0, len(tiles), batch):
+            bt = tiles[b:b + batch]
+            xb = torch.stack([reg[:, y - Y0:y - Y0 + P, x - X0:x - X0 + P] for y, x in bt]).to(DEV).float()
+            prob = torch.sigmoid(model(robust_norm_t(xb)[:, None]).float())[:, 0]
+            for k, (y, x) in enumerate(bt):
+                acc[y - Y0:y - Y0 + P, x - X0:x - X0 + P] += prob[k] * HANN
+                wsum[y - Y0:y - Y0 + P, x - X0:x - X0 + P] += HANN
+    out = torch.where(wsum > 1e-6, acc / wsum.clamp(min=1e-6), torch.zeros_like(acc))
+    return out[r0 - Y0:r1 - Y0, c0 - X0:c1 - X0].cpu().numpy(), len(tiles)
+
+
+def center_window(n_layers, depth=17):
+    """Fenêtre centrée de l'outil officiel : 2..18 sur 21 couches, 6..22 sur 28, 7..23 sur 31."""
+    start = n_layers // 2 - depth // 2
+    return list(range(start, start + depth))

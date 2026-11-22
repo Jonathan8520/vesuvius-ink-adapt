@@ -54,12 +54,17 @@ Projet de Jonathan (GitHub : Jonathan8520) pour le Vesuvius Challenge (lecture d
 - **Modèle** `ink_9um` (pile 3D de fusion en profondeur + U-Net 2D à encodeur résiduel) réimplémenté dans
   `vesuvius_ink_adapt/core.py` ; poids chargés avec `weights_only=True` puis `strict=True`
   (les clés `.all_modules.` sont des doublons et sont ignorées).
-- **Inférence** : fenêtre de 17 couches (centrée : couches 6..22 sur 28, 7..23 sur 31), normalisation robuste
-  par patch (clip p1/p99, médiane, 1,4826·MAD), patchs 128, pas 64, fusion par fenêtre de Hann, sigmoïde.
-  Affichage conseillé par l'équipe : (p − 0,25) / 0,5.
+- **Inférence** : fenêtre de 17 couches (centrée : couches 2..18 sur 21, 6..22 sur 28, 7..23 sur 31),
+  normalisation robuste par patch (clip p1/p99, médiane, 1,4826·MAD), patchs 128, pas 64, fusion par fenêtre de
+  Hann, sigmoïde. Affichage conseillé par l'équipe : (p − 0,25) / 0,5.
+- **Grille des tuiles** : l'outil officiel pose ses tuiles sur la grille globale de la surface entière (0, 64,
+  128, ..., plus une dernière tuile alignée sur le bord) et n'ignore que les tuiles entièrement vides. Pour
+  calculer une zone, utiliser `core.infer_roi` (identique à l'officiel) ; `core.infer` part du coin du tableau
+  qu'on lui donne et ne coïncide avec l'officiel que sur une surface entière.
 - Le sens « direct » correspond aux rendus officiels ; sur nos propres rendus, tester aussi le sens inverse.
 - **Validation** : `python tests/validate_against_official.py` doit afficher `VALIDATION OK`
-  (rendu ≈ 0,93, encre ≈ 0,91). À relancer après toute modification de `core.py`.
+  (rendu ≈ 0,93 ; encre ≈ 0,9999 sur la grille officielle, écart maximal de 1 niveau sur 255).
+  À relancer après toute modification de `core.py`.
 
 ## Où sont les données
 

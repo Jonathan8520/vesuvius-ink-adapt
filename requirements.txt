@@ -6,3 +6,4 @@ pillow
 scipy
 zarr<3
 numcodecs
+imagecodecs
