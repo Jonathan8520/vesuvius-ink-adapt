@@ -35,14 +35,21 @@
 - Pré-test en trois branches : sans ajout, avec la carte du modèle, avec les étiquettes humaines de l'équipe
   (mêmes pixels de PHerc0009B et de PHerc0500P2 `--1`). Mesure sur les 9 zones réservées et sur PHerc0841.
 
+- **Appli au stylet, version 0.1** : page privée https://claude.ai/artifact/KkqKvAT9n2jTRyAqYhKrh9 (à ouvrir
+  dans Chrome sur la tablette, connecté à claude.ai). Lot d'étalonnage : 6 tuiles de la couche `--1`, en aveugle.
+  Essayée dans un navigateur de test, pas encore sur la tablette.
+- Cartes de pré-étiquettes des 8 couches de PHerc0500P2 sur la surface 9 µm.
+
 ## Prochaines étapes
 
-- Pré-test sur Kaggle (résultat visé le 27/11, avant la remise à zéro du quota).
-- Appli au stylet pour le 29/11. Rien d'existant ne convient : je l'écris (page web sans serveur).
-- Pré-étiquettes des couches `0` à `4`.
+- Résultat du pré-test Kaggle (cette nuit), puis analyse.
+- Ton essai de l'appli : cinq minutes suffisent pour dire si le stylet peint bien et si deux doigts déplacent.
+- Tuiles des couches `0` à `4` (moitié incertitude, moitié hasard) pour les séances suivantes.
 
 ## Ce que j'attends de toi
 
+- Essayer l'appli sur la tablette et me dire ce qui gêne (taille des boutons, stylet, zoom, lisibilité).
+  La vraie séance de 20 minutes peut attendre le 29/11.
 - Écrire et poster les deux messages Discord (`docs/DISCORD-FAITS.md`, revu).
 - Me dire si la règle « jamais d'étiquettes » s'étend aux rouleaux du seul Grand Prize (PHerc1447, PHerc0211).
   En attendant, je n'y touche pas.
