@@ -98,7 +98,9 @@ de reader-v2, donc pas dans l'entraînement de reader-v3. À confirmer par la r�
       - [ ] d. Choix des tuiles : moitié par incertitude (confiance du modèle 2 µm), moitié au hasard parmi les
             tuiles qui contiennent de l'encre. On mesure laquelle sert le plus : c'est une question ouverte.
 - [ ] **3. Appli web au stylet.** Version 0.1 écrite et essayée dans un navigateur de test (`app/index.html`,
-      journal A9), publiée en page privée avec le lot d'étalonnage. Reste à faire : l'essai sur la tablette.
+      journal A9), publiée en page privée avec le lot d'étalonnage. Essai de Jonathan sur la tablette le 22/11 :
+      l'appli s'affiche, mais la tâche n'est pas faisable sans connaître les formes des lettres (journal A10).
+      **Séances suspendues** jusqu'au résultat du pré-test 5b.
       Page statique sans serveur (rien d'existant ne convient) : canvas 2D
       et Pointer Events, le stylet peint, deux doigts déplacent, trois états (encre, fond, je ne sais pas),
       couches CT et carte du modèle à bascule, minuteur de 20 minutes, sauvegarde locale, export à chaque fin de
@@ -172,6 +174,9 @@ de reader-v2, donc pas dans l'entraînement de reader-v3. À confirmer par la r�
   pas. L'entraîneur de l'équipe demande Python 3.14 et des modules C++ hors PyPI : on utilise notre affineur.
 - Fenêtre First Letters : 7 prix restants pour 19 volumes, et reader-v3 sert déjà à la majorité des soumissions.
 - Un humain non papyrologue peut valider de fausses lettres : d'où la séance d'étalonnage et la consigne prudente.
+  **Risque réalisé le 22/11** : l'écart entre la carte et les étiquettes de l'équipe tient au redessin des
+  lettres ; un tri tache par tache plafonne à +0,017 d'IoU (journal A10). Les étiquettes « vérifiées par
+  Jonathan » ne sont donc plus le coeur du plan tant que le pré-test n'a pas parlé.
 
 ## Après décembre : First Letters
 

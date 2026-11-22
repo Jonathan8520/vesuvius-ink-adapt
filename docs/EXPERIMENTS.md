@@ -286,3 +286,31 @@ Ne jamais noter ici de découverte de lettres sur un rouleau éligible au First 
   (IoU, précision, rappel, part laissée en doute), et donne le débit en cm² par heure. Contrôle : sur une tuile non
   corrigée, la pré-étiquette obtient un IoU de 0,68 avec l'équipe (précision 0,72, rappel 0,93).
 - Fichiers : `app/index.html`, `scripts/make_app_tiles.py`, `scripts/make_prelabels.py`, `scripts/read_app_labels.py`.
+
+## A10 : premier essai de l'appli par Jonathan, et plafond d'un tri « tache par tache » (22/11/2026, 22 h 45 UTC)
+
+- Essai : Jonathan a ouvert l'appli sur sa tablette (affichage correct, lot `etalon-m1`, tuile 1 sur 6) et s'est
+  arrêté au bout d'une minute et demie : il ne sait pas quoi juger. Il ne connaît pas les formes des lettres
+  grecques, et l'appli ne lui montrait aucun exemple corrigé.
+- Question posée ensuite : ce qu'un non-spécialiste peut faire (garder ou rejeter une tache entière) rapproche-t-il
+  la pré-étiquette des étiquettes de l'équipe ?
+- Données : les 6 tuiles du lot d'étalonnage (couche `--1` de PHerc0500P2), vérité de l'équipe, zone déjà montrée
+  exclue. Chiffres agrégés seulement, sans regarder les images de vérité.
+- Résultat :
+
+| Étiquette comparée à celle de l'équipe | IoU de l'encre |
+| --- | --- |
+| Pré-étiquette brute (carte du modèle 2 µm ≥ 128) | 0,719 |
+| Tri parfait des taches entières (oracle : 17 taches rejetées sur 39) | 0,736 |
+| Tri parfait des taches, plus bande 64 à 128 tranchée pixel par pixel | 0,804 |
+
+  La pré-étiquette manque 15,8 % de l'encre de l'équipe et pose 77 553 px de fausse encre, dont 16 % seulement
+  disparaissent en rejetant des taches entières. Le reste des écarts est dans la forme des traits : épaisseur,
+  raccords, découpe.
+- Conclusion : ce qui sépare les étiquettes de l'équipe de la carte, c'est le redessin des traits en lettres. Cela
+  demande de connaître les formes des lettres. Un tri tache par tache, seule tâche accessible sans cette
+  connaissance, gagne au mieux 0,017 d'IoU. Le temps de Jonathan au stylet n'est donc pas le bon levier.
+- Décision : séances au stylet suspendues. On attend le pré-test A8, qui dit si les étiquettes humaines de l'équipe
+  apportent quelque chose à l'entraînement. La session ne remplace pas Jonathan pour le redessin : ce ne seraient
+  plus des étiquettes vérifiées à la main, et un modèle qui « complète » des lettres dans des taches fabriquerait
+  des étiquettes plausibles, ce que l'équipe demande justement d'éviter.

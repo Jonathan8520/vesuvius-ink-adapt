@@ -1,5 +1,12 @@
 # Point du 23 novembre 2026 : antériorité vérifiée, plan révisé, banc de mesure prêt
 
+**Mise à jour du 22/11 à 22 h 50 UTC : séances au stylet suspendues.** Tu as essayé l'appli et tu ne savais pas
+quoi juger. Tu as raison : ce que les annotateurs de l'équipe ajoutent à la carte du modèle, c'est le redessin des
+lettres, et il faut en connaître les formes. Vérifié sur le lot d'étalonnage : même un tri parfait, tache par
+tache, ne ferait passer l'accord avec l'équipe que de 0,72 à 0,74 (journal A10). Tu n'as donc rien à dessiner pour
+l'instant. Le pré-test de cette nuit dit si des étiquettes humaines servent à l'entraînement ; on décide ensuite.
+Ce qui suit date d'avant ton essai.
+
 ## En trois phrases
 
 - D'autres ont déjà des étiquettes faites à la main à ~9 µm. Ce qui reste libre est plus étroit qu'annoncé hier,
