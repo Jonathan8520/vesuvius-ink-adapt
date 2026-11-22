@@ -232,7 +232,7 @@ Ne jamais noter ici de découverte de lettres sur un rouleau éligible au First 
 - But : savoir, avant toute correction par Jonathan, si des étiquettes humaines font mieux que la carte du modèle
   2 µm seuillée quand on les pose sur les mêmes pixels (étape 5b du plan).
 - Données (`scripts/build_bench.py`, jeu Kaggle privé `jonathan8520/vesuvius-ink9um-bench`, 3,7 Go) :
-  - rejeu : les 29 représentations du corpus `ink_9um` en tuiles de 256 px (2 187 tuiles ; au plus 150 par
+  - rejeu : les 29 représentations du corpus `ink_9um` en tuiles de 256 px (2 191 tuiles ; au plus 150 par
     segment de PHercParis4 et 120 par segment de PHerc1667, tirage fixe) ; étiquettes du dépôt 9 µm pour les 9 cas
     réservés, niveau 2 des étiquettes S3 pour les autres segments alignés, étiquettes natives S3 pour PHerc0139 ;
   - segments nouveaux, canevas natif : PHerc0500P2 `--1` (71 tuiles, 2,5 M px supervisés) et PHerc0009B
