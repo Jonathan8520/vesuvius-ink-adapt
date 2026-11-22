@@ -226,3 +226,34 @@ Ne jamais noter ici de découverte de lettres sur un rouleau éligible au First 
   notre décalage (9,3 ; 7,6) s'écarte de celui de la formule (8,1 ; 8,0) d'environ 1 px : c'est ce résidu. Notre
   recalage n'est donc pas une nouveauté ; il sert de contrôle indépendant et corrige le résidu.
 - Fichiers : `vesuvius_ink_adapt/register.py`, `scripts/register_fine_to_native.py`, sorties dans `data/register/`.
+
+## A8 : banc de mesure par affinage, mise au point et pré-test (22 et 23/11/2026)
+
+- But : savoir, avant toute correction par Jonathan, si des étiquettes humaines font mieux que la carte du modèle
+  2 µm seuillée quand on les pose sur les mêmes pixels (étape 5b du plan).
+- Données (`scripts/build_bench.py`, jeu Kaggle privé `jonathan8520/vesuvius-ink9um-bench`, 3,7 Go) :
+  - rejeu : les 29 représentations du corpus `ink_9um` en tuiles de 256 px (2 187 tuiles ; au plus 150 par
+    segment de PHercParis4 et 120 par segment de PHerc1667, tirage fixe) ; étiquettes du dépôt 9 µm pour les 9 cas
+    réservés, niveau 2 des étiquettes S3 pour les autres segments alignés, étiquettes natives S3 pour PHerc0139 ;
+  - segments nouveaux, canevas natif : PHerc0500P2 `--1` (71 tuiles, 2,5 M px supervisés) et PHerc0009B
+    `ag487` (68 tuiles, 3,4 M px), chacun avec deux versions d'étiquettes sur les mêmes pixels : `h` (étiquettes
+    de l'équipe reportées par le recalage A7) et `t` (carte du modèle 2 µm reportée, encre si ≥ 128, fond si
+    ≤ 64, bande hors supervision) ;
+  - évaluation : les 9 zones réservées (4,5 M px) et les 3 segments de PHerc0841 (3,8 M px, canevas natif).
+- Contrôles avant lancement : aucun pixel supervisé à l'entraînement dans une zone d'évaluation ; les branches
+  `T` et `H` de même graine tirent exactement les mêmes patchs (les étiquettes diffèrent sur 6 % des pixels des
+  segments nouveaux) ; PHerc0841 absent de l'entraînement.
+- Réglages (`vesuvius_ink_adapt/finetune.py`, recette abrégée) : départ s43-75k, SGD de Nesterov, momentum 0,99,
+  taux 0,002, échauffement 100 pas, cosinus, lot de 64, précision mixte, BCE lissée 0,5 plus Dice. Quotas par
+  lot : témoin `C` 29 / 22 / 11 / 2 (recette de l'équipe) ; `T` et `H` 20 / 15 / 8 / 1 plus 10 + 10 pour les
+  segments nouveaux (31 %).
+- Contrôle du banc (branche `base`, aucun pas) : w016 0,8100 / 0,7200 / 0,9365 et 0814 0,7731 / 0,7124 / 0,8628
+  (précision équilibrée, F1, AUC), sur CPU et sur T4 : identiques à l'audit A2 et aux chiffres de Domenico Russo.
+- Essai court sur Kaggle (2 × T4, 30 pas, 160 s en tout) : 0,90 s par pas, mémoire suffisante au lot de 64.
+- Pré-test lancé le 22/11 à 22 h 16 UTC : kernel `jonathan8520/vesuvius-ink9um-bench-pretest`, branches `base`,
+  `C`, `T`, `H`, graines 0 à 4, 1 000 pas, notations à 250, 500 et 1 000 pas, histogrammes par bloc de 128 px
+  pour un bootstrap par blocs. Durée attendue : 2 h 30. **Résultat : à venir.**
+- Limites connues : recette abrégée (augmentations réduites), rejeu partiel de PHercParis4 et PHerc1667, étiquettes
+  de test dessinées par l'équipe comme celles de la branche `H` (avantage de style possible).
+- Fichiers : `scripts/build_bench.py`, `vesuvius_ink_adapt/finetune.py`, `scripts/run_bench.py`,
+  `kaggle/bench/bench_kernel.py`.

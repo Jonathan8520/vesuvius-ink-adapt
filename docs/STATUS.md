@@ -52,4 +52,7 @@
 
 ## Kaggle
 
-Quota GPU : 28,6 h restantes jusqu'au 28/11. Un essai court (30 pas) est lancé pour mesurer la vitesse.
+- Essai court réussi (2 × T4) : 0,9 s par pas, scores du modèle publié retrouvés à l'identique.
+- Pré-test lancé le 22/11 à 22 h 16 UTC (`vesuvius-ink9um-bench-pretest`, 3 branches, 5 graines, 1 000 pas,
+  environ 2 h 30). Résultat à lire dans `docs/EXPERIMENTS.md`, entrée A8, dès qu'il tombe.
+- Quota GPU : environ 26 h restantes après ce run, jusqu'au 28/11.
