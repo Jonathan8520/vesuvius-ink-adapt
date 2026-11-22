@@ -4,15 +4,21 @@ Run the [Vesuvius Challenge](https://scrollprize.org) 9 µm ink-detection pipeli
 Kaggle GPU: stream a scroll's CT volume from the public bucket, render any `tifxyz` surface, and run the
 [`scrollprize/ink_9um`](https://huggingface.co/scrollprize/ink_9um) models, with no C++ build and no local GPU.
 
-**Work in progress** for the November 2026 Progress Prizes. Next step: zero-label test-time adaptation for
-cross-scroll ink detection, evaluated on the public held-out ink labels (see [`docs/PLAN.md`](docs/PLAN.md)).
+**Status (22 November 2026): the sprint for the November 2026 Progress Prizes was stopped, with no submission.**
+A prior-art survey showed that every step of the plan (baseline scores of `ink_9um`, label-free depth selection,
+test-time entropy minimisation, checkpoint ensembles, C++-free inference) had already been published by others,
+often with negative results. See [`docs/STATUS.md`](docs/STATUS.md), [`docs/HANDOFF.md`](docs/HANDOFF.md) and
+[`docs/RESEARCH.md`](docs/RESEARCH.md) (in French). The code below works and stays available.
+`docs/HANDOFF.md` also records one observation that we did not see elsewhere: six of the nine reserved validation
+zones of `ink_9um` are missing from the 9 µm label release but are public on the open-data bucket
+(`scripts/audit_reserved_validation.py`; partly verified, see the caveats there).
 
 ## What works today
 
 | Component | Check against the official tools | Result |
 | --- | --- | --- |
 | Surface rendering from the remote OME-Zarr volume (GPU via `grid_sample`, or CPU) | per-layer correlation with the official `vc_render_tifxyz` render, PHerc. 211 test segment | mean 0.93 |
-| PyTorch re-implementation of the `ink_9um` hybrid 3D-stem / 2D U-Net (official weights, `strict=True`) | correlation with the official published prediction made with the same checkpoint (seed 43, step 20k) | 0.91 |
+| PyTorch re-implementation of the `ink_9um` hybrid 3D-stem / 2D U-Net (official weights, `strict=True`) | correlation with the official published prediction made with the same checkpoint (seed 43, step 20k), tiles on the official global grid (`core.infer_roi`) | 0.9999 (max difference: 1 grey level out of 255) |
 | Per-patch robust normalisation (p1/p99 clip, median, 1.4826·MAD) | max absolute difference with the reference implementation | 2.4e-7 |
 | Kaggle sweep: render and scan every raw surface of a scroll | 22 surfaces of PHerc. 1203 (about 120 cm², 10 passes each) on one T4 | 83 min |
 
@@ -35,6 +41,10 @@ prob, n_patches = core.infer(surface, model, start=6, reverse=False)       # ink
 ## Layout
 
 - `vesuvius_ink_adapt/core.py`: remote volume reader, `tifxyz` renderer, `ink_9um` re-implementation, inference.
+- `vesuvius_ink_adapt/zarrio.py`: dependency-free reader for remote Zarr arrays (v2 raw or Blosc, sharded v3).
+- `vesuvius_ink_adapt/evalset.py` and `scripts/build_evalset.py`: labelled public segments cut into small
+  evaluation zones (experimental).
+- `scripts/audit_reserved_validation.py`: mask-only audit of the reserved validation zones of `ink_9um`.
 - `kaggle/`: the self-contained Kaggle script used for the PHerc. 1203 sweep, and a metadata template.
 - `scripts/`: CPU-only tools (S3 listing and download, CPU renderer, CPU inference).
 - `tests/validate_against_official.py`: reproduces the checks above.

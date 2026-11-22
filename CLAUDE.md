@@ -5,6 +5,9 @@ Projet de Jonathan (GitHub : Jonathan8520) pour le Vesuvius Challenge (lecture d
 **Objectif du sprint :** une soumission aux **Progress Prizes de novembre 2026** (meilleure soumission du mois : 20 000 $).
 **Date limite : 30 novembre 2026 à 23 h 59, heure du Pacifique** (1er décembre à 8 h 59 à Paris).
 
+**État au 22 novembre 2026 : sprint arrêté par Jonathan.** Lire `docs/STATUS.md` avant toute chose. Ne pas
+reprendre `docs/PLAN.md` ni lancer de calcul sans nouvelle consigne.
+
 À lire avant toute chose :
 1. `docs/HANDOFF.md` : ce qui est fait, ce qui marche, les chiffres de validation, les leçons.
 2. `docs/PLAN.md` : le plan du sprint, jour par jour, avec les critères de réussite.

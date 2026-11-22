@@ -1,65 +1,160 @@
-# Passation : état au 22 novembre 2026 (soir)
+# Passation : état au 22 novembre 2026 (nuit), sprint arrêté
 
 ## En bref
 
-- **Chaîne complète validée** : reconstruction de surface (rendu `tifxyz`) et modèle d'encre `ink_9um`,
-  sans dépendances C++, sur CPU ou sur GPU (Kaggle).
-- **Deux rouleaux éligibles explorés, rien de lisible** : PHerc. 0800 (prédictions publiées par l'équipe) et
-  PHerc. 1203 (notre balayage complet des 22 surfaces brutes).
-- **Prochaine étape** : expérience E3, score de référence sur les 9 segments réservés à la validation
-  (voir `docs/PLAN.md`).
+- **Le sprint Progress Prizes de novembre est arrêté** (décision de Jonathan, 22/11 au soir). Pas de soumission.
+- **Aucun calcul en cours** : aucun run Kaggle en file ou en cours, aucune tâche locale.
+- **Ce qui reste utilisable** : une chaîne `ink_9um` validée contre les outils officiels, un lecteur des données
+  publiques, des notes de recherche à jour, et une observation sur les données de validation (section dédiée).
+- À lire : `docs/STATUS.md` (court), `docs/VEILLE-2026-11-22.md` (veille de Jonathan), `docs/RESEARCH.md`
+  (veille fusionnée avec la lecture de 25 dépôts).
+- `docs/PLAN.md` est conservé pour mémoire. Il n'est plus à exécuter.
+
+## Pourquoi on s'arrête
+
+| Étape de l'ancien plan | Déjà fait par | Résultat |
+| --- | --- | --- |
+| E3, score de référence d'`ink_9um` | DomRusso2/ink9um-dense, khj1222 (docs/14), inkbench, gowtham012 | 14 checkpoints notés sur les 3 masques publiés |
+| E4, profondeur sans étiquette | tarikcankorkmaz00, LynnHenry/offset-sweep, villa #1867 | ne bat pas la fenêtre fixe ; oracle à +0,01 |
+| E5, TENT | khj1222 (docs/18) | −0,041 de F1, 14 cas sur 14 dégradés |
+| E5, ensembles | inkbench, gowtham012 (soumis le 21/11), option `--ensemble-checkpoint` de villa | publié au moins trois fois |
+| E5, adaptation sans étiquette à un rouleau cible | TAUIL-Abd-Elilah/ink-adapt-9um, PR villa #2512 | pas mieux que l'ensemble ; créneau pris |
+| E6, chaîne sans C++ | ink-cpu, ink-sdk, inkrs, vesuvius-pipeline, villa-apple-silicon | au moins sept dépôts |
+| E7, rouleaux non lus | first-letters-survey, spiral-tracks-four-scrolls, fil « 57 bands on 19 unread scrolls » | criblage déjà fait, rien de lisible |
+
+Autres raisons :
+
+- La référence à 9 µm est reader-v3 (Domenico Russo, MIT), plus `ink_9um`. Sur le segment w00 de PHerc0841,
+  rouleau jamais vu, les cartes publiées par l'équipe montrent des lignes de lettres avec reader-v3 et argus-v3,
+  et presque seulement du bruit avec `ink_9um`.
+- First Letters sur PHerc. 1203 est déjà travaillé par des équipes mieux équipées, y compris avec le scan à
+  2,4 µm (constat de Jonathan). Notre balayage E2 des 22 surfaces n'avait rien montré.
+- Le jury décourage les outils d'évaluation isolés ; sur cet axe les prix vont de 250 à 1 000 $. Le mainteneur
+  bruniss refuse les contrôles automatiques de « formes d'encre » (PR villa #2318 et #2349).
+- Règle du Discord (#rules, 29/07/2026) : pas de message généré par IA à la place de sa propre participation,
+  sauf dans #robots avec une ligne « AI disclosure ».
 
 ## Ce qui marche, et comment on l'a vérifié
 
-Test reproductible : `python tests/validate_against_official.py` (segment public PHerc. 211 « crop1711-lines123-v9 »).
+Test reproductible : `python tests/validate_against_official.py` (segment public PHerc. 211, environ 1 min sur CPU).
 
 | Élément | Vérification | Résultat |
 | --- | --- | --- |
-| Rendu `core.render` | contre la surface officielle (`vc_render_tifxyz`), zone 600:856 × 4400:4656, 28 couches | r moyen 0,933 (min 0,871) |
-| Modèle `ink_9um` réimplémenté | contre la prédiction officielle publiée avec le même checkpoint (seed43, step 20k), zone 0:1720 × 4000:4500 | r = 0,912 |
-| Version CPU contre version GPU du code | même entrée | r = 1,0 |
-| Normalisation torch contre numpy | patchs réels | écart max 2,4e-7 |
+| Modèle `ink_9um` réimplémenté et inférence `core.infer_roi` | contre la prédiction officielle publiée (seed43, step 20k), zone 0:1720 × 4000:4500 | r = 0,9999, écart maximal 1 niveau sur 255 |
+| Rendu `core.render` | contre la surface officielle (`vc_render_tifxyz`), 28 couches | r moyen 0,933 (min 0,871), non corrigé |
+| Lecteur `zarrio.RemoteArray` | Zarr v2 brut (surfaces S3), Zarr v2 Blosc (étiquettes HF), Zarr v3 shardé (étiquettes S3) | lectures cohérentes entre elles (IoU 0,96 à 0,99 entre les étiquettes d'encre HF et S3) |
+| Entrée « 2,4 µm réduite à 21 couches » + inférence + métriques | contre les chiffres publiés par Domenico Russo (s43-75k) | w016 : 0,810 et 0,937 (publié 0,810 et 0,937) ; 0814 : 0,773 et 0,863 (publié 0,772 et 0,863) |
+| Audit des masques (`scripts/audit_reserved_validation.py`) | contre l'audit de khj1222 (docs/17) sur les 3 masques publiés | 59,3 %, 45,0 %, 23,2 % à moins d'un patch (publié : 58,6 %, 45,0 %, 23,2 %) |
 
-L'écart restant (0,91 au lieu de 1,0) vient probablement de détails de l'inférence officielle que nous ne
-reproduisons pas exactement (précision mixte, bords et découpage des tuiles, quantification 8 bits du TIFF publié).
-Il ne change pas la lecture des cartes.
+Ce qui a changé le 22/11 au soir :
 
-## Explorations faites (détails dans `docs/EXPERIMENTS.md`)
+- **L'écart de 0,91 est expliqué.** L'outil officiel pose ses tuiles sur la grille globale de la surface (0, 64,
+  128, ..., plus une tuile alignée sur le bord). Notre test recadrait hors de cette grille. `core.infer_roi`
+  imite l'officiel ; `core.infer` reste valable sur une surface entière.
+- **Le rendu à 0,93 a une explication probable, non vérifiée** : `vc_render_tifxyz` centre ses couches sur
+  (N − 1) / 2 (28 couches : −13,5 à +13,5, pas −14 à +13), prend le centre du pixel et interpole la surface en
+  bicubique. D'autres rendus Python atteignent 0,9999 avec ces conventions (AndreasHad04/villa-apple-silicon).
+- `imagecodecs` ajouté aux dépendances (les TIFF officiels sont compressés en LZW).
 
-- **E1, PHerc. 0800** (éligible) : 6 segments `auto_grown` publiés avec leurs surfaces et les prédictions de
-  3 modèles (ink9um s43-20k, reader-v3, argus-v3). Résultat : taches d'environ 1 mm, aucun trait, aucune ligne.
-- **E2, PHerc. 1203** (éligible) : 22 surfaces brutes publiées (`segments/raw/auto_grown_*`, uniquement des
-  `tifxyz`, aucun rendu publié). Rendues par nous puis 10 passages chacune : s43-20k (fenêtres 3, 6, 9),
-  s43-60k (fenêtre 6), s42-75k (fenêtre 6), dans les deux sens. Environ 120 cm² avec recouvrements,
-  83 min sur un T4, 24,5 Go lus. Résultat : bruit uniforme ; les 4 fenêtres les plus contrastées sont des faux
-  positifs (zones écrasées où la surface saute d'une couche à l'autre, bords de morceaux, trous).
-- **Calibrage** : sur PHerc. 211, reader-v3 et argus-v3 montrent des lettres nettes ; ink9um (s43-20k) donne une
-  carte plus bruitée sur la même zone.
+## Observation sur les données de validation (non exploitée)
+
+Les checkpoints `ink_9um` déclarent 9 `reserved_validation_cases`. Les sources que nous avons lues (veille de
+Jonathan, 25 dépôts) écrivent toutes que seuls 3 masques de validation sont tenus à l'écart (0,66 cm²), et
+plusieurs montrent qu'ils sont collés aux pixels d'entraînement.
+
+Ce que nous avons mesuré sur les masques publics (aucun modèle) :
+
+- Les 9 cas ont chacun une zone réservée. Le dépôt 9 µm (Hugging Face, `ink_9um/`) ne publie le masque que pour
+  3 cas. Les 6 autres zones sont sur S3 : `<segment>/ink-labels/<volume 2,4 µm>/20260918/validation.zarr`,
+  niveau 2, même repère que les étiquettes 9,6 µm.
+- Ces 6 zones n'ont **aucun pixel commun** avec les masques de supervision d'entraînement publiés. Elles pèsent
+  3 818 877 px (3,52 cm²) contre 721 550 px (0,66 cm²) pour les 3 masques publiés, soit 5,3 fois plus.
+- Elles sont **loin des pixels d'entraînement** : 0 à 9 % de leurs pixels à moins de 256 px d'un pixel
+  d'entraînement, contre 45 à 99 % pour les 3 masques publiés.
+- Les étiquettes d'encre du dépôt 9 µm couvrent déjà ces zones. Il ne manque que le fichier de masque.
+- Le jumeau natif du cas pherc0139-w028 (segment w044) ne couvre pas sa zone réservée.
+
+Test de mémorisation (checkpoint s43-75k, fenêtre centrée, sens direct), interrompu à l'arrêt du sprint.
+Un checkpoint tardif retrouve presque parfaitement ses pixels d'entraînement ; une zone jamais vue reste bien
+en dessous.
+
+| Cas | Masque publié à 9 µm ? | Zone réservée : précision équilibrée / F1 / AUC | Pixels d'entraînement du même segment |
+| --- | --- | --- | --- |
+| pherc0139-w016 | oui | 0,810 / 0,720 / 0,937 | 0,975 / 0,955 / 0,994 |
+| pherc0814-46527 | oui | 0,773 / 0,712 / 0,863 | 0,992 / 0,988 / 0,9998 |
+| pherc0139-w028 | non (S3) | 0,731 / 0,610 / 0,841 | 0,989 / 0,980 / 0,9995 |
+| pherc0139-w029 | non (S3) | 0,783 / 0,700 / 0,879 | 0,936 / 0,911 / 0,976 |
+| pherc1667-w018, w023, w028, w031 (non publiés) et w029 (publié) | | non testés | |
+
+Lecture : les deux zones non publiées testées se comportent comme des zones jamais vues, pas comme des pixels
+d'entraînement.
+
+Limites à garder en tête :
+
+- 2 zones non publiées sur 6 passées au test de mémorisation. L'audit des masques, lui, couvre les 9 cas.
+- La recherche d'antériorité n'est pas terminée : aucune des 25 sources lues ne mentionne ces zones, mais le
+  balayage systématique (tickets et PR de villa, notes de khj1222) a été interrompu.
+- Ces zones ne sont tenues à l'écart que pour la recette `ink_9um`. Les modèles distillés (reader-v2, reader-v3,
+  hecate) ont appris sur des cartes couvrant des segments entiers.
+- Elles restent dans des rouleaux vus à l'entraînement : ce n'est pas une mesure de généralisation entre rouleaux.
+
+Reproduire : `python scripts/audit_reserved_validation.py` (masques seuls, quelques minutes sur CPU), puis
+`--memo s43-75k` pour le test de mémorisation (30 à 60 min sur CPU).
+
+## Ce qu'on a appris d'autre
+
+- **Chercher avant de coder.** Le plan du sprint a été écrit avant la veille. Une soirée de lecture (Discord,
+  GitHub, 25 dépôts) l'a invalidé. La règle est maintenant dans `CLAUDE.md`.
+- **Les 9 segments « réservés » sont dans la liste d'entraînement** des checkpoints. Un score dans leur masque de
+  supervision mesure la mémorisation.
+- **Des étiquettes publiques existent sur des rouleaux jamais vus par `ink_9um`** : PHerc0841 (3 segments),
+  PHerc0009B, PHerc0500P2, PHerc1447, MAN5. La communauté les utilise déjà. Chemins dans `docs/RESEARCH.md`.
+- **Défaut de données connu et non corrigé** (ticket villa #2107) : dans le bucket Hugging Face, dossier `ink/`,
+  18 volumes sur 33 ont des niveaux réduits tronqués en profondeur. Les surfaces du bucket S3 sont saines.
+- **Bruit de mesure** : 0,02 à 0,13 entre les deux graines sur les 3 masques publiés. Beaucoup de gains publiés
+  sont en dessous.
 
 ## Leçons pratiques
 
-- **Kaggle** : le GPU et Internet exigent un numéro de téléphone vérifié. Sans lui, la session tourne sans GPU
-  ni réseau, sans message d'erreur clair (échec DNS dans le log).
-- **File d'attente GPU** : 6 h 30 d'attente le dimanche 22/11 après-midi. Lancer tôt, ou prévoir la version CPU.
-- **Suivi** : statuts QUEUED, RUNNING, COMPLETE ou ERROR ; `kaggle quota` donne le quota restant ;
-  les logs ne sont lisibles qu'à la fin du run.
-- **Lecture S3** : environ 1 Go lu par 5 cm² de surface rendue (chunks 128³ non compressés) ; un cache LRU de
-  3000 chunks en mémoire suffit si on traite les surfaces voisines à la suite.
-- Le script principal s'arrête désormais s'il n'a pas de GPU (sécurité ajoutée après le premier échec).
-- La liste des souhaits de l'équipe (tickets « help wanted » de ScrollPrize/villa) n'était pas lisible depuis la
-  session cloud précédente : la consulter via l'API GitHub ou un navigateur.
+- **Kaggle** : le GPU et Internet exigent un numéro de téléphone vérifié. File d'attente GPU de 6 h 30 le dimanche
+  après-midi. Statuts QUEUED, RUNNING, COMPLETE ou ERROR ; `kaggle quota` donne le quota restant. La ligne de
+  commande n'a pas de commande d'annulation (commandes : list, files, get, init, push, pull, output, status,
+  logs, update, delete, topics) : un run en cours s'annule sur le site.
+- **Lecture S3** : environ 100 Mo/s depuis une session cloud. Un bloc de surface 2,4 µm au niveau 2 pèse 1,8 Mo.
+- **Hugging Face** : lister d'abord (l'API `tree` donne la taille et l'empreinte de chaque chunk), ne télécharger
+  que les chunks non vides. 120 000 fichiers listés en 9 s.
+- **GitHub** : l'API est fermée pour ScrollPrize/villa dans une session cloud. Le dépôt se clone en lecture
+  seule ; les tickets et PR se lisent par leurs pages web.
+- **Mémoire** : une session partage 15 Go entre toutes ses tâches. Une transformée de distance sur un segment
+  entier de PHerc. 1667 (260 millions de pixels) la sature : travailler par îlot.
+- **Agents en parallèle** : 2 à la fois au plus sur une machine à 4 coeurs.
 
 ## Fichiers
 
-- `vesuvius_ink_adapt/core.py` : le coeur, source de vérité.
-- `kaggle/vesuvius_pherc1203_sweep.py` : script autonome lancé sur Kaggle (copie du coeur et boucle principale).
-  À garder synchronisé avec `core.py`.
-- `scripts/` : outils CPU (listing S3, rendu CPU avec scipy, inférence CPU).
+- `vesuvius_ink_adapt/core.py` : lecture du scan, rendu, modèle, inférence (`infer`, `infer_roi`). Source de vérité.
+- `vesuvius_ink_adapt/zarrio.py` : lecture de tableaux Zarr distants (v2 brut ou Blosc, v3 shardé), listing du
+  bucket Hugging Face.
+- `vesuvius_ink_adapt/evalset.py` : segments étiquetés publics, étiquettes, découpage en zones, entrées réduites
+  à 21 couches. **Expérimental.**
+- `scripts/audit_reserved_validation.py` : audit des zones réservées et test de mémorisation.
+- `scripts/build_evalset.py` : construction de zones d'évaluation. **Expérimental**, essayé sur deux segments.
+- `scripts/` (autres) : outils CPU d'origine (listing S3, rendu CPU, inférence CPU).
+- `kaggle/vesuvius_pherc1203_sweep.py` : script du balayage E2. Il n'a pas `infer_roi` et n'en a pas besoin
+  (surfaces entières).
 - `tests/validate_against_official.py` : la validation ci-dessus.
+
+## Si quelqu'un reprend un jour (pistes, pas un plan)
+
+- Signaler à l'équipe les 6 masques de validation absents du dépôt 9 µm (ticket sur villa ou message Discord
+  écrit par Jonathan). C'est la seule chose de ce dépôt que nous n'avons vue nulle part ailleurs.
+- Finir le test de mémorisation sur les 4 zones restantes de PHerc. 1667, et chercher l'antériorité.
+- Tickets ouverts de villa repérés et non étudiés : #1481 (zéros de remplissage dans la normalisation robuste de
+  l'inférence), #1845 (maillage grossier, −0,04 d'AUC), #2627 (profondeur inversée du modèle 2,4 µm).
+- Corriger les conventions du rendu (centre du pixel, couches centrées sur (N − 1) / 2) et relancer la validation.
 
 ## Comptes et accès
 
-- **Kaggle** : compte `jonathan8520`, quota GPU de 30 h par semaine (environ 28,5 h restantes jusqu'au
-  28/11 à 00 h UTC). Le token se fournit par variable d'environnement ou secret réseau, jamais dans le dépôt.
-- **Notebooks Kaggle existants** (privés) : `jonathan8520/vesuvius-pherc1203-ink-sweep` (GPU, terminé) et
-  `jonathan8520/vesuvius-pherc1203-ink-sweep-cpu` (CPU, devenu inutile).
+- **Kaggle** : compte `jonathan8520`. Aucun run lancé le 22/11 au soir. Quota GPU restant : 28,6 h jusqu'au
+  28/11 à 00 h UTC. Le token se fournit par variable d'environnement, jamais dans le dépôt.
+- **Notebooks Kaggle existants** (privés, terminés) : `jonathan8520/vesuvius-pherc1203-ink-sweep` (GPU) et
+  `jonathan8520/vesuvius-pherc1203-ink-sweep-cpu` (CPU).

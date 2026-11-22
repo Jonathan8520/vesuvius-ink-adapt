@@ -1,5 +1,12 @@
 # Plan du sprint : 23 au 30 novembre 2026
 
+> **Sprint arrêté le 22 novembre 2026 (décision de Jonathan). Ce plan n'est plus à exécuter.**
+> Les étapes E3 à E7 ont déjà été faites par d'autres, souvent avec un résultat négatif, et First Letters sur
+> PHerc. 1203 est déjà travaillé par des équipes mieux équipées. Conclusion : `docs/STATUS.md`. Détail :
+> `docs/VEILLE-2026-11-22.md`, `docs/RESEARCH.md`, `docs/HANDOFF.md`. Le texte ci-dessous est conservé pour mémoire.
+> Attention : son hypothèse de départ est fausse. Les 9 segments « réservés » figurent dans la liste
+> d'entraînement des checkpoints ; seule une zone par segment est tenue à l'écart.
+
 **But :** prouver un gain mesurable de détection d'encre sur des rouleaux que le modèle n'a jamais vus, sans
 aucune annotation sur le rouleau cible, et le livrer sous forme d'outil utilisable sur un GPU gratuit.
 
