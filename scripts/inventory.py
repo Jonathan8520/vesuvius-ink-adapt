@@ -191,6 +191,22 @@ def fmt_scans(scans):
     return ", ".join(f"{um:g} µm" + (f" ({kev:g} keV)" if kev else "") for um, kev in scans)
 
 
+# Jeux faits à la main que le recensement automatique ne voit pas (vérifiés le 22/11/2026, docs/RESEARCH.md §10).
+NOTES = [
+    "## 0. Étiquettes faites à la main hors des jeux recensés automatiquement", "",
+    "| Source | Objets hors concours et segments | Nature |", "| --- | --- | --- |",
+    "| jeff-j-chen/HercUeNet (GitHub, MIT) | PHerc0500P2 `500P2_front`, `--1`, `--2` ; PHerc0343P `20250511003658` ; "
+    "PHerc0009B (4 segments) ; PHerc0841 w00 ; PHerc0814 ; PHerc0139 (w041, titre) | PNG dessinés à la main sur les "
+    "surfaces natives de l'équipe, clairsemés (fond non certifié). Sur `--1`, ce sont les étiquettes de l'équipe. "
+    "Ce dépôt contient aussi des étiquettes sur un rouleau éligible : ne rien en copier |",
+    "| Équipe, bucket Hugging Face `scrollprize/datasets`, dossier `ink/unused/P343p` | PHerc0343P `20250511003658` | "
+    "encre seule (masque de supervision identique à l'encre) |",
+    "| YoussefMoNader/ink-8um-v8-patchpack (Hugging Face, CC BY-NC 4.0) | PHerc0139, PHerc0814 46527, PHerc0500P2 "
+    "`front`, PHerc0009B | patchs 64 × 64 × 24 annotés par l'équipe, pas des segments entiers |",
+    "| Bodillium/Herculaneum-Scroll-Labels (GitHub, CC BY-NC-SA 4.0) | PHerc0172 | formes de lettres, 2024 |", "",
+    "Conséquence : sur PHerc0500P2, seules les couches `0`, `1`, `2`, `3`, `4` n'ont aucune étiquette humaine.", ""]
+
+
 def write_markdown(rows, elig, path):
     L = ["# Inventaire : rouleaux, scans et étiquettes d'encre existantes", "",
          "Produit par `python scripts/inventory.py` à partir du catalogue du bucket public (`metadata.json`), de la liste",
@@ -200,6 +216,7 @@ def write_markdown(rows, elig, path):
          + ", ".join(sorted(e["scroll"].replace("PHerc", "") for e in elig["first-letters-2027"])) + ".",
          f"Liste Grand Prize ({len(elig['grand-prize-2027'])} rouleaux) : "
          + ", ".join(sorted(e["scroll"].replace("PHerc", "") for e in elig["grand-prize-2027"])) + ".", ""]
+    L += NOTES
     cand = [r for r in rows if not r["first_letters"] and r["scan_fin"] and r["scan_9um"]]
     L += ["## 1. Objets hors First Letters qui ont un scan fin et un scan à ~9 µm", "",
           "Ce sont les seuls où une carte du modèle 2 µm peut servir de pré-étiquette pour une surface à ~9 µm.", "",

@@ -7,6 +7,17 @@ des volumes éligibles (`prizeEligibility.json` de villa) et des fiches des jeux
 Liste First Letters (19 rouleaux) : 0125, 0175A, 0175B, 0191, 0257, 0268, 0358, 0483A, 0483B, 0490A, 0490B, 0800, 0813, 0826, 0846A, 0846B, 1203, 1218, 1545.
 Liste Grand Prize (13 rouleaux) : 0125, 0191, 0211, 0257, 0268, 0358, 0800, 0813, 0826, 1203, 1218, 1447, 1545.
 
+## 0. Étiquettes faites à la main hors des jeux recensés automatiquement
+
+| Source | Objets hors concours et segments | Nature |
+| --- | --- | --- |
+| jeff-j-chen/HercUeNet (GitHub, MIT) | PHerc0500P2 `500P2_front`, `--1`, `--2` ; PHerc0343P `20250511003658` ; PHerc0009B (4 segments) ; PHerc0841 w00 ; PHerc0814 ; PHerc0139 (w041, titre) | PNG dessinés à la main sur les surfaces natives de l'équipe, clairsemés (fond non certifié). Sur `--1`, ce sont les étiquettes de l'équipe. Ce dépôt contient aussi des étiquettes sur un rouleau éligible : ne rien en copier |
+| Équipe, bucket Hugging Face `scrollprize/datasets`, dossier `ink/unused/P343p` | PHerc0343P `20250511003658` | encre seule (masque de supervision identique à l'encre) |
+| YoussefMoNader/ink-8um-v8-patchpack (Hugging Face, CC BY-NC 4.0) | PHerc0139, PHerc0814 46527, PHerc0500P2 `front`, PHerc0009B | patchs 64 × 64 × 24 annotés par l'équipe, pas des segments entiers |
+| Bodillium/Herculaneum-Scroll-Labels (GitHub, CC BY-NC-SA 4.0) | PHerc0172 | formes de lettres, 2024 |
+
+Conséquence : sur PHerc0500P2, seules les couches `0`, `1`, `2`, `3`, `4` n'ont aucune étiquette humaine.
+
 ## 1. Objets hors First Letters qui ont un scan fin et un scan à ~9 µm
 
 Ce sont les seuls où une carte du modèle 2 µm peut servir de pré-étiquette pour une surface à ~9 µm.

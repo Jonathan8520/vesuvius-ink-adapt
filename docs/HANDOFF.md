@@ -1,4 +1,4 @@
-# Passation : état au 22 novembre 2026 (nuit)
+# Passation : état au 23 novembre 2026
 
 ## En bref
 
@@ -6,12 +6,16 @@
   publié par d'autres. Raisons ci-dessous.
 - **Nouveau cap, le même soir** : publier d'ici le 31 décembre des étiquettes d'encre vérifiées à la main par
   Jonathan, avec la preuve qu'elles améliorent un modèle, puis viser First Letters. Voir `docs/PLAN.md`.
-- **Fait pour ce cap** : lecture de la méthode de Priyank Aranke, inventaire (`docs/INVENTAIRE.md`), test de
-  mémorisation terminé sur les 9 zones réservées, faits pour Discord (`docs/DISCORD-FAITS.md`).
+- **Fait pour ce cap** : vérification d'antériorité en quatre balayages (`docs/RESEARCH.md`, section 10),
+  inventaire (`docs/INVENTAIRE.md`), test de mémorisation sur les 9 zones réservées, mesure de la carte du modèle
+  2 µm contre les étiquettes humaines (A5), recalage du scan fin vers la surface 9 µm (A7), banc de mesure par
+  affinage (données, affineur, script Kaggle), faits pour Discord (`docs/DISCORD-FAITS.md`).
+- **Cible révisée** : PHerc0500P2, couches `0` à `4` (les seules sans étiquette humaine). `--1` sert d'étalon.
 - **Ce qui reste utilisable de novembre** : une chaîne `ink_9um` validée contre les outils officiels, un lecteur
   des données publiques, des notes de recherche à jour.
-- **Aucun calcul en cours** : aucun run Kaggle en file ou en cours.
-- À lire : `docs/STATUS.md` (court), `docs/PLAN.md`, `docs/RESEARCH.md` (section 9 pour les étiquettes).
+- **Calcul** : jeu Kaggle privé `jonathan8520/vesuvius-ink9um-bench` (tuiles et zones du banc, 3,7 Go) ; état des
+  runs dans `docs/STATUS.md`.
+- À lire : `docs/STATUS.md` (court), `docs/PLAN.md`, `docs/RESEARCH.md` (sections 9 et 10 pour les étiquettes).
 
 ## Pourquoi le sprint de novembre a été arrêté
 
@@ -47,6 +51,8 @@ Test reproductible : `python tests/validate_against_official.py` (segment public
 | Rendu `core.render` | contre la surface officielle (`vc_render_tifxyz`), 28 couches | r moyen 0,933 (min 0,871), non corrigé |
 | Lecteur `zarrio.RemoteArray` | Zarr v2 brut (surfaces S3), Zarr v2 Blosc (étiquettes HF), Zarr v3 shardé (étiquettes S3) | lectures cohérentes entre elles (IoU 0,96 à 0,99 entre les étiquettes d'encre HF et S3) |
 | Entrée « 2,4 µm réduite à 21 couches » + inférence + métriques | contre les chiffres publiés par Domenico Russo (s43-75k) | w016 : 0,810 et 0,937 (publié 0,810 et 0,937) ; 0814 : 0,773 et 0,863 (publié 0,772 et 0,863) |
+| Recalage du scan fin vers la surface ~9 µm (`register.py`) | texture CT ; report indépendant de jeff-j-chen sur PHerc0500P2 `--1` ; étiquettes de l'équipe publiées dans les deux repères (PHerc0139, 5 segments) | résidu médian 0,3 à 0,8 px ; IoU 0,992 ; IoU 0,956 à 0,986 |
+| Banc de mesure (`build_bench.py`, `finetune.py`, `run_bench.py`) | notation du checkpoint s43-75k sur les zones du banc, sur CPU | w016 : 0,8100 / 0,7200 / 0,9365 ; 0814 : 0,7731 / 0,7124 / 0,8628 (identiques à l'audit) |
 | Audit des masques (`scripts/audit_reserved_validation.py`) | contre l'audit de khj1222 (docs/17) sur les 3 masques publiés | 59,3 %, 45,0 %, 23,2 % à moins d'un patch (publié : 58,6 %, 45,0 %, 23,2 %) |
 
 Ce qui a changé le 22/11 au soir :
@@ -143,6 +149,14 @@ Reproduire : `python scripts/audit_reserved_validation.py` (masques seuls, quelq
 - **Mémoire** : une session partage 15 Go entre toutes ses tâches. Une transformée de distance sur un segment
   entier de PHerc. 1667 (260 millions de pixels) la sature : travailler par îlot.
 - **Agents en parallèle** : 2 à la fois au plus sur une machine à 4 coeurs.
+- **Mémoire, encore** : trois calculs lourds en même temps font tuer le plus gros (15 Go partagés). Lire les
+  volumes par bandes ; un chunk de surface contient tous les plans.
+- **Code d'autrui** : la session ne peut pas exécuter le code d'un dépôt cloné (refus de l'environnement, à
+  raison). L'entraîneur de l'équipe demande en plus Python 3.14 et des modules C++ hors PyPI. D'où notre affineur.
+- **Jeu Kaggle privé** : `kaggle datasets create -p <dossier> -r tar` envoie 3,7 Go en 2 minutes. Les commandes
+  `datasets files` répondent 403 avec notre jeton ; `datasets status` et `datasets list --mine` marchent.
+- **Dépôts tiers à contenu sensible** : cloner sans les blobs (`--filter=blob:none --no-checkout`), lister avec
+  `git ls-tree -r --name-only` (sans `-l`, qui télécharge tout), et ne lire que les fichiers nécessaires.
 
 ## Fichiers
 
@@ -151,6 +165,13 @@ Reproduire : `python scripts/audit_reserved_validation.py` (masques seuls, quelq
   bucket Hugging Face.
 - `vesuvius_ink_adapt/evalset.py` : segments étiquetés publics, étiquettes, découpage en zones, entrées réduites
   à 21 couches. **Expérimental.**
+- `vesuvius_ink_adapt/register.py`, `scripts/register_fine_to_native.py` : recalage affine du canevas du scan
+  fin vers le canevas natif ~9 µm, sur la texture CT ; fonctions de report d'images entre les deux.
+- `scripts/teacher_vs_team.py` : carte du modèle 2 µm contre étiquettes de l'équipe (A5).
+- `scripts/build_bench.py` : tuiles d'entraînement (corpus de l'équipe et segments nouveaux, deux versions
+  d'étiquettes) et zones d'évaluation du banc.
+- `vesuvius_ink_adapt/finetune.py`, `scripts/run_bench.py`, `kaggle/bench/` : affinage court d'`ink_9um`,
+  notation, branches `base`, `C`, `T`, `H`, et script Kaggle.
 - `scripts/audit_reserved_validation.py` : audit des zones réservées et test de mémorisation.
 - `scripts/inventory.py` : inventaire des scans, surfaces, cartes d'encre et étiquettes publiées, écrit
   `docs/INVENTAIRE.md`.

@@ -47,7 +47,7 @@ publié par d'autres. Ne pas le reprendre.
 
 - **Chercher avant de coder.** Avant chaque étape et avant toute nouvelle idée, faire l'état de l'art sur
   Internet : site et blog du challenge (scrollprize.org, page des lauréats, scrollprize.substack.com), dépôt
-  ScrollPrize/villa (code, tickets « help wanted », pull requests, `ink-detection/configs/README.md`),
+  ScrollPrize/villa (code, tickets « help wanted », pull requests, `vesuvius/docs/ink_detection.md`),
   Hugging Face `scrollprize`, solutions publiées des compétitions Kaggle Vesuvius (Ink Detection 2023,
   Surface Detection 2026), arXiv (préprint 2606.29085 sur les scans 2026, littérature sur l'adaptation au
   moment du test), dépôts GitHub de la communauté. Ne jamais développer ce qui existe déjà : réutiliser le code
@@ -80,6 +80,14 @@ publié par d'autres. Ne pas le reprendre.
   calculer une zone, utiliser `core.infer_roi` (identique à l'officiel) ; `core.infer` part du coin du tableau
   qu'on lui donne et ne coïncide avec l'officiel que sur une surface entière.
 - Le sens « direct » correspond aux rendus officiels ; sur nos propres rendus, tester aussi le sens inverse.
+- **Report du scan fin vers la surface ~9 µm** : `index_fin = A @ index_natif + t`, `index_fin` au niveau 2 du
+  volume fin, affine mesuré sur la texture CT (`vesuvius_ink_adapt/register.py`, sorties dans `data/register/`).
+  L'échelle est le rapport des tailles de canevas, pas celui des tailles de voxel ; le décalage vaut 5 à 10 px.
+- **Banc de mesure** : tuiles de 256 px (`scripts/build_bench.py`), affinage court d'`ink_9um`
+  (`vesuvius_ink_adapt/finetune.py`, recette abrégée), branches `base`, `C`, `T`, `H` (`scripts/run_bench.py`).
+  Contrôle : la branche `base` doit redonner 0,810 / 0,720 / 0,937 sur w016 avec s43-75k.
+- **Code d'autrui** (villa et dépôts de la communauté) : on le lit et on le cite, on ne l'exécute pas dans la
+  session.
 - **Validation** : `python tests/validate_against_official.py` doit afficher `VALIDATION OK`
   (rendu ≈ 0,93 ; encre ≈ 0,9999 sur la grille officielle, écart maximal de 1 niveau sur 255).
   À relancer après toute modification de `core.py`.

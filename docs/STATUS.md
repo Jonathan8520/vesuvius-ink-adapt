@@ -1,48 +1,55 @@
-# Point du 22 novembre 2026 (nuit) : nouveau cap, étiquettes vérifiées à la main
+# Point du 23 novembre 2026 : antériorité vérifiée, plan révisé, banc de mesure prêt
 
-## Où on en est
+## En trois phrases
 
-- Le sprint de novembre est arrêté (tout avait déjà été publié par d'autres).
-- Nouveau cap : publier d'ici le 31 décembre des étiquettes d'encre vérifiées à la main par toi, avec la preuve
-  qu'elles améliorent un modèle, puis viser First Letters. Plan : `docs/PLAN.md`.
+- D'autres ont déjà des étiquettes faites à la main à ~9 µm. Ce qui reste libre est plus étroit qu'annoncé hier,
+  mais réel : le format de l'équipe sur ses surfaces natives, la preuve par entraînement, un outil au stylet.
+- Rien ne dit encore qu'une correction humaine fait mieux que la carte du modèle seule. Je le mesure cette
+  semaine, sans toi, avec les étiquettes humaines qui existent déjà.
+- Ta première séance (29/11) reste un étalonnage en aveugle sur la couche `--1` de PHerc0500P2.
 
-## Fait ce soir
+## Deux corrections à ce que j'ai écrit hier
 
-- Lu le billet sur PHerc. 211 et les dépôts de Priyank Aranke.
-- Inventaire des rouleaux, scans et étiquettes existantes : `docs/INVENTAIRE.md`.
-- `CLAUDE.md` mis à jour, veille corrigée, plan réécrit avec jalons et critères d'arrêt.
-- Test de mémorisation terminé sur les 9 zones réservées.
-- Faits prêts pour tes deux messages Discord : `docs/DISCORD-FAITS.md`.
+1. **Les 6 masques de validation ne sont pas « cachés ».** Ils sont dans le dossier `ink/` du bucket Hugging Face
+   depuis juillet et sur S3 depuis septembre, et deux personnes les ont déjà recensés (nestorvfx, ibarapascal).
+   Ils manquent seulement dans le dossier 9 µm. `docs/DISCORD-FAITS.md` est corrigé, avec le ton à tenir :
+   un signalement voisin a été fermé sèchement par l'équipe en août.
+2. **PHerc0500P2 n'avait pas 7 couches libres mais 5.** jeff-j-chen a déjà ses propres étiquettes sur `front` et `--2` (et
+   reprend celles de l'équipe sur `--1`). Restent les couches `0`, `1`, `2`, `3`, `4` : c'est la nouvelle cible.
 
-## Ce qu'il faut savoir
+## Ce que j'ai mesuré (détail : `docs/EXPERIMENTS.md`, A5 à A7)
 
-1. **La méthode visée est déjà publiée pour les trois objets les plus utiles.** Priyank Aranke a mis en ligne
-   environ 250 cm² d'étiquettes corrigées à la main sur PHerc0814, 0841 et 0009B, avec code et modèle. On ne les
-   refait pas.
-2. **Ce qui reste libre est étroit.** On ne peut corriger à la main que là où la carte du modèle 2 µm est
-   lisible. Sur les couches cachées de PHerc0343P, elle ne montre que des taches : inutilisable.
-3. **Cible de départ : PHerc0500P2**, ses 8 couches numérotées. La carte 2 µm y montre des lignes de lettres, et
-   7 couches n'ont aucune étiquette humaine à ~9 µm. La 8e (`--1`), annotée par l'équipe, servira d'étalon.
-   Aussi libres : son outil d'étiquetage (non publié) et la mesure du gain par heure de correction.
-4. **Les 6 zones de validation sont bien tenues à l'écart d'`ink_9um`** : le checkpoint tardif y obtient un F1
-   de 0,44 à 0,74, contre 0,91 à 0,99 sur ses pixels d'entraînement. Elles sont plus difficiles que les 3 masques
-   publiés (AUC 0,83 contre 0,92). **Correction :** leurs masques ne sont pas « cachés ». Ils sont dans le dossier
-   `ink/` du bucket Hugging Face depuis juillet et sur S3 depuis septembre. Ils manquent seulement dans le
-   dossier 9 µm. `docs/DISCORD-FAITS.md` est corrigé.
+- La carte du modèle 2 µm et les étiquettes humaines de l'équipe ne se recouvrent qu'à 60 à 85 %. Il y a donc
+  de la matière à corriger. Image : `docs/img/pherc0500p2_m1_carte_vs_humain.png`.
+- La « bande incertaine » ne contient que 14 à 24 % des désaccords. Et trois essais publics trouvent que les
+  zones incertaines ne valent pas mieux que des zones au hasard. **L'appli te montrera donc moitié tuiles
+  incertaines, moitié tuiles au hasard**, et on mesurera lesquelles servent. C'est un écart à ta consigne
+  (« seulement les zones incertaines ») : dis-moi si tu préfères autrement.
+- Le report du scan fin vers la surface 9 µm tombe juste à moins d'un pixel (vérifié contre l'équipe).
 
-## Prochaine étape
+## Prêt
 
-- Étape 2 : pré-étiquettes pour les 8 couches de PHerc0500P2 (recalage, carte de reader-v3 à calculer).
-- Étape 3 : l'appli au stylet, après vérification qu'aucun outil existant ne convient.
-- Jalon : première séance de 20 minutes sur ta tablette le 29/11 (couche `--1`, en aveugle).
+- Plan révisé : `docs/PLAN.md`. État de l'art : `docs/RESEARCH.md`, section 10.
+- Banc de mesure : données (jeu Kaggle privé `vesuvius-ink9um-bench`, 3,7 Go), affineur, script Kaggle. Sur CPU,
+  il redonne exactement les scores connus du modèle publié (0,810 et 0,937 sur w016).
+- Pré-test en trois branches : sans ajout, avec la carte du modèle, avec les étiquettes humaines de l'équipe
+  (mêmes pixels de PHerc0009B et de PHerc0500P2 `--1`). Mesure sur les 9 zones réservées et sur PHerc0841.
+
+## Prochaines étapes
+
+- Pré-test sur Kaggle (résultat visé le 27/11, avant la remise à zéro du quota).
+- Appli au stylet pour le 29/11. Rien d'existant ne convient : je l'écris (page web sans serveur).
+- Pré-étiquettes des couches `0` à `4`.
 
 ## Ce que j'attends de toi
 
-- Écrire et poster les deux messages Discord (faits dans `docs/DISCORD-FAITS.md`).
-- Me dire si la cible de départ (PHerc0500P2) te convient, ou attendre la réponse de l'équipe.
-- Me dire si je peux pousser sur `main` comme la dernière fois. Pour l'instant tout est sur la branche
-  `claude/jolly-shannon-2xycqz`.
+- Écrire et poster les deux messages Discord (`docs/DISCORD-FAITS.md`, revu).
+- Me dire si la règle « jamais d'étiquettes » s'étend aux rouleaux du seul Grand Prize (PHerc1447, PHerc0211).
+  En attendant, je n'y touche pas.
+- Me dire si je peux pousser sur `main`. Tout est sur la branche `claude/jolly-shannon-2xycqz`.
+- Pour information : le dépôt public de jeff-j-chen contient des étiquettes sur un rouleau éligible à First
+  Letters. Je n'en ai rien copié et rien n'en figure dans le dépôt.
 
 ## Kaggle
 
-Aucun run lancé. Quota GPU restant : 28,6 h jusqu'au 28/11.
+Quota GPU : 28,6 h restantes jusqu'au 28/11. Un essai court (30 pas) est lancé pour mesurer la vitesse.

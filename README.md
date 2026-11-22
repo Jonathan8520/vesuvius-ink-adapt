@@ -15,9 +15,9 @@ model-derived labels exist. Plan: [`docs/PLAN.md`](docs/PLAN.md). Inventory of s
 [`docs/INVENTAIRE.md`](docs/INVENTAIRE.md). No labels are ever made on a scroll eligible for the First Letters
 prize.
 
-One observation recorded in [`docs/HANDOFF.md`](docs/HANDOFF.md): six of the nine reserved validation zones of
-`ink_9um` are missing from the 9 µm label release but are public on the open-data bucket
-(`scripts/audit_reserved_validation.py`).
+One observation recorded in [`docs/HANDOFF.md`](docs/HANDOFF.md): six of the nine reserved validation masks of
+`ink_9um` are missing from the 9 µm label folder, although they are public in the 2.4 µm frame (folder `ink/` of
+the team's Hugging Face bucket, and the open-data bucket). See `scripts/audit_reserved_validation.py`.
 
 ## What works today
 
@@ -50,6 +50,12 @@ prob, n_patches = core.infer(surface, model, start=6, reverse=False)       # ink
 - `vesuvius_ink_adapt/zarrio.py`: dependency-free reader for remote Zarr arrays (v2 raw or Blosc, sharded v3).
 - `vesuvius_ink_adapt/evalset.py` and `scripts/build_evalset.py`: labelled public segments cut into small
   evaluation zones (experimental).
+- `vesuvius_ink_adapt/register.py` and `scripts/register_fine_to_native.py`: affine registration, on CT texture,
+  between the fine-scan canvas and the native ~9 µm canvas of a segment (see also `tifxyz-canvas-map` and villa's
+  `tifxyz_label_transfer`, which we cite in `docs/RESEARCH.md`).
+- `scripts/build_bench.py`, `vesuvius_ink_adapt/finetune.py`, `scripts/run_bench.py`, `kaggle/bench/`: a small
+  paired fine-tuning bench: same recipe, only the source of the added labels changes (human or 2 µm model map).
+- `scripts/teacher_vs_team.py`: the team's 2 µm model map against the team's human labels.
 - `scripts/audit_reserved_validation.py`: mask-only audit of the reserved validation zones of `ink_9um`.
 - `scripts/inventory.py`: inventory of scans, surfaces, ink maps and published ink labels per scroll.
 - `kaggle/`: the self-contained Kaggle script used for the PHerc. 1203 sweep, and a metadata template.

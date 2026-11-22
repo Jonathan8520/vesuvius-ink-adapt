@@ -161,8 +161,10 @@ Ne jamais noter ici de découverte de lettres sur un rouleau éligible au First 
   un problème de seuil. Sur PHerc0139, le seuil 128 est trop haut (meilleur seuil entre 39 et 130).
 - Pas de trace de mémorisation : dans les zones de validation et dans le reste de la supervision, les scores sont
   les mêmes. La carte publiée ne recopie donc pas les étiquettes.
-- La bande 64 à 128 couvre 4 à 8 % de la surface et ne contient que 5 à 12 % de l'encre humaine. La plupart des
-  désaccords sont ailleurs : montrer seulement cette bande à Jonathan en manquerait l'essentiel.
+- La bande 64 à 128 couvre 4 à 8 % de la surface et ne contient que 5 à 12 % de l'encre humaine. Les désaccords
+  (carte au seuil 128 contre étiquette humaine) couvrent 7 à 16 % de la surface, et seulement 14 à 24 % d'entre eux
+  tombent dans la bande (18 % tous rouleaux confondus) : montrer seulement cette bande à Jonathan en manquerait
+  l'essentiel.
 - Antériorité (trouvée après coup) : le catalogue S3 consigne déjà cet accord pour 24 jeux (champ
   `creation_info.quality`, Dice au seuil 128 de 0,653 à 0,888, médiane 0,815 ; `--1` : 0,837 contre 0,844 chez
   nous), et ibarapascal/ink-disagree (23/09) a audité le même modèle contre les mêmes étiquettes. Notre mesure
