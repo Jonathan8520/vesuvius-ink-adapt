@@ -125,7 +125,7 @@ def main():
         panels = [stretch(down(vol[COMPOSITE[0]:COMPOSITE[1]].astype(np.float32).mean(0)), valid)]
         panels += [stretch(down(vol[k]), valid) for k in LAYERS]
         m = np.clip(np.rint(down(carte[y:y + S, x:x + S])), 0, 255).astype(np.uint8)
-        panels.append(m)
+        panels.append(np.where(valid, m, 0).astype(np.uint8))   # carte masquée là où le scan ~9 µm n'a pas de donnée
         Image.fromarray(np.concatenate(panels, 1)).save(os.path.join(out, "t", tid + ".jpg"), quality=88, subsampling=0)
         pre = np.where(m >= T_HI, 255, np.where(m <= T_LO, 127, 0)).astype(np.uint8)
         pre[~valid] = 64                                   # hors papyrus : verrouillé dans l'appli
