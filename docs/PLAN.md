@@ -117,6 +117,17 @@ de reader-v2, donc pas dans l'entraînement de reader-v3. À confirmer par la r�
             soit rien (témoin). Mesure sur les 9 zones réservées et sur PHerc0841. Au moins 3 graines.
             Données : `scripts/build_bench.py`. Affineur : `vesuvius_ink_adapt/finetune.py` (recette abrégée,
             la même pour toutes les branches).
+            **Règle de lecture, écrite le 22/11 à 22 h 30 UTC, avant tout résultat :**
+            - mesure principale : AUC au pas 1 000, écart `H − T` apparié par graine, moyenne sur les segments
+              d'un groupe ; deux groupes : les 9 cas réservés (rouleaux vus) et PHerc0841 (rouleau jamais vu) ;
+            - incertitude : bootstrap par blocs de 128 px (les mêmes blocs tirés pour toutes les branches) et
+              par graines, 2 000 tirages, intervalle à 95 % ;
+            - « l'humain fait mieux » : borne basse au-dessus de 0 sur au moins un groupe, et estimation non
+              négative sur l'autre ; « la carte fait mieux » : l'inverse ; sinon « pas de différence mesurable » ;
+            - contrôles : la branche `base` redonne les chiffres connus ; le témoin `C` ne perd pas plus de 0,02
+              d'AUC par rapport à `base` (sinon la recette est trop brutale : relancer avec un taux plus bas) ;
+            - lectures secondaires, sans poids dans la décision : précision équilibrée au seuil 0,5, écarts
+              `H − C` et `T − C`, notations à 250 et 500 pas.
       - [ ] c. La même comparaison avec les étiquettes de Jonathan, tuiles « incertaines » contre tuiles au hasard.
       - [ ] d. Courbe du gain en fonction des heures de correction.
       - [ ] e. Si le gain est là : affiner reader-v3 avec ces étiquettes et mesurer sur PHerc0841 et PHerc1447
