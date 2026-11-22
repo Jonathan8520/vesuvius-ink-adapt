@@ -50,7 +50,12 @@ def scroll_key(name):
 
 
 class Sampler:
-    """Tire des patchs 17 x 128 x 128 avec un nombre fixe de patchs par groupe dans chaque lot."""
+    """Tire des patchs 17 x 128 x 128 avec un nombre fixe de patchs par groupe dans chaque lot.
+
+    Le tirage (tuile, recadrage, fenêtre en profondeur) ne dépend que de la graine et du masque de supervision
+    de référence (`sup`, celui des étiquettes humaines), jamais de la version d'étiquettes : deux branches de
+    même graine voient donc exactement les mêmes patchs, seules les étiquettes changent.
+    """
 
     def __init__(self, packs, quotas, versions, seed):
         self.rng = np.random.default_rng(seed)
@@ -61,21 +66,22 @@ class Sampler:
             if key not in self.quotas:
                 continue
             ink, sup = p.labels(versions.get(p.name, "h"))
-            w = sup.reshape(len(sup), -1).sum(1).astype(np.float64)
+            ref = p.masks["sup"]
+            w = ref.reshape(len(ref), -1).sum(1).astype(np.float64)
             for i in np.nonzero(w >= 256)[0]:
-                self.groups.setdefault(key, []).append((p, int(i), ink, sup, w[i]))
+                self.groups.setdefault(key, []).append((p, int(i), ink, sup, ref, w[i]))
         missing = [k for k in self.quotas if k not in self.groups]
         assert not missing, f"groupes sans tuiles : {missing}"
-        self.prob = {k: np.array([t[4] for t in v]) / sum(t[4] for t in v) for k, v in self.groups.items()}
+        self.prob = {k: np.array([t[5] for t in v]) / sum(t[5] for t in v) for k, v in self.groups.items()}
 
     def _one(self, key):
-        p, i, ink, sup, _ = self.groups[key][self.rng.choice(len(self.groups[key]), p=self.prob[key])]
+        p, i, ink, sup, ref, _ = self.groups[key][self.rng.choice(len(self.groups[key]), p=self.prob[key])]
         for _ in range(8):
             y, x = self.rng.integers(0, TILE - P + 1, 2)
-            if sup[i, y:y + P, x:x + P].sum() >= 64:
+            if ref[i, y:y + P, x:x + P].sum() >= 64:
                 break
         else:  # tuile peu supervisée : centrer sur un pixel supervisé
-            ys, xs = np.nonzero(sup[i])
+            ys, xs = np.nonzero(ref[i])
             k = self.rng.integers(len(ys))
             y, x = int(np.clip(ys[k] - P // 2, 0, TILE - P)), int(np.clip(xs[k] - P // 2, 0, TILE - P))
         L = p.img.shape[1]
