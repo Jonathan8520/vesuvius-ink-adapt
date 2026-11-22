@@ -1,0 +1,16 @@
+{
+  "id": "<votre-compte-kaggle>/vesuvius-ink9um-bench-run",
+  "title": "vesuvius ink9um bench run",
+  "code_file": "bench_kernel.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "dataset_sources": ["<votre-compte-kaggle>/vesuvius-ink9um-bench"],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

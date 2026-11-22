@@ -7,9 +7,17 @@ recopier tels quels (ils sont en anglais dans les données).
 
 ## Message 1 : six masques de validation absents du dossier d'étiquettes 9 µm
 
-**Corrigé le 22/11 à 21 h 40 UTC.** La première version disait que les 6 zones n'existaient que sur S3 : c'est
-faux. Ne pas présenter ces masques comme une découverte. Ce qui est nouveau, c'est qu'ils manquent dans le
-dossier 9 µm, et les mesures ci-dessous.
+**Corrigé le 22/11 à 21 h 40 UTC, complété le 23/11.** La première version disait que les 6 zones n'existaient
+que sur S3 : c'est faux. Ne pas présenter ces masques comme une découverte. Ce qui est nouveau, c'est qu'ils
+manquent dans le dossier 9 µm, et les mesures ci-dessous.
+
+**Ton à tenir.** Un signalement voisin a été mal reçu : le ticket villa #1638 (khj1222, 29/08/2026, « all three
+shipped _validation_mask splits cut through annotated regions ») a été fermé « not planned » et verrouillé le
+jour même par pmh47, avec cette réponse : « "validation mask is disjoint from the supervision mask" -- indeed,
+so there is no actual issue. » et « Provided one interprets results carefully in terms of what is intra-segment /
+inter-segment / inter-scroll results (which one always should!), and does not make overly broad claims, there is
+no problem. » Donc : présenter les 6 masques comme une ressource utile qui manque dans un dossier, pas comme un
+défaut de la validation. Dire que toutes ces mesures sont intra-segment (mêmes rouleaux que l'entraînement).
 
 ### L'essentiel
 
@@ -23,9 +31,13 @@ dossier 9 µm, et les mesures ci-dessous.
     en ligne depuis le 7 juillet 2026 (15 segments ont ce fichier, dont les 9 cas réservés) ;
   - S3, depuis le 18/09/2026 : `<segment>/ink-labels/<volume 2,4 µm>/20260918/validation.zarr`. Son niveau 2 a
     exactement la forme des étiquettes 9,6 µm du dossier `ink_9um` (même repère).
-- Antériorité : l'audit de nestorvfx du 24/09/2026 (`nestorvfx/vesuvius-ink-training`, fichier
-  `records/validation_audit.json`) recense ces 15 masques et leur republication sur S3. Il ne dit pas qu'ils
-  manquent dans `ink_9um/labels`. Nous n'avons trouvé personne qui le dise.
+- Antériorité, à citer :
+  - l'audit de nestorvfx du 24/09/2026 (`nestorvfx/vesuvius-ink-training`, fichier
+    `records/validation_audit.json`) recense ces 15 masques et leur republication sur S3 ;
+  - ibarapascal/ink-disagree (23/09/2026) recense les 13 masques `validation` du jeu S3 : 9 blocs tenus à l'écart
+    (PHerc0139 × 2, PHerc1667 × 5, PHerc0814, PHerc0009B) et 4 « surface entière » (PHerc0841 × 3, PHerc0500P2) ;
+  - le schéma du catalogue S3 prévient que le sens de `validation` n'est pas le même d'un jeu à l'autre.
+  Aucun des deux ne dit que 6 masques manquent dans `ink_9um/labels`. Nous n'avons trouvé personne qui le dise.
 - Ces 6 zones n'ont aucun pixel commun avec le `_supervision_mask` d'entraînement publié. Elles font 5,3 fois la
   surface des 3 masques publiés, et elles sont loin des pixels d'entraînement.
 - Conséquence pratique : les évaluations 9 µm que nous avons lues (Domenico Russo, khj1222, Erwin Nieuwlaar)
@@ -101,43 +113,70 @@ Totaux : 721 550 px (0,66 cm²) publiés, 3 818 877 px (3,52 cm²) non publiés 
 
 ## Message 2 : quels rouleaux et quel format d'étiquettes seraient utiles à l'équipe
 
+Révisé le 23/11 après la vérification d'antériorité (`docs/RESEARCH.md`, section 10).
+
 ### Ce qu'on propose (faits à donner)
 
 - 3 à 5 heures par semaine de vérification humaine au stylet, jusqu'à fin décembre au moins.
-- Méthode : carte du modèle 2 µm de l'équipe (`ink_canonical_2um`) ramenée sur la surface à ~9 µm du même
-  segment, puis correction à la main des seules zones incertaines.
-- Publication prévue : étiquettes au format des dossiers `ink_9um` (Zarr v2, plan médian, masque de supervision),
-  sur les surfaces publiques, sous CC BY-NC 4.0, avec l'outil d'étiquetage.
+- Méthode : carte du modèle 2 µm de l'équipe (`ink_canonical_2um`, cartes `new_canon_autoresearch_recipe` de S3)
+  reportée sur la surface native ~9 µm du même segment, puis corrigée à la main.
+- Publication prévue : paire d'images `<segment>_inklabels` et `<segment>_supervision_mask` sur le canevas natif,
+  et les Zarr correspondants, lisibles par `vesuvius.ink_detection` ; sous CC BY-NC 4.0 ; avec l'outil
+  d'étiquetage (page web, stylet) et une comparaison d'entraînements.
 - Jamais sur un rouleau éligible à First Letters.
 
 ### Ce qui existe déjà (pour montrer qu'on a regardé)
 
-| Objet | Étiquettes à ~9 µm déjà publiées |
+| Objet | Étiquettes faites à la main à ~9 µm déjà publiées |
 | --- | --- |
-| PHerc0814, PHerc0841, PHerc0009B | corrigées à la main par Priyank Aranke (`paranke/vesuvius-814-841-9b-studio-training-data`, environ 250 cm², ses propres surfaces, son format) |
-| PHerc0139, 0814, 0500P2, 0009B, 0343P, 0172 | sorties du modèle 2 µm seuillées, non vérifiées (`domenicor046/reader-v2-labels`, 70 segments, format `ink_9um`) |
+| PHerc0814, PHerc0841, PHerc0009B | Priyank Aranke (`paranke/vesuvius-814-841-9b-studio-training-data`, environ 260 cm², ses surfaces, son format) |
+| PHerc0500P2 `front`, `--1`, `--2` ; PHerc0343P `20250511003658` ; 0009B, 0841 w00, 0814, 0139 | jeff-j-chen (dépôt GitHub HercUeNet, PNG, licence MIT, clairsemées, sur les surfaces natives de l'équipe) |
 | PHerc0139 | 5 segments natifs annotés par l'équipe (`ink_9um/labels/native9-scrollprizeorg-21slices`) |
+| PHerc0841 (3 segments), PHerc0009B (1), PHerc0500P2 `--1` | annotations de l'équipe, mais seulement dans le repère du scan fin (S3 `ink-labels` 20260918) |
 | PHerc1447 | 2 segments (`YoussefMoNader/ink-8um-pherc1447-surfaces`) |
-| PHerc0343P, PHerc0500P2 | aucune étiquette vérifiée à la main à ~9 µm (0500P2 : couche `--1` annotée par l'équipe à 2,2 µm). Sur leurs couches cachées (`_b2`, `z_dbg_gen`), la carte 2 µm ne montre que des taches |
-| PHerc1667, PHercParis4 | aucune surface publiée à ~9 µm |
+| PHerc0139, 0814, 0500P2, 0009B, 0343P, 0172 | sorties du modèle 2 µm seuillées, non vérifiées (`domenicor046/reader-v2-labels`, 70 segments) |
+| PHerc0500P2 couches `0`, `1`, `2`, `3`, `4` | rien de fait à la main (notre cible) |
+
+### Chiffres à nous, utilisables dans le message
+
+- Sur la couche `--1` de PHerc0500P2, la carte du modèle 2 µm seuillée à 128 et les étiquettes de l'équipe ont la
+  même part d'encre (21 %) et aucun décalage, mais ne se recouvrent qu'à 73 % (IoU ; F1 0,84). Le catalogue S3
+  donne un Dice de 0,837 pour ce jeu : même ordre.
+- Sur les 28 jeux étiquetés de S3 : F1 de 0,60 à 0,85 selon le rouleau (catalogue S3 : Dice de 0,65 à 0,89).
+- Le report du scan fin vers la surface native tient à moins d'un pixel avec un affine par segment (résidu médian
+  0,4 px sur les 8 couches numérotées de PHerc0500P2), en accord avec la formule de `tifxyz-canvas-map`.
 
 ### Questions possibles
 
-1. Sur quels objets des étiquettes vérifiées à la main à ~9 µm seraient-elles le plus utiles ? Nos candidats :
-   les 8 couches numérotées de PHerc0500P2 (`500P2_front`, `--1`, `0`, `--2`, `1`, `2`, `3`, `4` : cartes 2 µm
-   lisibles, aucune étiquette humaine à ~9 µm sur 7 d'entre elles), le segment `20250511003658-tifxyz` de
-   PHerc0343P, et PHerc0139 natif au-delà des 5 segments de l'équipe.
-2. Quel format préfère l'équipe : celui des dossiers `ink_9um` (21 ou 28 couches, étiquette sur le plan médian,
-   `_inklabels.zarr` et `_supervision_mask.zarr`), ou celui des `ink-labels` de S3 (2D, repère du scan 2,4 µm) ?
-3. Faut-il laisser la bande incertaine hors supervision (comme reader-v2-labels), ou l'étiqueter à la main ?
-4. Faut-il prévoir des zones de validation tenues à l'écart dans chaque segment, et de quelle taille ?
-5. Des étiquettes sur les rouleaux où des lettres viennent d'être trouvées (PHerc0343, 0306B, 0211) seraient-elles
-   utiles, ou à éviter (0211 et 1447 restent éligibles au Grand Prize) ?
-6. La question déjà posée dans #general le 22/11 : un modèle entraîné avec des étiquettes manuelles publiques
-   est-il admis pour First Letters ?
+1. Des étiquettes vérifiées à la main sur les couches `0` à `4` de PHerc0500P2 (surfaces natives 9,362 µm)
+   seraient-elles utiles, ou un autre objet le serait-il davantage ?
+2. Format : une paire d'images sur le canevas natif plus des Zarr à 28 plans (annotation au plan 14), comme le
+   dossier `native9` d'`ink_9um`, convient-il ? Ou faut-il la sortie de `create_label_zarrs` (65 plans) ?
+3. Licence : le README du jeu `ink-labels` renvoie à l'ancienne licence `dl.ash2txt.org/LICENSE.txt`, qui vise les
+   « ink label images » et la redistribution. Sous quelle licence publier des étiquettes corrigées à la main à
+   partir des cartes de S3 (CC BY-NC 4.0) ? Et peut-on republier des reports des étiquettes de l'équipe sur le
+   canevas natif (PHerc0841, 0009B, 0500P2 `--1`) ?
+4. Faut-il prévoir une zone de validation tenue à l'écart dans chaque segment étiqueté, et de quelle taille ?
+5. La question déjà posée dans #general le 22/11 : un modèle entraîné avec des étiquettes manuelles publiques
+   d'autres rouleaux est-il admis pour First Letters ? (Acquis : le ticket villa #1739 admet l'entraînement sur
+   des données 2 µm si le modèle est appliqué au volume éligible à 9 µm.)
+
+### À savoir avant d'écrire
+
+- Le mainteneur bruniss a fermé la PR villa #2381 (outil qui propose où étiqueter d'après l'incertitude) avec :
+  « without a training run comparison we'd prefer this one stay in a separate repo and linked in community
+  projects ». Notre travail reste donc dans ton dépôt, et la comparaison d'entraînements fait partie du projet.
+- Les critères des Progress Prizes : « We discourage standalone analytic, auditing or evaluation tools, and
+  instead encourage work that directly advances unwrapping or ink detection. » Parler d'un jeu d'étiquettes et
+  d'un modèle, pas d'un audit.
+- L'équipe n'a repris jusqu'ici aucune étiquette communautaire dans ses jeux ; elle a repris des modèles
+  (reader-v3, argus-v3).
 
 ### À ne pas affirmer
 
-- Que nos étiquettes amélioreront un modèle : ce n'est pas encore mesuré.
-- Que les objets candidats ressemblent aux rouleaux non lus : Priyank Aranke écrit que 0009B, 0841 et 0814 sont
-  les plus proches, et que les rouleaux déjà lus le sont le moins. Nous n'avons pas de mesure pour 0343P et 0500P2.
+- Que nos étiquettes amélioreront un modèle : ce n'est pas encore mesuré. Les comparaisons publiées donnent
+  plutôt l'avantage à la quantité (cartes denses du modèle) sur la vérification.
+- Que montrer seulement les zones incertaines est efficace : trois essais publics disent le contraire (kit
+  `altrain` de ChaseHendrick, docs/20 de khj1222, ink-disagree).
+- Que PHerc0500P2 ressemble aux rouleaux non lus : Priyank Aranke écrit que 0009B, 0841 et 0814 sont les plus
+  proches ; nous n'avons pas de mesure pour 0500P2.

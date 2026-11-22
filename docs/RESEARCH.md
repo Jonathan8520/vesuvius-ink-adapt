@@ -253,11 +253,18 @@ Chiffres par objet : `docs/INVENTAIRE.md` (`scripts/inventory.py`).
 
 ### Ce qui manque [N]
 
-- Aucune étiquette vérifiée à la main à ~9 µm pour **PHerc0343P** (8 segments) ni pour **PHerc0500P2**
-  (46 segments, hors 1 segment de l'équipe à 2,2 µm). Pour **PHerc0139**, 5 segments natifs seulement.
-- Aucun outil d'étiquetage ouvert pensé pour corriger des pré-étiquettes sur tablette (à confirmer : recherche en
-  cours le 22/11).
-- Aucune mesure publiée du gain apporté par la correction humaine par rapport aux étiquettes de modèle seules.
+Corrigé le 22/11 dans la nuit, après quatre balayages (section 10) :
+
+- Aucune étiquette vérifiée à la main **au format d'entraînement de l'équipe, sur ses surfaces natives ~9 µm
+  publiques**, pour un rouleau autre que PHerc0139 (5 segments).
+- Sur **PHerc0500P2**, les couches `0`, `1`, `2`, `3`, `4` n'ont aucune étiquette humaine. `--1` a celles de
+  l'équipe (scan fin), `--2` et `front` celles de jeff-j-chen (PNG, clairsemées). Sur **PHerc0343P**, le seul
+  segment lisible (`20250511003658`) a déjà une étiquette de l'équipe (encre seule, `ink/unused/P343p`) et des
+  tracés de jeff-j-chen.
+- Aucun outil d'étiquetage d'encre utilisable au stylet sur tablette. Trois tentatives côté bureau ou navigateur
+  n'ont pas été fusionnées dans villa (PR #2219, #1714 fermées ; #2532 en brouillon).
+- Aucune comparaison d'entraînements « étiquettes corrigées à la main contre étiquettes du modèle seules, sur les
+  mêmes pixels ». Aucun temps de correction par cm².
 
 ### Essai de faisabilité sur PHerc0343P [N]
 
@@ -285,3 +292,91 @@ Regardé sur les planches réduites publiées par l'équipe (`ink-detection/down
   numérotées ; l'équipe n'a annoté que `--1`.
 - PHerc0139 : lignes de texte sur les 6 segments regardés.
 - Décision : cible de départ PHerc0500P2, couches numérotées.
+
+## 10. Vérification d'antériorité approfondie (22 novembre, nuit)
+
+Quatre balayages indépendants (Hugging Face, lauréats First Letters, outils d'annotation, pratique de l'équipe),
+puis vérification à la source des points qui décident du plan. [B] = lu par un balayage, [N] = vérifié par nous.
+
+### Qui a déjà des étiquettes faites à la main à ~9 µm
+
+| Auteur | Objets hors concours | Nature | Format et licence | Ce que nous avons vérifié |
+| --- | --- | --- | --- | --- |
+| Priyank Aranke, https://huggingface.co/datasets/paranke/vesuvius-814-841-9b-studio-training-data | PHerc0814, 0841, 0009B (environ 260 cm² supervisés) | cartes du modèle 2 µm reportées puis corrigées à la main | `npy` maison, ses propres surfaces ; CC BY-NC 4.0 | fiche et manifeste [N] |
+| jeff-j-chen, https://github.com/jeff-j-chen/HercUeNet | PHerc0500P2 (`front`, `--1`, `--2`), 0343P (`20250511003658`), 0009B (4 segments), 0841 w00, 0814, 0139 (w041, titre) | PNG dessinés à la main, clairsemés (encre sûre, fond non certifié), sur les volumes de surface natifs de l'équipe | PNG 0/255 ; MIT | arbre du dépôt, README, et mesure sur PHerc0500P2 (journal A6) [N] |
+| Équipe (S3 `ink-labels` 20260918, dossier `ink/` du bucket) | PHerc0841 (3 segments, 3,4 cm²), 0009B (1, 2,6 cm²), 0500P2 `--1` (2,2 cm²) | annotations de l'équipe, repère du scan fin seulement | Zarr v3 2D | lu et mesuré (journal A5) [N] |
+| Équipe, `ink_9um/labels/native9` | PHerc0139 (5 segments, 4,4 cm²) | annotées sur le scan natif | Zarr v2, 28 plans | [N] |
+| Youssef Nader, https://huggingface.co/datasets/YoussefMoNader/ink-8um-pherc1447-surfaces et `ink-8um-v8-patchpack` | PHerc1447 w058, w060 (rouleau du Grand Prize) ; patchs 64 × 64 × 24 de 0139, 0814, 0500P2 `front`, 0009B | annotations de l'équipe | PNG et `npy` ; CC BY-NC 4.0 | [B] |
+| Nicola Bodill, https://github.com/Bodillium/Herculaneum-Scroll-Labels | PHerc0172 | formes de lettres, 2024 | CC BY-NC-SA 4.0 | [B] |
+
+Le dépôt de jeff-j-chen contient aussi des étiquettes sur un rouleau éligible à First Letters : on n'en copie rien
+et on ne s'en sert pas pour entraîner.
+
+### Ce que d'autres ont déjà mesuré, et que nous ne refaisons pas
+
+| Source | Résultat | Conséquence pour nous |
+| --- | --- | --- |
+| Catalogue S3, champ `creation_info.quality` des jeux `ink-labels` [N] | L'équipe consigne l'accord entre ses étiquettes et « the independent ink prediction » : Dice au seuil 128 de 0,653 à 0,888 sur 24 jeux, médiane 0,815 (`--1` : 0,837) | Notre mesure A5 (F1 0,60 à 0,85 avec la carte publiée) confirme. La carte du modèle ne vaut pas une étiquette humaine |
+| https://github.com/ibarapascal/ink-disagree (23/09) [N] | Recensement des 13 masques `validation` du jeu S3 : 9 blocs tenus à l'écart et 4 « surface entière » (PHerc0841 × 3, 0500P2 `--1`). Sur ces 4, noter sur `validation ∩ supervision`. La confiance calibrée du modèle 2 µm repère mieux ses erreurs (AUC 0,798) que le désaccord avec un second modèle (0,762). `ink_9um` sur PHerc0841 et 0500P2 : AP 0,69, AUC 0,85 | Antériorité pour le message Discord 1. Définir « incertain » par la confiance du modèle 2 µm. PHerc0500P2 est un rouleau où `ink_9um` est faible |
+| https://github.com/slchicoineau-creator/tifxyz-canvas-map (19/10, MIT) [N] | Formule exacte entre canevas fin et natif d'un même segment : `p_natif = (p_fin + 10,5) × n_natif / n_fin − 10,5`. Résidu après formule : 0,5 à 1,5 px natifs (affine entre scans), un seul affine par segment suffit sauf sur PHerc0139 (limite) | Notre recalage A7 retrouve l'échelle (rapport des tailles de canevas) et mesure le résidu. À citer ; pas une nouveauté |
+| khj1222, docs/33, et ticket villa #2243 [B] | Une carte du scan fin redimensionnée par aire tombe à environ 7 px du canevas natif ; concerne reader-v2-labels ; effet sur les modèles « unclear » (0,004 à 0,009 d'AUC) | Recaler avant de montrer quoi que ce soit à Jonathan |
+| ChaseHendrick, kit `altrain` (03/11) [B] | Ronde d'étiquetage simulée : les tuiles choisies par incertitude ne battent pas les tuiles au hasard, à aucun budget | Le ciblage par incertitude est une hypothèse, pas un acquis |
+| khj1222, docs/20 et docs/15 [B] | À budget fixe, le sous-ensemble où le modèle est le moins incertain gagne sur 7 segments sur 7. La moitié de l'annotation d'un segment garde 89 % du bénéfice, un cinquième 71 % | Peu d'étiquettes sur beaucoup de segments, plutôt qu'un segment entier |
+| Domenico Russo, Erwin Nieuwlaar [B] | Cartes denses du modèle 2 µm contre étiquettes manuelles clairsemées : +0,03 à +0,10 de précision équilibrée, +4 points d'AUC | La densité a compté plus que la pureté des étiquettes. Notre comparaison doit donc se faire à surface égale |
+| Liam Warner et Nicola Bodill, PHerc. 306B [B] | Tracés à la main d'un autre rouleau ajoutés 300 pas : +0,04 d'AP, intervalle au-dessus de 0 | Ordre de grandeur réaliste d'un gain |
+
+### Outils d'étiquetage : rien d'utilisable au stylet [B]
+
+- VC3D n'a pas de peinture d'étiquettes d'encre. PR villa #2532 (brouillon du 13/11), #2219 (fermée le 19/11),
+  prototype navigateur #1714 (fermé le 22/09) : aucune fusionnée.
+- Crackle Viewer, Kintsugi, khartes, outils napari : bureau seulement. Label Studio, CVAT, webKnossos : serveur à
+  héberger, tactile peu fiable ou licence lourde. Klecks (MIT) : appli de peinture web avec stylet, généraliste.
+- « Donor Studio » de Priyank Aranke n'est pas publié. L'équipe renvoie à GIMP ou Photoshop.
+- Décision : écrire une petite page statique (canvas 2D, Pointer Events, sans framework), tuiles pré-découpées,
+  stockage IndexedDB, export de la paire d'images de l'équipe, journal des traits. Le bucket S3 autorise le CORS.
+- Pièges stylet relevés : `pointercancel` à traiter, deux doigts pour naviguer, bouton du S Pen non fiable côté
+  web, HTTPS requis pour les événements fusionnés, 4 Go de mémoire sur la tablette. À valider sur l'appareil.
+
+### Pratique et attentes de l'équipe [N] sauf mention
+
+- Format lu par l'entraînement : `<segment>_inklabels[_vN].zarr`, `<segment>_supervision_mask[_vN].zarr`,
+  `<segment>_validation_mask[_vN].zarr` (facultatif), Zarr v2 3D, annotation sur le plan médian (`Z // 2`). Trois
+  variantes : alignée (21 plans), native (28 plans, 0/255, 6 niveaux) et sortie de `create_label_zarrs` (65 plans),
+  lue par l'entraînement 21 et 28 couches seulement depuis la PR #2206 du 01/11 [B]. Pour rester compatible avec
+  les forks plus anciens : écrire à la profondeur du volume de surface.
+- Chaîne de l'équipe : images retouchées (`_inklabels.tif`, `_supervision_mask.tif`), puis
+  `vesuvius.ink_detection.preprocessing.create_label_zarrs`. Report entre scans : `vesuvius.tifxyz_label_transfer`
+  (géométrie 3D des maillages). Documentation : `vesuvius/docs/ink_detection.md` dans villa.
+- Consigne d'étiquetage (tutoriel 5) : « Labeling is conservative: only regions where strokes are clearly and
+  repeatably visible get labeled. » Encre et fond supervisé vont ensemble, le douteux reste hors supervision.
+- Le mainteneur bruniss a fermé la PR villa #2381 (« suggest where to label next, from where the predictions are
+  least sure ») le 01/11 : « without a training run comparison we'd prefer this one stay in a separate repo and
+  linked in community projects ». Notre étape 5 est cette comparaison.
+- Ticket villa #1638 (khj1222, 29/08) sur les 3 masques de validation collés à l'entraînement : fermé « not
+  planned » et verrouillé le jour même par pmh47 : « "validation mask is disjoint from the supervision mask" --
+  indeed, so there is no actual issue. » Présenter les 6 autres masques comme une ressource, pas comme un défaut.
+- Le schéma du catalogue prévient que le sens de `validation` n'est pas uniforme d'un jeu à l'autre [B].
+- Progress Prizes (page des prix) : « We discourage standalone analytic, auditing or evaluation tools, and
+  instead encourage work that directly advances unwrapping or ink detection. » Un jeu de données et un modèle
+  comptent ; un audit seul, non. Échéances mensuelles (prochaine : 30/11/2026).
+- Ce que l'équipe a primé en 2026 autour de l'encre [B] : reader-v2 et reader-v3 (5 000 $ chacun), banc de
+  checkpoints (1 000 $), pseudo-étiquettes denses (500 $), Rectina (250 $). Aucun jeu d'étiquettes vérifiées à la
+  main en 2026 ; 1 000 à 2 500 $ pour des jeux d'étiquettes en 2023 et 2024.
+- L'équipe reprend des modèles communautaires dans son catalogue (reader-v3, argus-v3), mais aucune étiquette
+  communautaire [B]. Le chemin vers l'adoption passe par un modèle meilleur.
+- First Letters : ticket villa #1739, réponse de pmh47 : entraîner sur du 2 µm est admis si le modèle est appliqué
+  au volume éligible à 9 µm [B]. Le règlement refuse toute annotation manuelle de la zone revendiquée, même
+  mémorisée par un modèle, et tout recouvrement entre entraînement et prédiction.
+- Licence : la racine du bucket S3 est sous CC BY-NC 4.0, mais le README du jeu `ink-labels` renvoie à l'ancienne
+  licence `dl.ash2txt.org/LICENSE.txt`, qui restreint la redistribution et vise les « ink label images » [B]. À
+  demander avant de republier des étiquettes dérivées de celles de l'équipe.
+
+### Ce qui reste libre, et ce que nous en faisons
+
+1. Des étiquettes vérifiées à la main, au format de l'équipe, sur ses surfaces natives : cible PHerc0500P2,
+   couches `0` à `4`.
+2. La comparaison d'entraînements que les mainteneurs demandent : mêmes pixels, étiquettes humaines contre carte
+   seule. Faisable dès maintenant avec les étiquettes humaines existantes (PHerc0009B, PHerc0500P2 `--1`), avant
+   que Jonathan n'y passe du temps.
+3. Un outil au stylet, et le temps de correction par cm².
+

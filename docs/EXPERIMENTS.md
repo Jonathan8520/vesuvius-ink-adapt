@@ -136,3 +136,91 @@ Ne jamais noter ici de découverte de lettres sur un rouleau éligible au First 
 - Conclusion : la cible de départ passe de PHerc0343P à PHerc0500P2 (couches numérotées). Le recalage est à faire
   sur la texture CT, pas sur les modèles. Les zones à montrer à Jonathan ne peuvent pas être la seule bande 64 à 128.
 - Fichiers : aucun dans le dépôt (sondes dans le dossier temporaire de la session).
+
+## A5 : carte du modèle 2 µm contre étiquettes humaines de l'équipe (22/11/2026, nuit)
+
+- But : savoir combien une correction humaine peut changer par rapport à la carte du modèle 2 µm seuillée (règle
+  de reader-v2-labels : encre si carte ≥ 128, fond si ≤ 64).
+- Données : les 28 segments hors concours qui ont des étiquettes de l'équipe sur S3 (`ink-labels/.../20260918`) et
+  la carte `new_canon_autoresearch_recipe` du même volume fin. Comparaison au niveau 2 (pas de 8,9 à 9,6 µm), carte
+  moyennée 4 × 4. Aucun calcul de modèle de notre côté.
+- Résultat (moyennes pondérées par pixel) :
+
+| Objet | Pixels supervisés | AUC | F1 au seuil 128 | F1 au meilleur seuil | Encre humaine que la carte dit fond | Fond humain que la carte dit encre |
+| --- | --- | --- | --- | --- | --- | --- |
+| PHerc0500P2 (`--1`, jamais vu par le modèle 2 µm) | 2,8 M | 0,975 | 0,84 | 0,84 | 8 % | 4 % |
+| PHerc0841 (3 segments, jamais vus) | 3,7 M | 0,924 | 0,76 | 0,77 | 12 % | 10 % |
+| PHerc0009B (1 segment) | 2,8 M | 0,95 à 0,96 | 0,81 à 0,82 | 0,82 | 11 à 13 % | 5 à 6 % |
+| PHerc0814 (1 segment) | 0,6 M | 0,94 à 0,97 | 0,84 à 0,85 | 0,85 | 3 à 6 % | 11 % |
+| PHercParis4 (8 segments) | 88,9 M | 0,942 | 0,80 | 0,80 | 12 % | 8 % |
+| PHerc1667 (6 segments) | 31,2 M | 0,91 à 0,92 | 0,74 à 0,76 | 0,74 à 0,77 | 19 % | 6 à 8 % |
+| PHerc0139 (8 segments) | 7,3 M | 0,87 à 0,91 | 0,60 à 0,73 | 0,68 à 0,78 | 22 à 33 % | 7 à 10 % |
+
+- Lecture : la carte seuillée et les étiquettes humaines ne se recouvrent qu'à 60 à 85 % (F1). Sur `--1`, pas de
+  décalage entre les deux (≤ 1 px) et même part d'encre (21 %) : l'écart est un vrai désaccord sur les traits, pas
+  un problème de seuil. Sur PHerc0139, le seuil 128 est trop haut (meilleur seuil entre 39 et 130).
+- Pas de trace de mémorisation : dans les zones de validation et dans le reste de la supervision, les scores sont
+  les mêmes. La carte publiée ne recopie donc pas les étiquettes.
+- La bande 64 à 128 couvre 4 à 8 % de la surface et ne contient que 5 à 12 % de l'encre humaine. La plupart des
+  désaccords sont ailleurs : montrer seulement cette bande à Jonathan en manquerait l'essentiel.
+- Antériorité (trouvée après coup) : le catalogue S3 consigne déjà cet accord pour 24 jeux (champ
+  `creation_info.quality`, Dice au seuil 128 de 0,653 à 0,888, médiane 0,815 ; `--1` : 0,837 contre 0,844 chez
+  nous), et ibarapascal/ink-disagree (23/09) a audité le même modèle contre les mêmes étiquettes. Notre mesure
+  confirme ; ce qu'elle ajoute : la séparation validation / reste et la part des désaccords hors de la bande.
+- Image : `docs/img/pherc0500p2_m1_carte_vs_humain.png` (carte et étiquettes de l'équipe, dérivées de « Vesuvius
+  Challenge - CT Scans of Herculaneum Papyri », CC BY-NC 4.0 ; PHerc0500P2 n'est éligible à aucun prix).
+- Fichiers : `scripts/teacher_vs_team.py`, résultats dans `data/teacher/teacher_vs_team.json` (hors dépôt).
+
+## A6 : étiquettes de jeff-j-chen sur PHerc0500P2 (22/11/2026, nuit)
+
+- But : savoir ce que couvrent les étiquettes PNG du dépôt jeff-j-chen/HercUeNet (MIT) sur notre cible.
+- Données : ses fichiers `dilated_inklabels`, `train_masks` et `masks` pour les couches `front`, `--1` et `--2`
+  (rouleau hors concours ; aucun autre fichier de ce dépôt n'a été téléchargé), étiquettes de l'équipe sur `--1`,
+  cartes du modèle 2 µm. Tout est ramené dans un même repère par le recalage de A7.
+- Résultat :
+  - `--1` : dans la zone supervisée par l'équipe, ses étiquettes sont celles de l'équipe (IoU 0,992 après report,
+    un décalage d'un pixel fait baisser le score). Son masque d'entraînement est deux fois plus grand (5,7 M px
+    contre 2,8 M), avec 8 % d'encre.
+  - `--2` : étiquettes à lui, clairsemées. 7 % d'encre dans son masque, contre 14 % pour la carte 2 µm au seuil
+    128 ; IoU 0,40 avec la carte ; 78 % de son encre est à moins de 3 px d'encre de la carte, mais seulement 51 % de
+    l'encre de la carte est proche de la sienne. Il marque les traits sûrs et laisse le reste sans le certifier
+    comme fond (son entraînement traite le reste en « non étiqueté »).
+  - `front` : étiquettes proches de la carte (IoU 0,68), avec des négatifs durs peints (0,7 M px). Son journal dit
+    « Clear labels transferred from 2.215µm ».
+- Conclusion : sur PHerc0500P2, `front`, `--1` et `--2` ont déjà des étiquettes faites à la main (denses de l'équipe
+  sur `--1`, clairsemées de jeff-j-chen sur `--2`). Les couches `0`, `1`, `2`, `3`, `4` n'ont aucune étiquette
+  humaine. Aucun de ces jeux n'est au format de l'équipe.
+- Ce dépôt contient aussi des étiquettes sur un rouleau éligible à First Letters : on n'en copie rien.
+
+## A7 : recalage du scan fin vers la surface ~9 µm par la texture CT (22/11/2026, nuit)
+
+- But : reporter sur le canevas natif ~9 µm les cartes et les étiquettes posées sur le scan fin (étape 2b).
+- Méthode : moyenne de 4 couches natives autour de la surface et de la même épaisseur dans le volume fin (niveau
+  2), filtre passe-haut, corrélation par tuiles de 384 px, puis ajustement affine robuste
+  (`index_fin = A @ index_natif + t`).
+- Résultat : les deux canevas ne se déduisent pas du seul rapport des tailles de voxel. Écart d'échelle d'environ
+  0,4 % et décalage constant de 5 à 10 px. Après ajustement affine :
+
+| Objet | Segments | Échelle mesurée (nominale) | Résidu médian | Résidu p90 |
+| --- | --- | --- | --- | --- |
+| PHerc0500P2 | 8 couches numérotées | 1,051 à 1,055 (1,0567) | 0,36 à 0,43 px | 0,66 à 1,22 px |
+| PHerc0841 | 3 | 0,974 à 0,975 (0,9744) | 0,55 à 0,58 px | 1,28 à 1,38 px |
+| PHerc0009B | 1 | 0,900 (0,8996) | 0,78 px | 1,63 px |
+| PHerc0814 | 1 (46527) | 0,970 à 0,977 (0,9755) | 0,26 px | 1,26 px |
+| PHerc0139 | w035, w039, w040, w041, w044 | 0,971 à 0,974 (0,9755) | 0,59 à 0,78 px | 1,1 à 1,9 px |
+
+- Contrôles : (1) corrélation de texture natif contre fin reporté, médiane 0,94 sur `--1` ; (2) étiquettes de
+  l'équipe reportées sur `--1` contre le report indépendant de jeff-j-chen (SIFT et champ de déplacement) : IoU
+  0,992 ; (3) PHerc0139, 5 segments où l'équipe publie des étiquettes dans les deux repères : IoU de l'encre
+  0,956 à 0,986 (0,988 à 0,991 avec un décalage d'un pixel pour w035, w039, w040, w041), IoU des masques de
+  supervision 0,992 à 0,995 pour ces quatre-là. Pour w044, les deux jeux ne couvrent pas la même région (le jeu
+  du scan fin est le cas `pherc0139-w028`), d'où un IoU de supervision de 0,57 qui n'est pas un défaut de recalage.
+- Antériorité : l'outil officiel est `vesuvius.tifxyz_label_transfer` de villa (report par la géométrie 3D des
+  maillages, cas général). Notre affine ne vaut que pour deux canevas issus du même maillage aplati, ce qui est le
+  cas des 132 segments hors concours qui ont les deux volumes de surface sur S3.
+  Trouvé après coup : slchicoineau-creator/tifxyz-canvas-map (MIT, 19/10) donne la formule exacte
+  `p_natif = (p_fin + 10,5) × n_natif / n_fin − 10,5` et mesure le même résidu (0,5 à 1,5 px, un affine par segment,
+  limite sur PHerc0139). Notre échelle mesurée est bien le rapport des tailles de canevas (1,0527 pour `--1`), et
+  notre décalage (9,3 ; 7,6) s'écarte de celui de la formule (8,1 ; 8,0) d'environ 1 px : c'est ce résidu. Notre
+  recalage n'est donc pas une nouveauté ; il sert de contrôle indépendant et corrige le résidu.
+- Fichiers : `vesuvius_ink_adapt/register.py`, `scripts/register_fine_to_native.py`, sorties dans `data/register/`.

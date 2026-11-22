@@ -1,143 +1,168 @@
-# Plan : étiquettes d'encre vérifiées à la main (cap du 22 novembre 2026)
+# Plan : étiquettes d'encre vérifiées à la main (cap du 22 novembre 2026, révisé le 23/11)
 
 Ce plan remplace celui du sprint de novembre, arrêté le 22/11 (ancien texte dans l'historique git, raisons dans
-`docs/HANDOFF.md`).
+`docs/HANDOFF.md`). Révision du 23/11 : après la vérification d'antériorité approfondie (`docs/RESEARCH.md`,
+section 10) et les mesures A5 à A7 (`docs/EXPERIMENTS.md`).
 
 ## But
 
 1. **D'ici le 31 décembre 2026** : publier des étiquettes d'encre à ~9 µm vérifiées à la main par Jonathan, dans le
    format de l'équipe, avec la preuve chiffrée qu'elles améliorent un modèle. Soumission aux Progress Prizes de
-   décembre (date exacte de l'échéance à confirmer sur https://scrollprize.org/prizes).
+   décembre (échéances mensuelles ; celle de novembre est le 30/11, celle de décembre est attendue le 31/12).
 2. **Ensuite, jusqu'au 25 juin 2027** : utiliser le modèle obtenu pour First Letters (50 000 $ par rouleau).
 
 Répartition : Jonathan corrige au stylet 3 à 5 heures par semaine sur sa tablette (Galaxy Tab S6 Lite), par
 séances de 20 minutes. La session fait le reste.
 
-## Ce que la vérification préalable a montré (22/11)
+## Ce que la vérification a montré
 
-Lecture du billet sur PHerc. 211, des dépôts de Priyank Aranke et des jeux publiés. Détail : `docs/RESEARCH.md`.
-Chiffres par rouleau : `docs/INVENTAIRE.md`.
+Détail et sources : `docs/RESEARCH.md`, sections 9 et 10.
 
-- **La méthode visée a déjà été appliquée et publiée.** Priyank Aranke a reporté les cartes du modèle 2 µm de
-  l'équipe sur des surfaces à ~9 µm de PHerc0814, PHerc0841 et PHerc0009B, puis les a corrigées à la main :
-  environ 250 cm² supervisés (294 millions de pixels, médiane de 21 révisions par segment), publiés sous
-  CC BY-NC 4.0 avec le code et le modèle. D'après lui, c'est ce qui a le plus compté pour trouver les lettres de
-  PHerc. 211. Ces trois objets sont, d'après son analyse, ceux qui ressemblent le plus aux rouleaux non lus.
-- **Ce que ses jeux ne couvrent pas** :
-  - ses étiquettes sont sur ses propres surfaces et dans son propre format (tuiles `npy`), pas sur les segments
-    publics ni dans le format que lit l'entraîneur de l'équipe ;
-  - son outil d'étiquetage (« Donor Studio ») n'est pas publié ;
-  - pour PHerc0139, PHerc0343P et PHerc0500P2, il n'existe à ~9 µm que des étiquettes issues de modèles
-    (reader-v2-labels de Domenico Russo, qui laisse de côté la bande incertaine), plus 5 segments annotés par
-    l'équipe pour 0139 ;
-  - PHerc1667 et PHercParis4 n'ont aucune surface publiée à ~9 µm.
-- **Conséquence** : refaire 0814, 0841 ou 0009B n'apporterait rien. Notre apport possible tient en trois points :
-  des étiquettes vérifiées là où il n'y a que des sorties de modèle, un outil d'étiquetage ouvert et utilisable
-  sur tablette, et la mesure du gain par heure de correction humaine.
+**Déjà fait par d'autres :**
+
+- Priyank Aranke : la méthode visée, sur PHerc0814, 0841 et 0009B (environ 260 cm², ses surfaces, son format).
+- jeff-j-chen : étiquettes dessinées à la main en PNG sur les surfaces natives de l'équipe, dont trois couches de
+  PHerc0500P2 (`front`, `--1`, `--2`) et le seul segment lisible de PHerc0343P. Clairsemées, sans fond certifié.
+- L'équipe : PHerc0139 natif (5 segments), et, sur le scan fin seulement, PHerc0841, 0009B et 0500P2 `--1`.
+- Le passage du scan fin à la surface 9 µm : formule exacte publiée (tifxyz-canvas-map) et outil de l'équipe.
+- L'écart entre la carte du modèle 2 µm et les étiquettes humaines : consigné par l'équipe dans son catalogue.
+
+**Pas fait, et vérifié par quatre balayages :**
+
+1. Des étiquettes vérifiées à la main au format d'entraînement de l'équipe, sur ses surfaces natives publiques,
+   pour un autre rouleau que PHerc0139.
+2. Une comparaison d'entraînements : mêmes pixels, étiquettes humaines contre carte du modèle seule. C'est ce que
+   le mainteneur de villa demande avant d'accepter un outil d'étiquetage (PR #2381).
+3. Un outil d'étiquetage au stylet, et le temps de correction par cm².
+
+**Ce que nos mesures ajoutent :**
+
+- La carte du modèle 2 µm seuillée ne recouvre les étiquettes humaines qu'à 60 à 85 % (A5). La correction humaine
+  a donc de la matière. Mais la plupart des désaccords sont hors de la « bande incertaine » 64 à 128.
+- Le report du scan fin vers la surface 9 µm est réglé à moins d'un pixel (A7).
+- Les 9 zones réservées d'`ink_9um` sont une bonne mesure pour la lignée `ink_9um` (A2).
+
+**Ce qui joue contre nous :**
+
+- Les comparaisons publiées donnent l'avantage à la quantité d'étiquettes (cartes denses du modèle) sur leur
+  pureté. Le gain d'une correction humaine n'est donc pas acquis.
+- Trois essais publics trouvent que les zones « incertaines » ne valent pas mieux que des zones au hasard.
+- En 2026, l'équipe a primé des modèles (reader-v2, reader-v3), pas des jeux d'étiquettes, et décourage les outils
+  d'audit seuls. Il faudra présenter un jeu de données et un modèle amélioré, mesuré sur les jeux publics.
 
 ## Règles
 
-- Jamais d'étiquettes sur un rouleau éligible à First Letters (liste en tête de `docs/INVENTAIRE.md`).
+- Jamais d'étiquettes sur un rouleau éligible à First Letters (liste en tête de `docs/INVENTAIRE.md`). Par
+  prudence, pas non plus sur PHerc1447 et PHerc0211, qui restent éligibles au Grand Prize (à confirmer par Jonathan).
 - Jamais d'étiquette ni d'entraînement dans les 9 zones de validation réservées d'`ink_9um`, quelle que soit la
-  représentation. PHerc0841 reste un jeu de mesure : pas d'étiquettes dessus.
+  représentation. PHerc0841 reste un jeu de mesure : ni étiquettes nouvelles, ni entraînement.
 - Si des lettres apparaissent sur un rouleau éligible : rien dans le dépôt, prévenir Jonathan.
+- Rien n'est copié du dépôt jeff-j-chen/HercUeNet en dehors de ses fichiers de PHerc0500P2, lus pour la mesure A6 :
+  ce dépôt contient des étiquettes sur un rouleau éligible.
 - Discord : la session prépare les faits (`docs/DISCORD-FAITS.md`), Jonathan écrit et poste.
-- Licences : étiquettes sous CC BY-NC 4.0 (licence des scans), code sous MIT. Citer les jeux réutilisés.
-- Publier tôt : une première version du jeu et de l'appli dès qu'elles servent, sans attendre la fin décembre.
+- Licences : nos étiquettes sous CC BY-NC 4.0 (licence des scans), code sous MIT. Ne pas republier d'étiquettes
+  dérivées de celles de l'équipe (reports sur le canevas natif, masques de validation) avant sa réponse sur la
+  licence : son README renvoie à une ancienne licence qui restreint la redistribution.
+- Code d'autrui : on le lit et on le cite, on ne l'exécute pas dans la session.
+- Publier tôt : une première version du jeu et de l'appli dès qu'elles servent.
 
 ## Cible des étiquettes
 
-Choix provisoire, à confirmer par la réponse de l'équipe (message Discord n° 2) et par la première séance.
+On ne peut corriger à la main que là où la carte du modèle 2 µm est lisible (lignes et formes de lettres).
 
-**Condition préalable, vérifiée à l'œil le 22/11 : on ne peut corriger à la main que là où la carte du modèle 2 µm
-est lisible** (lignes et formes de lettres). Là où elle ne montre que des taches, un humain ne peut pas juger.
+| Candidat | Étiquettes humaines existantes | Verdict |
+| --- | --- | --- |
+| **PHerc0500P2, couches `0`, `1`, `2`, `3`, `4`** (9,362 µm à 113 keV, scan fin à 2,215 µm) | aucune | **cible de production** |
+| PHerc0500P2, couche `--1` | équipe (scan fin, 2,2 cm²), reprise par jeff-j-chen | **étalon** : première séance en aveugle |
+| PHerc0500P2, couches `--2` et `front` | jeff-j-chen, clairsemées | plus tard : compléter en dense |
+| PHerc0139 natif, 30 segments sans étiquette humaine | 5 segments de l'équipe | réserve, pour étaler sur beaucoup de segments |
+| PHerc0343P, segment `20250511003658` | équipe (encre seule) et jeff-j-chen | écarté |
+| PHerc0343P autres segments ; PHerc0500P2 `z_dbg_gen` | aucune, cartes illisibles | écartés |
+| PHerc0814, 0009B, 0841 | Priyank Aranke | écartés (0841 : mesure seulement) |
 
-| Candidat | Carte 2 µm lisible ? | Étiquettes à ~9 µm existantes | Verdict |
-| --- | --- | --- | --- |
-| **PHerc0500P2, 8 couches numérotées** (`500P2_front`, `--1`, `0`, `--2`, `1`, `2`, `3`, `4` ; 9,362 µm à 113 keV et 2,215 µm) | oui : lignes de lettres nettes sur `front`, `--1`, `--2`, partielles sur les autres | `front` : sorties de modèle seulement ; `--1` : étiquettes de l'équipe à 2,2 µm ; les 6 autres : rien | **cible de départ** |
-| PHerc0343P, segment `20250511003658-tifxyz` (8,64 µm à 116 keV) | oui, trois lignes | sorties de modèle seulement | deuxième cible, petite |
-| PHerc0343P, 7 autres segments ; PHerc0500P2, 25 segments `z_dbg_gen` | non, taches seulement | sorties de modèle | écartés : invérifiables à la main |
-| PHerc0139 natif (9,362 µm) | oui, lignes de texte sur tous les segments regardés | 5 segments de l'équipe, 20 en sorties de modèle (819 cm²) | réserve : gros volume, mais rouleau jugé peu ressemblant aux rouleaux non lus |
-| PHerc0814, PHerc0009B, PHerc0841 | oui | corrigés à la main par Priyank Aranke | écartés : déjà faits |
-| PHerc1667, PHercParis4 | oui | aucune surface publiée à ~9 µm | écartés pour l'instant |
-
-Pourquoi PHerc0500P2 : cartes lisibles, aucune étiquette humaine à ~9 µm sur 7 couches, même réglage de scan
-(9,362 µm à 113 keV) que 10 rouleaux éligibles, taille compatible avec nos heures (ordre de grandeur : 1 heure par couche, à mesurer).
-La couche `--1`, déjà annotée par l'équipe, sert d'étalon : Jonathan la corrige en aveugle, on compare, puis elle
-reste hors entraînement pour la mesure.
+Pourquoi PHerc0500P2 : cartes lisibles, même réglage de scan que 10 rouleaux éligibles, et `ink_9um` y est faible
+(AUC 0,86 sur la partie annotée de `--1`, d'après ibarapascal/ink-disagree). Les couches `0` à `4`, `--1` et `--2` ne sont pas dans les étiquettes
+de reader-v2, donc pas dans l'entraînement de reader-v3. À confirmer par la réponse de l'équipe (message n° 2).
 
 ## Étapes
 
-- [x] **0. Vérification préalable** (22/11) : méthode de Priyank Aranke, jeux déjà publiés.
-- [x] **1. Inventaire** (22/11) : `scripts/inventory.py` → `docs/INVENTAIRE.md`. 10 objets hors First Letters ont un
-      scan fin et un scan à ~9 µm. À relancer quand le catalogue du bucket change.
-- [ ] **2. Pré-étiquettes et incertitude.**
-      a. Tri de lisibilité : une planche réduite par segment candidat, classée lisible ou non (fait le 22/11 pour
-         PHerc0343P, PHerc0500P2 et six segments de PHerc0139).
-      b. Pour chaque segment retenu : carte du modèle 2 µm de l'équipe ramenée au repère de la surface ~9 µm
-         (recalage vérifié sur la texture CT, tolérance 2 px ; l'essai sur PHerc0343P montre 8 px d'écart à
-         corriger), et carte de reader-v3 calculée par nous quand l'équipe ne l'a pas publiée (cas de PHerc0500P2).
-      c. Pré-étiquette : encre si la carte 2 µm dépasse 128, fond sous 64 (règle de reader-v2-labels).
-      d. Zones à montrer : désaccords entre la carte 2 µm et reader-v3, taches isolées hors des lignes de texte,
-         traits interrompus. La seule bande 64 à 128 ne suffit pas : c'est surtout le contour des taches.
-- [ ] **3. Appli web au stylet.** Page statique (sans serveur ni compte), ouverte dans Chrome sur la tablette :
-      une tuile à la fois, couches CT, carte du modèle, pré-étiquette ; peindre encre, fond ou « je ne sais pas » ;
-      valider ; minuteur de 20 minutes ; reprise là où on s'est arrêté ; export d'un fichier de corrections.
-      Avant d'écrire : vérifier qu'aucun outil existant ne fait déjà l'affaire.
-      Première séance : étalonnage en aveugle sur une zone déjà annotée par l'équipe, pour chiffrer l'accord.
-- [ ] **4. Export au format de l'équipe.** `<segment>_inklabels.zarr` et `<segment>_supervision_mask.zarr`
-      (Zarr v2, uint8, 255 sur le plan médian, même forme que la surface native), lisibles par l'entraîneur de
-      villa sans changement, plus un manifeste (segment, surface, origine de chaque pixel : modèle ou humain,
-      date, durée). Dépôt sur Hugging Face.
+- [x] **0. Vérification d'antériorité** (22 et 23/11).
+- [x] **1. Inventaire** (22/11) : `scripts/inventory.py` → `docs/INVENTAIRE.md`.
+- [ ] **2. Pré-étiquettes.**
+      - [x] a. Tri de lisibilité (22/11).
+      - [x] b. Recalage du scan fin vers la surface 9 µm : `scripts/register_fine_to_native.py`, résidu médian
+            0,4 px sur les 8 couches de PHerc0500P2 (A7).
+      - [ ] c. Pré-étiquette : carte du modèle 2 µm reportée, encre si ≥ 128, fond si ≤ 64 (le meilleur seuil
+            mesuré sur `--1` est 121). Carte de reader-v3 à calculer pour comparaison.
+      - [ ] d. Choix des tuiles : moitié par incertitude (confiance du modèle 2 µm), moitié au hasard parmi les
+            tuiles qui contiennent de l'encre. On mesure laquelle sert le plus : c'est une question ouverte.
+- [ ] **3. Appli web au stylet.** Page statique sans serveur, à écrire (rien d'existant ne convient) : canvas 2D
+      et Pointer Events, le stylet peint, deux doigts déplacent, trois états (encre, fond, je ne sais pas),
+      couches CT et carte du modèle à bascule, minuteur de 20 minutes, sauvegarde locale, export à chaque fin de
+      séance, journal des traits (preuve de la vérification humaine et mesure du temps).
+      Consigne reprise de l'équipe : ne valider que les traits nets et répétables, toujours avec du fond supervisé
+      autour, laisser le douteux en « je ne sais pas ».
+      Première séance : étalonnage en aveugle sur `--1`, pour chiffrer l'accord avec l'équipe.
+- [ ] **4. Export au format de l'équipe.** Paire d'images `<segment>_inklabels.png` et
+      `<segment>_supervision_mask.png` (0 ou 255, taille du canevas natif), puis Zarr v2 à la profondeur du volume
+      de surface (28 plans, annotation au plan 14, 6 niveaux), relisible par l'entraîneur de villa ancien et
+      récent. Manifeste de provenance sur le modèle des fiches du catalogue S3. Dépôt sur Hugging Face.
 - [ ] **5. Mesure du gain.**
-      a. Finir le test de mémorisation sur les 9 zones réservées (en cours le 22/11).
-      b. Banc d'entraînement sur Kaggle : recette `ink_9um` raccourcie, données réduites aux zones utiles.
-         Contrôle : retrouver un chiffre publié avant toute comparaison.
-      c. Comparaison : étiquettes de modèle seules contre étiquettes de modèle plus corrections humaines, mêmes
-         graines, au moins 2 graines. Mesure sur les 9 zones réservées (3 publiées et 6 sur S3), sur la couche
-         `--1` de PHerc0500P2 (étiquettes de l'équipe, jamais entraînée) et sur PHerc0841 (rouleau jamais vu, même
-         réglage de scan).
-      d. Courbe du gain en fonction des heures de correction.
+      - [x] a. Test de mémorisation sur les 9 zones réservées (A2).
+      - [ ] b. **Pré-test sans Jonathan** : affinage d'`ink_9um` avec, sur les mêmes pixels de PHerc0009B et de
+            PHerc0500P2 `--1`, soit les étiquettes humaines de l'équipe, soit la carte du modèle 2 µm seuillée,
+            soit rien (témoin). Mesure sur les 9 zones réservées et sur PHerc0841. Au moins 3 graines.
+            Données : `scripts/build_bench.py`. Affineur : `vesuvius_ink_adapt/finetune.py` (recette abrégée,
+            la même pour toutes les branches).
+      - [ ] c. La même comparaison avec les étiquettes de Jonathan, tuiles « incertaines » contre tuiles au hasard.
+      - [ ] d. Courbe du gain en fonction des heures de correction.
+      - [ ] e. Si le gain est là : affiner reader-v3 avec ces étiquettes et mesurer sur PHerc0841 et PHerc1447
+            (pour reader-v3, seules 3 des 6 zones réservées non publiées sont propres).
 
 ## Jalons
 
 | Date | Jalon | Critère |
 | --- | --- | --- |
-| 24/11 | Messages Discord postés par Jonathan (zones de validation absentes ; question sur les rouleaux et le format) | faits prêts dans `docs/DISCORD-FAITS.md` |
-| 29/11 | Première séance de 20 minutes sur la tablette : couche `--1` de PHerc0500P2, en aveugle | l'appli charge, le stylet peint, l'export se relit, accord avec l'équipe chiffré |
-| 29/11 | Banc d'entraînement Kaggle | un chiffre publié retrouvé à ±0,01 |
-| 06/12 | Version 0.1 publiée : appli, premières étiquettes | chargement sans erreur dans `vesuvius.ink_detection` |
-| 13/12 | Première mesure avec et sans corrections | écart et bruit entre graines chiffrés |
-| 20/12 | Les 7 couches de PHerc0500P2 terminées, segment lisible de PHerc0343P entamé ; courbe gain par heure | |
+| 24/11 | Messages Discord postés par Jonathan | faits prêts dans `docs/DISCORD-FAITS.md` |
+| 27/11 | Résultat du pré-test (5b), avant la remise à zéro du quota Kaggle du 28/11 | écart entre branches et bruit entre graines chiffrés |
+| 29/11 | Première séance de 20 minutes sur la tablette : `--1` en aveugle | l'appli charge, le stylet peint, l'export se relit, accord avec l'équipe chiffré |
+| 06/12 | Version 0.1 publiée : appli, premières étiquettes d'une couche | relues par `create_label_zarrs` sans erreur |
+| 13/12 | Première mesure avec les étiquettes de Jonathan | écart et bruit chiffrés |
+| 20/12 | Couches `0` à `4` entamées toutes les cinq ; courbe gain par heure | |
 | 27/12 | Jeu figé, documentation, notebook Kaggle public | |
-| 31/12 | Soumission Progress Prizes par Jonathan | |
+| 31/12 | Soumission Progress Prizes par Jonathan : jeu, modèle affiné, mesure | |
 | fin janvier | Bilan : gain mesurable ou arrêt | voir critères d'arrêt |
 
 ## Critères d'arrêt
 
 - **L'équipe répond que ces étiquettes ne lui servent pas** : on arrête, ou on change de cible si elle en indique
   une autre.
-- **Aucun gain mesurable fin janvier** : écart inférieur au bruit entre graines sur les trois mesures.
-- **La cible est déjà couverte** : quelqu'un publie des étiquettes vérifiées à la main sur le même objet avant nous
-  (à revérifier avant chaque publication avec `scripts/inventory.py` et une recherche sur Hugging Face).
-- **Débit trop faible** : après trois séances, moins de 1 cm² vérifié par heure. On revoit alors l'appli ou le
-  choix des tuiles avant de continuer.
+- **Le pré-test (5b) ne montre aucun avantage des étiquettes humaines sur la carte seule** (écart inférieur au
+  bruit entre graines sur toutes les mesures) : on en parle avant que Jonathan n'aille au-delà de la séance
+  d'étalonnage. Issues possibles : viser les endroits où la carte se trompe le plus, ou s'arrêter.
+- **Aucun gain mesurable fin janvier** avec les étiquettes de Jonathan.
+- **La cible est déjà couverte** : quelqu'un publie des étiquettes vérifiées à la main sur les couches `0` à `4`
+  avant nous (à revérifier avant chaque publication).
+- **Débit trop faible** : après trois séances, moins de 1 cm² vérifié par heure. On revoit l'appli ou le choix
+  des tuiles.
 
 ## Risques connus
 
-- Volume : 15 à 25 heures de correction d'ici fin décembre, face aux 250 cm² déjà publiés par Priyank Aranke.
-  Notre intérêt est ailleurs (objets sans étiquette humaine, outil ouvert, mesure par heure), pas dans la surface.
-- Mesure : les 9 zones réservées sont sur PHerc0139, 0814 et 1667, en représentation « 2,4 µm réduit ». Des
-  étiquettes sur un fragment natif peuvent ne rien y changer. D'où les deux autres mesures.
-- Calcul : la recette complète demande environ 5 heures sur une H100. Sur un T4, il faudra une recette raccourcie
-  ou un affinage à partir d'un checkpoint publié, et une reprise entre sessions.
-- Règles : la question « peut-on entraîner un modèle First Letters avec des étiquettes manuelles publiques » est
-  posée sur Discord et sans réponse au 22/11. À trancher avant la deuxième phase.
-- Un humain non papyrologue peut valider de fausses lettres. Consigne : n'étiqueter que ce qui est appuyé par la
-  carte 2 µm, et utiliser « je ne sais pas » sans retenue.
+- Volume : 15 à 25 heures de correction d'ici fin décembre. Notre intérêt n'est pas la surface, mais des objets
+  sans étiquette humaine, le format de l'équipe, l'outil et la mesure.
+- Mesure : le bruit entre graines publié (0,06 à 0,13 sur w016) est du même ordre que les gains attendus (environ
+  0,04). D'où des comparaisons appariées, plusieurs graines, et les 9 zones plutôt que 3.
+- Style d'étiquetage : un modèle entraîné sur des étiquettes « à la manière de l'équipe » est avantagé quand on le
+  note sur des étiquettes de l'équipe. À signaler dans tout résultat ; noter aussi avec une tolérance aux bords.
+- Calcul : pas de recette complète sur T4 (environ 78 000 pas). On affine un checkpoint publié sur 1 000 à 2 000
+  pas. L'entraîneur de l'équipe demande Python 3.14 et des modules C++ hors PyPI : on utilise notre affineur.
+- Fenêtre First Letters : 7 prix restants pour 19 volumes, et reader-v3 sert déjà à la majorité des soumissions.
+- Un humain non papyrologue peut valider de fausses lettres : d'où la séance d'étalonnage et la consigne prudente.
 
 ## Après décembre : First Letters
 
-À planifier quand la mesure sera faite. Points déjà acquis : 37 soumissions de 15 concurrents sur le seul
-PHerc. 211, donc la concurrence est forte ; les lauréats entraînent sur 0814, 0841 et 0009B ; PHerc. 1203 est déjà
-travaillé avec son scan à 2,4 µm. Rien dans le dépôt si des lettres apparaissent sur un rouleau éligible.
+À planifier quand la mesure sera faite. Acquis : entraîner sur des données 2 µm est admis si le modèle est appliqué
+au volume éligible à 9 µm (réponse de l'équipe, ticket villa #1739) ; le règlement refuse toute annotation manuelle
+de la zone revendiquée ; le Grand Prize exige la publication de chaque jeu d'entraînement. La question « étiquettes
+manuelles publiques d'autres rouleaux » posée sur Discord le 22/11 reste sans réponse. Rien dans le dépôt si des
+lettres apparaissent sur un rouleau éligible.
