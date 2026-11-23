@@ -113,6 +113,11 @@ Totaux : 721 550 px (0,66 cm²) publiés, 3 818 877 px (3,52 cm²) non publiés 
 
 ## Message 2 : quels rouleaux et quel format d'étiquettes seraient utiles à l'équipe
 
+**Le 23/11 : ce message n'a plus lieu d'être tel quel.** Le pré-test montre que corriger la carte à la main ne
+change pas le modèle (message 3), et la correction demande de connaître les lettres. Si tu veux quand même poser
+une question à l'équipe, la seule qui reste ouverte est celle de la licence (question 3). Le reste est gardé pour
+mémoire.
+
 Révisé le 23/11 après la vérification d'antériorité (`docs/RESEARCH.md`, section 10).
 
 ### Ce qu'on propose (faits à donner)
@@ -180,3 +185,55 @@ Révisé le 23/11 après la vérification d'antériorité (`docs/RESEARCH.md`, s
   `altrain` de ChaseHendrick, docs/20 de khj1222, ink-disagree).
 - Que PHerc0500P2 ressemble aux rouleaux non lus : Priyank Aranke écrit que 0009B, 0841 et 0814 sont les plus
   proches ; nous n'avons pas de mesure pour 0500P2.
+
+## Message 3 : résultat d'une comparaison d'entraînements (étiquettes humaines contre carte du modèle)
+
+Écrit le 23/11. À poster seulement si tu le souhaites ; rien ne presse. Les faits :
+
+### Ce qui a été fait
+
+- Départ : checkpoint `scrollprize/ink_9um`, `hybrid_3d2d-seed43/step-075000`.
+- Affinage de 1 000 pas, lot de 64, avec le corpus `ink_9um` en rejeu (69 % du lot) et deux segments nouveaux sur
+  le scan natif (31 %) : PHerc0500P2 `20250825181859--1` (9,362 µm) et PHerc0009B
+  `20250919125754-auto_grown_20250919055754487_inp_hr` (8,64 µm). 4,8 cm² supervisés en tout.
+- Trois branches, 5 graines chacune, mêmes patchs à graine égale :
+  - `C` : corpus seul (témoin) ;
+  - `T` : sur les deux segments, la carte publiée `new_canon_autoresearch_recipe` reportée sur le canevas natif,
+    encre si ≥ 128, fond si ≤ 64, dans le masque de supervision de l'équipe ;
+  - `H` : sur les mêmes pixels, les étiquettes de l'équipe (S3, jeu `20260918`) reportées sur le canevas natif.
+- Mesure : AUC et précision équilibrée sur les 3 segments de PHerc0841 (jamais vu, canevas natif, étiquettes de
+  l'équipe reportées) et sur les 9 zones réservées d'`ink_9um`. Grille de tuiles officielle, fenêtre centrée.
+- Incertitude : bootstrap par blocs de 128 px et par graines, 2 000 tirages. Règle de lecture écrite avant le
+  résultat (historique git de `docs/PLAN.md`).
+
+### Chiffres
+
+| Écart d'AUC | PHerc0841 | 9 zones réservées |
+| --- | --- | --- |
+| `H − T` | +0,0002, IC 95 % [−0,0052 ; +0,0054] | +0,0008, IC 95 % [−0,0026 ; +0,0037] |
+| `H − C` | +0,039, IC 95 % [+0,026 ; +0,054] | −0,002, IC 95 % [−0,011 ; +0,008] |
+| `T − C` | +0,039, IC 95 % [+0,026 ; +0,054] | −0,003, IC 95 % [−0,012 ; +0,009] |
+
+Niveaux sur PHerc0841 (moyenne des 3 segments) : checkpoint publié 0,743 d'AUC ; `C` 0,753 ; `T` 0,792 ; `H` 0,792.
+
+### Ce qu'on peut dire
+
+- À cette échelle, remplacer la carte du modèle 2 µm par des étiquettes humaines sur les mêmes pixels ne change
+  pas le modèle 9 µm obtenu.
+- Ajouter deux segments natifs de rouleaux nouveaux aide sur un rouleau jamais vu, quelle que soit la source des
+  étiquettes. C'est cohérent avec reader-v2 et reader-v3.
+
+### Ce qu'on ne peut pas dire
+
+- Que les étiquettes humaines sont inutiles en général : deux segments, 1 000 pas, un seul checkpoint, une recette
+  abrégée (augmentations réduites), et une branche `T` qui reste dans l'empreinte dessinée par l'équipe.
+- Que notre modèle est bon : 0,79 d'AUC sur PHerc0841 reste sous les chiffres annoncés pour reader-v2 (0,824),
+  reader-v3 (0,848) et hecate (0,857), mesurés autrement.
+- Les zones réservées sont dans des rouleaux d'entraînement : ce sont des mesures intra-segment.
+
+### Pour vérifier
+
+- Code : `scripts/build_bench.py`, `vesuvius_ink_adapt/finetune.py`, `scripts/run_bench.py`,
+  `scripts/analyze_bench.py` du dépôt https://github.com/Jonathan8520/vesuvius-ink-adapt.
+- Durée : 2 h 27 sur 2 GPU T4 de Kaggle.
+

@@ -252,7 +252,43 @@ Ne jamais noter ici de découverte de lettres sur un rouleau éligible au First 
 - Essai court sur Kaggle (2 × T4, 30 pas, 160 s en tout) : 0,90 s par pas, mémoire suffisante au lot de 64.
 - Pré-test lancé le 22/11 à 22 h 16 UTC : kernel `jonathan8520/vesuvius-ink9um-bench-pretest`, branches `base`,
   `C`, `T`, `H`, graines 0 à 4, 1 000 pas, notations à 250, 500 et 1 000 pas, histogrammes par bloc de 128 px
-  pour un bootstrap par blocs. Durée attendue : 2 h 30. **Résultat : à venir.**
+  pour un bootstrap par blocs. Durée : 2 h 27, 16 runs terminés.
+- **Résultat (lu le 23/11 à 8 h UTC, règle de lecture et limites écrites avant).** Moyenne sur les segments d'un
+  groupe, écart-type entre les 5 graines :
+
+| Branche | PHerc0841 (jamais vu) : préc. équilibrée / AUC | 9 cas réservés : préc. équilibrée / AUC |
+| --- | --- | --- |
+| `base` (checkpoint publié) | 0,649 / 0,743 | 0,757 / 0,865 |
+| `C` (témoin, corpus seul) | 0,682 ± 0,008 / 0,753 ± 0,009 | 0,802 ± 0,004 / 0,888 ± 0,005 |
+| `T` (carte du modèle 2 µm) | 0,730 ± 0,002 / 0,792 ± 0,005 | 0,800 ± 0,002 / 0,885 ± 0,001 |
+| `H` (étiquettes humaines) | 0,729 ± 0,002 / 0,792 ± 0,003 | 0,800 ± 0,002 / 0,885 ± 0,001 |
+
+| Écart d'AUC au pas 1 000 | PHerc0841 | 9 cas réservés |
+| --- | --- | --- |
+| `H − T` | +0,0002, IC 95 % [−0,0052 ; +0,0054] | +0,0008, IC 95 % [−0,0026 ; +0,0037] |
+| `H − C` | +0,039, IC 95 % [+0,026 ; +0,054] | −0,002, IC 95 % [−0,011 ; +0,008] |
+| `T − C` | +0,039, IC 95 % [+0,026 ; +0,054] | −0,003, IC 95 % [−0,012 ; +0,009] |
+
+- **Verdict selon la règle du plan : pas de différence mesurable entre étiquettes humaines et carte du modèle.**
+  Même lecture à 250 et à 500 pas, et en précision équilibrée (−0,0004 et 0,0000). Par graine, `H − T` va de
+  −0,0035 à +0,0036. L'intervalle exclut tout effet supérieur à environ 0,005 d'AUC.
+- Ce qui compte, c'est d'ajouter les deux segments : +0,039 d'AUC et +0,048 de précision équilibrée sur
+  PHerc0841, sur les 5 graines et sur les 3 segments (ag405 : 0,751 → 0,765 ; ag896 : 0,727 → 0,796 ; w00 :
+  0,779 → 0,815), quelle que soit la source des étiquettes. Rien ne bouge sur les rouleaux déjà vus.
+- Contrôles : `base` redonne les chiffres connus ; le témoin ne perd rien, il gagne (+0,010 sur PHerc0841,
+  +0,023 sur les cas réservés). Ce gain du témoin sur les cas réservés dit que ces zones, prises dans des
+  segments d'entraînement, répondent à la simple poursuite de l'entraînement : ce n'est pas une mesure entre
+  rouleaux.
+- Portée : deux segments (4,8 cm²), 1 000 pas, un seul checkpoint de départ, recette abrégée. La branche `T` reste
+  supervisée dans l'empreinte dessinée par l'équipe : le pré-test dit que corriger la carte à l'intérieur de cette
+  empreinte n'apporte rien, pas qu'aucun choix humain ne sert. D'où la branche `D` ci-dessous.
+- Antériorité : que des cartes du modèle 2 µm posées sur des surfaces natives aident sur PHerc0841 est connu
+  (reader-v2 et reader-v3 de Domenico Russo). Ce qui est nouveau ici, c'est la comparaison appariée, sur les
+  mêmes pixels, entre ces cartes et des étiquettes humaines.
+- Suite lancée le 23/11 : branche `D`, la carte seuillée sur toute la surface des deux mêmes segments (11,2 M et
+  17,5 M px supervisés, soit 4 à 5 fois plus), sans masque ni étiquette de l'équipe. Si `D` fait au moins aussi
+  bien que `H`, aucun travail humain n'est nécessaire sur ces segments. **Résultat de `D` : à venir.**
+- Fichiers de résultats (hors dépôt) : `data/kaggle_out/pretest/` ; analyse : `scripts/analyze_bench.py`.
 - Limites connues : recette abrégée (augmentations réduites), rejeu partiel de PHercParis4 et PHerc1667, étiquettes
   de test dessinées par l'équipe comme celles de la branche `H` (avantage de style possible).
 - Relecture contradictoire du banc (un relecteur indépendant, angle données et fuites, nuit du 22 au 23/11) :

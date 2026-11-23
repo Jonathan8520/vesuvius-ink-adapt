@@ -4,6 +4,20 @@ Ce plan remplace celui du sprint de novembre, arrêté le 22/11 (ancien texte da
 `docs/HANDOFF.md`). Révision du 23/11 : après la vérification d'antériorité approfondie (`docs/RESEARCH.md`,
 section 10) et les mesures A5 à A7 (`docs/EXPERIMENTS.md`).
 
+## Où on en est le 23 novembre (matin) : critère d'arrêt atteint pour la piste « à la main »
+
+- Pré-test 5b terminé : sur les mêmes pixels, étiquettes humaines de l'équipe et carte du modèle 2 µm donnent le
+  même modèle (`H − T` : +0,0002 d'AUC sur PHerc0841, IC 95 % [−0,005 ; +0,005] ; +0,0008 sur les cas réservés).
+  Verdict de la règle écrite à l'avance : pas de différence mesurable (journal A8).
+- Essai de Jonathan sur la tablette : la correction demande de connaître les formes des lettres ; un tri tache par
+  tache plafonne à +0,017 d'IoU (journal A10).
+- Les deux constats vont dans le même sens. **La piste « étiquettes vérifiées à la main par Jonathan » est
+  arrêtée, sauf décision contraire de sa part.** Les étapes 2d, 3, 4, 5c et 5d ci-dessous ne sont plus poursuivies.
+- Reste en cours : la branche `D` (carte sur toute la surface, sans choix humain), pour savoir si le choix des
+  zones par un humain compte.
+- Ce que le pré-test montre de positif (deux segments nouveaux sur le scan 9 µm : +0,04 d'AUC sur un rouleau
+  jamais vu) est déjà exploité par reader-v2 et reader-v3. Aucune suite n'est engagée sans l'avis de Jonathan.
+
 ## But
 
 1. **D'ici le 31 décembre 2026** : publier des étiquettes d'encre à ~9 µm vérifiées à la main par Jonathan, dans le
@@ -114,7 +128,7 @@ de reader-v2, donc pas dans l'entraînement de reader-v3. À confirmer par la r�
       récent. Manifeste de provenance sur le modèle des fiches du catalogue S3. Dépôt sur Hugging Face.
 - [ ] **5. Mesure du gain.**
       - [x] a. Test de mémorisation sur les 9 zones réservées (A2).
-      - [ ] b. **Pré-test sans Jonathan** : affinage d'`ink_9um` avec, sur les mêmes pixels de PHerc0009B et de
+      - [x] b. **Pré-test sans Jonathan** (fait le 23/11, verdict : pas de différence mesurable) : affinage d'`ink_9um` avec, sur les mêmes pixels de PHerc0009B et de
             PHerc0500P2 `--1`, soit les étiquettes humaines de l'équipe, soit la carte du modèle 2 µm seuillée,
             soit rien (témoin). Mesure sur les 9 zones réservées et sur PHerc0841. Au moins 3 graines.
             Données : `scripts/build_bench.py`. Affineur : `vesuvius_ink_adapt/finetune.py` (recette abrégée,

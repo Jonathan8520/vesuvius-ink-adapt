@@ -1,72 +1,50 @@
-# Point du 23 novembre 2026 : antériorité vérifiée, plan révisé, banc de mesure prêt
+# Point du 23 novembre 2026 (matin) : le pré-test a parlé, la correction à la main ne sert pas
 
-**Mise à jour du 22/11 à 22 h 50 UTC : séances au stylet suspendues.** Tu as essayé l'appli et tu ne savais pas
-quoi juger. Tu as raison : ce que les annotateurs de l'équipe ajoutent à la carte du modèle, c'est le redessin des
-lettres, et il faut en connaître les formes. Vérifié sur le lot d'étalonnage : même un tri parfait, tache par
-tache, ne ferait passer l'accord avec l'équipe que de 0,72 à 0,74 (journal A10). Tu n'as donc rien à dessiner pour
-l'instant. Le pré-test de cette nuit dit si des étiquettes humaines servent à l'entraînement ; on décide ensuite.
-Ce qui suit date d'avant ton essai.
+## Le résultat
 
-## En trois phrases
+- **Sur les mêmes pixels, les étiquettes humaines de l'équipe et la carte du modèle 2 µm donnent le même modèle.**
+  Écart d'AUC : +0,0002 sur PHerc0841 (intervalle à 95 % : −0,005 à +0,005), +0,0008 sur les 9 zones réservées.
+  5 graines, même lecture à 250, 500 et 1 000 pas. La règle de lecture était écrite avant le résultat.
+- **Ajouter deux segments nouveaux aide nettement sur le rouleau jamais vu** : +0,04 d'AUC et +0,05 de précision
+  équilibrée sur PHerc0841, que les étiquettes soient humaines ou tirées de la carte.
+- Détail : `docs/EXPERIMENTS.md`, entrée A8.
 
-- D'autres ont déjà des étiquettes faites à la main à ~9 µm. Ce qui reste libre est plus étroit qu'annoncé hier,
-  mais réel : le format de l'équipe sur ses surfaces natives, la preuve par entraînement, un outil au stylet.
-- Rien ne dit encore qu'une correction humaine fait mieux que la carte du modèle seule. Je le mesure cette
-  semaine, sans toi, avec les étiquettes humaines qui existent déjà.
-- Ta première séance (29/11) reste un étalonnage en aveugle sur la couche `--1` de PHerc0500P2.
+## Ce que ça veut dire
 
-## Deux corrections à ce que j'ai écrit hier
+- Corriger la carte à la main n'apporte rien de mesurable à cette échelle. Avec ton essai d'hier soir (tâche
+  infaisable sans connaître les lettres, journal A10), cela fait deux raisons indépendantes. **Le critère d'arrêt
+  du plan est atteint pour la piste « étiquettes vérifiées à la main ».**
+- Ce qui aide, ce sont des segments nouveaux sur le scan 9 µm, étiquetés par la carte du modèle. C'est ce que font
+  déjà reader-v2 et reader-v3 de Domenico Russo, sur 70 segments. Ce n'est pas un créneau libre.
 
-1. **Les 6 masques de validation ne sont pas « cachés ».** Ils sont dans le dossier `ink/` du bucket Hugging Face
-   depuis juillet et sur S3 depuis septembre, et deux personnes les ont déjà recensés (nestorvfx, ibarapascal).
-   Ils manquent seulement dans le dossier 9 µm. `docs/DISCORD-FAITS.md` est corrigé, avec le ton à tenir :
-   un signalement voisin a été fermé sèchement par l'équipe en août.
-2. **PHerc0500P2 n'avait pas 7 couches libres mais 5.** jeff-j-chen a déjà ses propres étiquettes sur `front` et `--2` (et
-   reprend celles de l'équipe sur `--1`). Restent les couches `0`, `1`, `2`, `3`, `4` : c'est la nouvelle cible.
+## Ce qui tourne encore
 
-## Ce que j'ai mesuré (détail : `docs/EXPERIMENTS.md`, A5 à A7)
+- Branche `D` du banc : la carte du modèle sur toute la surface des deux segments, sans aucun choix humain. Elle
+  dit si même le choix des zones par un humain est inutile. Résultat dans la matinée.
 
-- La carte du modèle 2 µm et les étiquettes humaines de l'équipe ne se recouvrent qu'à 60 à 85 %. Il y a donc
-  de la matière à corriger. Image : `docs/img/pherc0500p2_m1_carte_vs_humain.png`.
-- La « bande incertaine » ne contient que 14 à 24 % des désaccords. Et trois essais publics trouvent que les
-  zones incertaines ne valent pas mieux que des zones au hasard. **L'appli te montrera donc moitié tuiles
-  incertaines, moitié tuiles au hasard**, et on mesurera lesquelles servent. C'est un écart à ta consigne
-  (« seulement les zones incertaines ») : dis-moi si tu préfères autrement.
-- Le report du scan fin vers la surface 9 µm tombe juste à moins d'un pixel (vérifié contre l'équipe).
+## Ce qui reste de valable
 
-## Prêt
+- La comparaison appariée elle-même : personne ne l'avait publiée, et le mainteneur de villa demande ce genre de
+  preuve par entraînement.
+- Le banc de mesure (données, affineur, analyse), relu par un relecteur indépendant côté données : aucune fuite.
+- Le constat sur les 6 masques de validation absents du dossier 9 µm.
+- L'appli au stylet fonctionne sur ta tablette, mais elle n'a plus d'objet si la correction ne sert pas.
+- Honnêtement : pas de quoi faire une soumission solide aux Progress Prizes. L'équipe écrit qu'elle décourage les
+  outils d'audit et de mesure seuls, et notre modèle affiné (AUC 0,79 sur PHerc0841) reste sous ceux déjà
+  publiés (0,82 à 0,86 annoncés pour reader-v2, reader-v3 et hecate).
 
-- Plan révisé : `docs/PLAN.md`. État de l'art : `docs/RESEARCH.md`, section 10.
-- Banc de mesure : données (jeu Kaggle privé `vesuvius-ink9um-bench`, 3,7 Go), affineur, script Kaggle. Sur CPU,
-  il redonne exactement les scores connus du modèle publié (0,810 et 0,937 sur w016).
-- Pré-test en trois branches : sans ajout, avec la carte du modèle, avec les étiquettes humaines de l'équipe
-  (mêmes pixels de PHerc0009B et de PHerc0500P2 `--1`). Mesure sur les 9 zones réservées et sur PHerc0841.
+## Décisions qui t'appartiennent
 
-- **Appli au stylet, version 0.1** : page privée https://claude.ai/artifact/KkqKvAT9n2jTRyAqYhKrh9 (à ouvrir
-  dans Chrome sur la tablette, connecté à claude.ai). Lot d'étalonnage : 6 tuiles de la couche `--1`, en aveugle.
-  Essayée dans un navigateur de test, pas encore sur la tablette.
-- Cartes de pré-étiquettes des 8 couches de PHerc0500P2 sur la surface 9 µm.
+1. **Arrêter la piste « étiquettes à la main » ?** Je recommande oui.
+2. **Publier le résultat ?** Les faits pour un court message Discord sont dans `docs/DISCORD-FAITS.md`
+   (message 3). Le message 1 (masques de validation) reste valable. Le message 2 n'a plus lieu d'être tel quel.
+3. **La suite** : s'arrêter là, ou chercher autre chose. Je n'ai pas de piste sérieuse à te vendre aujourd'hui.
+4. Pousser sur `main` ? Tout est sur la branche `claude/jolly-shannon-2xycqz`.
 
-## Prochaines étapes
+## À savoir
 
-- Résultat du pré-test Kaggle (cette nuit), puis analyse.
-- Ton essai de l'appli : cinq minutes suffisent pour dire si le stylet peint bien et si deux doigts déplacent.
-- Tuiles des couches `0` à `4` (moitié incertitude, moitié hasard) pour les séances suivantes.
-
-## Ce que j'attends de toi
-
-- Essayer l'appli sur la tablette et me dire ce qui gêne (taille des boutons, stylet, zoom, lisibilité).
-  La vraie séance de 20 minutes peut attendre le 29/11.
-- Écrire et poster les deux messages Discord (`docs/DISCORD-FAITS.md`, revu).
-- Me dire si la règle « jamais d'étiquettes » s'étend aux rouleaux du seul Grand Prize (PHerc1447, PHerc0211).
-  En attendant, je n'y touche pas.
-- Me dire si je peux pousser sur `main`. Tout est sur la branche `claude/jolly-shannon-2xycqz`.
-- Pour information : le dépôt public de jeff-j-chen contient des étiquettes sur un rouleau éligible à First
-  Letters. Je n'en ai rien copié et rien n'en figure dans le dépôt.
-
-## Kaggle
-
-- Essai court réussi (2 × T4) : 0,9 s par pas, scores du modèle publié retrouvés à l'identique.
-- Pré-test lancé le 22/11 à 22 h 16 UTC (`vesuvius-ink9um-bench-pretest`, 3 branches, 5 graines, 1 000 pas,
-  environ 2 h 30). Résultat à lire dans `docs/EXPERIMENTS.md`, entrée A8, dès qu'il tombe.
-- Quota GPU : environ 26 h restantes après ce run, jusqu'au 28/11.
+- La limite hebdomadaire d'usage de ton compte Claude a été atteinte cette nuit (remise à zéro à 2 h UTC). Mes
+  agents de recherche et de relecture y ont largement contribué. Deux relecteurs sur trois ont été coupés par
+  cette limite. Je n'en relance pas sans te le dire.
+- Kaggle : 2 h 30 de GPU utilisées pour le pré-test, environ 1 h pour la branche `D`. Il reste environ 25 h
+  jusqu'au 28/11.
