@@ -4,7 +4,8 @@ Branches :
 - `base` : le checkpoint publié, sans affinage (contrôle : on doit retrouver les chiffres connus) ;
 - `C` : témoin, affinage sur le seul corpus de l'équipe ;
 - `T` : corpus de l'équipe + segments nouveaux étiquetés par la carte du modèle 2 µm seuillée ;
-- `H` : corpus de l'équipe + les mêmes pixels étiquetés à la main (étiquettes de l'équipe reportées).
+- `H` : corpus de l'équipe + les mêmes pixels étiquetés à la main (étiquettes de l'équipe reportées) ;
+- `D` : corpus de l'équipe + la carte du modèle 2 µm sur toute la surface des mêmes segments, sans choix humain.
 
 Mesure : les 9 zones réservées d'`ink_9um` et PHerc0841, grille de tuiles officielle, fenêtre centrée.
 
@@ -26,6 +27,8 @@ NEW = ["pherc0500p2-m1", "pherc0009b-ag487"]
 QUOTAS = {
     "C": {"0139": 29, "1667": 22, "Paris4": 11, "0814": 2},                 # quotas de la recette de l'équipe
     "N": {"0139": 20, "1667": 15, "Paris4": 8, "0814": 1, NEW[0]: 10, NEW[1]: 10},   # 31 % de segments nouveaux
+    # branche D : mêmes segments, carte du modèle 2 µm sur toute leur surface, sans aucun choix humain
+    "D": {"0139": 20, "1667": 15, "Paris4": 8, "0814": 1, NEW[0] + "-dense": 10, NEW[1] + "-dense": 10},
 }
 
 
@@ -99,7 +102,7 @@ def main():
         steps = 0 if arm == "base" else a.steps
         if (arm, seed, steps) in done:
             continue
-        quotas = scale_quotas(QUOTAS["C" if arm in ("base", "C") else "N"], a.batch)
+        quotas = scale_quotas(QUOTAS["C" if arm in ("base", "C") else ("D" if arm == "D" else "N")], a.batch)
         versions = {name: ("t" if arm == "T" else "h") for name in NEW}
         key = tuple(sorted(quotas))
         if steps and key not in packs:

@@ -16,7 +16,8 @@ import time
 CONFIG = {
     "branch": "claude/jolly-shannon-2xycqz",
     "ckpt": "s43-75k",
-    "arms": "base,C,T,H",       # base : checkpoint publié ; C : témoin ; T : carte du modèle 2 µm ; H : étiquettes humaines
+    "arms": "D",                # base : checkpoint publié ; C : témoin ; T : carte du modèle 2 µm dans l'empreinte humaine ;
+                                # H : étiquettes humaines ; D : carte du modèle 2 µm sur toute la surface, sans choix humain
     "seeds": "0,1,2,3,4",
     "steps": 1000,
     "lr": 0.002,

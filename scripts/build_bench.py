@@ -13,7 +13,7 @@ Trois familles de données, décrites dans `data/bench/manifest.json` :
 
 Aucun rouleau éligible à First Letters. Les zones réservées et PHerc0841 ne sont jamais écrites dans `train/`.
 
-Usage : python scripts/build_bench.py --what manifest|train|eval [--only nom ...] [--out data/bench]
+Usage : python scripts/build_bench.py --what manifest|train|eval|dense [--only nom ...] [--out data/bench]
 """
 import argparse
 import json
@@ -120,6 +120,37 @@ def labels_of(rep, cache):
                 ink_t=(teacher >= T_HI) & sup, sup_t=sup & ((teacher >= T_HI) | (teacher <= T_LO)))
 
 
+def build_dense(rep, out, cache, rng, cap=300):
+    """Branche `D` : la carte du modèle 2 µm seuillée sur toute la surface du segment, sans aucun choix humain
+    (ni masque de supervision de l'équipe, ni étiquette de l'équipe). Paquet `<nom>-dense.npz`."""
+    path = os.path.join(out, "train", rep["nom"] + "-dense.npz")
+    if os.path.exists(path):
+        return
+    fit = rep["recalage"]
+    teacher = R.fine_to_native(teacher_level2(rep, cache), fit)
+    inside = R.fine_to_native(np.ones(fit["forme_fin"], np.float32), fit) >= 0.999    # couvert par le canevas fin
+    read, (H, W) = reader_of(rep)
+    tiles = [(y, x) for y in range(0, H, TILE) for x in range(0, W, TILE) if inside[y:y + TILE, x:x + TILE].mean() >= 0.5]
+    t0, imgs, inks, sups, kept = time.time(), [], [], [], []
+    order = rng.permutation(len(tiles))
+    for i in order:
+        y, x = tiles[int(i)]
+        img = read(y, min(H, y + TILE), x, min(W, x + TILE))
+        pad = ((0, 0), (0, TILE - img.shape[1]), (0, TILE - img.shape[2]))
+        valid = np.pad(img.max(0) > 0, pad[1:]) & np.pad(inside[y:y + TILE, x:x + TILE], pad[1:])   # papyrus présent
+        t = np.pad(teacher[y:y + TILE, x:x + TILE], pad[1:])
+        sup = valid & ((t >= T_HI) | (t <= T_LO))
+        if sup.sum() < 4096:
+            continue
+        imgs.append(np.pad(img, pad)); inks.append(valid & (t >= T_HI)); sups.append(sup); kept.append((y, x))
+        if len(kept) >= cap:
+            break
+    np.savez(path, img=np.stack(imgs), yx=np.array(kept, np.int32), shape=np.array([H, W]),
+             ink=np.packbits(np.stack(inks), axis=-1), sup=np.packbits(np.stack(sups), axis=-1))
+    print(f"train {rep['nom']}-dense : {len(kept)} tuiles sur {len(tiles)}, {int(np.stack(sups).sum())} px supervisés, "
+          f"encre {100 * np.stack(inks).sum() / max(1, np.stack(sups).sum()):.1f} %, {round(time.time() - t0)} s", flush=True)
+
+
 def reader_of(rep):
     return E.pooled_reader(rep["volume"]) if rep["famille"] == "aligne" else E.native_reader(rep["volume"])
 
@@ -172,7 +203,7 @@ def build_eval(rep, out, cache):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--what", choices=["manifest", "train", "eval"], required=True)
+    ap.add_argument("--what", choices=["manifest", "train", "eval", "dense"], required=True)
     ap.add_argument("--only", nargs="*")
     ap.add_argument("--out", default="data/bench")
     a = ap.parse_args()
@@ -189,6 +220,8 @@ def main():
             build_train(rep, a.out, cache, draw)
         if a.what == "eval" and (rep["role"] == "eval" or rep["reserve"]):
             build_eval(rep, a.out, cache)
+        if a.what == "dense" and rep["role"] == "nouveau":
+            build_dense(rep, a.out, cache, draw)
 
 
 if __name__ == "__main__":
