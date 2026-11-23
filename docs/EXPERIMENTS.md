@@ -287,7 +287,24 @@ Ne jamais noter ici de découverte de lettres sur un rouleau éligible au First 
   mêmes pixels, entre ces cartes et des étiquettes humaines.
 - Suite lancée le 23/11 : branche `D`, la carte seuillée sur toute la surface des deux mêmes segments (11,2 M et
   17,5 M px supervisés, soit 4 à 5 fois plus), sans masque ni étiquette de l'équipe. Si `D` fait au moins aussi
-  bien que `H`, aucun travail humain n'est nécessaire sur ces segments. **Résultat de `D` : à venir.**
+  bien que `H`, aucun travail humain n'est nécessaire sur ces segments.
+- **Résultat de `D` (23/11, 16 h 50 UTC).** Kernel `jonathan8520/vesuvius-ink9um-bench-dense`, resté 8 h en file
+  d'attente GPU. Seules les graines 1 et 3 ont tourné : le second processus a planté au téléchargement du
+  checkpoint (deux processus écrivaient le même fichier temporaire ; corrigé dans `core.load_model`, validation
+  relancée : `VALIDATION OK`). Écarts appariés sur ces 2 graines :
+
+| Écart d'AUC au pas 1 000 | PHerc0841 (jamais vu) | 9 cas réservés |
+| --- | --- | --- |
+| `D − H` | −0,010, IC 95 % [−0,019 ; −0,001] | +0,007, IC 95 % [−0,000 ; +0,014] |
+| `D − T` | −0,009, IC 95 % [−0,018 ; +0,001] | +0,006, IC 95 % [−0,001 ; +0,013] |
+| `D − C` | +0,032, IC 95 % [+0,015 ; +0,050] | +0,009, IC 95 % [−0,002 ; +0,022] |
+
+- Lecture : la carte sur toute la surface garde l'essentiel du gain (+0,032 contre +0,039 sur PHerc0841). Limiter
+  la supervision aux zones choisies par l'équipe (branches `T` et `H`) fait un peu mieux sur le rouleau jamais vu
+  (+0,01, porté surtout par w00) et un peu moins bien sur les rouleaux vus (−0,007). Effet petit, de signe opposé
+  selon le groupe, sur 2 graines seulement (le bootstrap par graines est fragile avec 2 graines) : pas de quoi
+  fonder un travail humain. Conclusion inchangée : corriger ou choisir à la main n'apporte rien de net à cette
+  échelle ; ajouter des segments natifs de rouleaux nouveaux apporte l'essentiel.
 - Fichiers de résultats (hors dépôt) : `data/kaggle_out/pretest/` ; analyse : `scripts/analyze_bench.py`.
 - Limites connues : recette abrégée (augmentations réduites), rejeu partiel de PHercParis4 et PHerc1667, étiquettes
   de test dessinées par l'équipe comme celles de la branche `H` (avantage de style possible).

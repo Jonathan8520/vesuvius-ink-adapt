@@ -17,10 +17,11 @@
 - Ce qui aide, ce sont des segments nouveaux sur le scan 9 µm, étiquetés par la carte du modèle. C'est ce que font
   déjà reader-v2 et reader-v3 de Domenico Russo, sur 70 segments. Ce n'est pas un créneau libre.
 
-## Ce qui tourne encore
+## Dernière vérification (branche `D`, 23/11 à 16 h 50 UTC)
 
-- Branche `D` du banc : la carte du modèle sur toute la surface des deux segments, sans aucun choix humain. Elle
-  dit si même le choix des zones par un humain est inutile. Résultat dans la matinée.
+- La carte du modèle sur toute la surface, sans aucun choix humain, garde l'essentiel du gain (+0,032 d'AUC sur
+  PHerc0841 au lieu de +0,039). Le choix des zones par l'équipe vaut au mieux +0,01 sur le rouleau jamais vu, et
+  −0,007 sur les rouleaux vus. 2 graines seulement (un plantage, corrigé). Conclusion inchangée.
 
 ## Ce qui reste de valable
 

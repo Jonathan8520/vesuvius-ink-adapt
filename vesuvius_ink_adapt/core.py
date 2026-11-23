@@ -330,12 +330,13 @@ def load_model(name):
     if not os.path.exists(path):
         os.makedirs(CKPT_DIR, exist_ok=True)
         log("téléchargement", name)
+        part = f"{path}.part{os.getpid()}"     # un fichier temporaire par processus : deux téléchargements simultanés ne se gênent pas
         with SESSION.get(HF + CKPTS[name], stream=True, timeout=600) as r:
             r.raise_for_status()
-            with open(path + ".part", "wb") as f:
+            with open(part, "wb") as f:
                 for b in r.iter_content(1 << 22):
                     f.write(b)
-        os.replace(path + ".part", path)
+        os.replace(part, path)
     ck = torch.load(path, map_location="cpu", weights_only=True)
     m = InkModel()
     m.load_state_dict({k: v for k, v in ck["model"].items() if ".all_modules." not in k}, strict=True)
