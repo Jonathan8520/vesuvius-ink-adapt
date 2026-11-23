@@ -255,6 +255,15 @@ Ne jamais noter ici de découverte de lettres sur un rouleau éligible au First 
   pour un bootstrap par blocs. Durée attendue : 2 h 30. **Résultat : à venir.**
 - Limites connues : recette abrégée (augmentations réduites), rejeu partiel de PHercParis4 et PHerc1667, étiquettes
   de test dessinées par l'équipe comme celles de la branche `H` (avantage de style possible).
+- Relecture contradictoire du banc (un relecteur indépendant, angle données et fuites, nuit du 22 au 23/11) :
+  aucun défaut grave. Vérifié par lui sur les données construites : 0 pixel supervisé dans les 9 zones réservées,
+  y compris par le jumeau natif w044 (distance minimale 139 px) ; PHerc0841 absent de l'entraînement ; `T` et `H`
+  tirent les mêmes patchs sur 40 lots ; sens du report correct ; les 27 zones collent à la grille officielle ; sens
+  « direct » des couches confirmé sur les 5 segments natifs. Deux réserves de lecture, ajoutées à la règle du plan
+  avant de lire le résultat : `T` est supervisée dans l'empreinte dessinée par l'équipe, donc ce n'est pas « la
+  carte seule » ; sur PHerc0841, étiquettes et prédiction sont localement décalées de 10 à 30 px. Les deux autres
+  angles (boucle d'affinage, plan statistique) n'ont pas été relus : les relecteurs ont été arrêtés par la limite
+  hebdomadaire d'usage du compte.
 - Fichiers : `scripts/build_bench.py`, `vesuvius_ink_adapt/finetune.py`, `scripts/run_bench.py`,
   `kaggle/bench/bench_kernel.py`.
 

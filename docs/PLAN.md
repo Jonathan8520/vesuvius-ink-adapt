@@ -130,6 +130,14 @@ de reader-v2, donc pas dans l'entraînement de reader-v3. À confirmer par la r�
               d'AUC par rapport à `base` (sinon la recette est trop brutale : relancer avec un taux plus bas) ;
             - lectures secondaires, sans poids dans la décision : précision équilibrée au seuil 0,5, écarts
               `H − C` et `T − C`, notations à 250 et 500 pas.
+            **Limites ajoutées le 23/11 à 8 h UTC, après la relecture du banc et avant de lire le résultat :**
+            - la branche `T` n'est pas « la carte seule » : elle n'est supervisée que dans le masque de
+              supervision dessiné par l'équipe, qui épouse les lettres. Un écart `H − T` nul ne dirait donc pas
+              qu'un humain n'apporte rien : son choix des zones est déjà dans les deux branches ;
+            - sur PHerc0841, l'accord entre prédiction et étiquettes varie de 10 à 30 px d'une fenêtre à
+              l'autre, et le catalogue de l'équipe signale le segment `ag405` comme le moins bien calé du corpus.
+              Ce groupe se lit segment par segment, avec prudence ;
+            - le masque de validation de 1667-w031 contient 1,9 % de filaments sans encre, notés comme du fond.
       - [ ] c. La même comparaison avec les étiquettes de Jonathan, tuiles « incertaines » contre tuiles au hasard.
       - [ ] d. Courbe du gain en fonction des heures de correction.
       - [ ] e. Si le gain est là : affiner reader-v3 avec ces étiquettes et mesurer sur PHerc0841 et PHerc1447
