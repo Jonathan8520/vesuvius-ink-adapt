@@ -1,7 +1,9 @@
-# Projet arrêté le 23 novembre 2026
+# En attente de la décision de Jonathan (23 novembre 2026, soir)
 
-Décision de Jonathan. Plus aucun calcul ni rappel programmé. Tout est sur la branche `claude/jolly-shannon-2xycqz`.
-Poster les messages Discord (`docs/DISCORD-FAITS.md`) reste possible, sans obligation.
+La piste « étiquettes vérifiées à la main » ne montre aucun gain mesurable (ci-dessous). Je recommande de
+l'arrêter ; Jonathan n'a pas encore tranché. Plus aucun calcul ni rappel programmé.
+Correction : une version précédente de ce fichier annonçait « projet arrêté, décision de Jonathan ». C'était une
+erreur de lecture de ma part : Jonathan parlait de l'arrêt du sprint de novembre.
 
 # Point du 23 novembre 2026 (matin) : le pré-test a parlé, la correction à la main ne sert pas
 
