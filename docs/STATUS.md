@@ -1,3 +1,8 @@
+# Projet arrêté le 23 novembre 2026
+
+Décision de Jonathan. Plus aucun calcul ni rappel programmé. Tout est sur la branche `claude/jolly-shannon-2xycqz`.
+Poster les messages Discord (`docs/DISCORD-FAITS.md`) reste possible, sans obligation.
+
 # Point du 23 novembre 2026 (matin) : le pré-test a parlé, la correction à la main ne sert pas
 
 ## Le résultat
