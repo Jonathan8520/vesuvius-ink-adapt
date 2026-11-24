@@ -17,7 +17,7 @@
 
 ## Kaggle
 
-Plus rien ne tourne. GPU utilisé cette semaine : environ 7 h ; il reste environ 23 h jusqu'au 28/11.
+Plus rien ne tourne. GPU utilisé cette semaine : 7,7 h ; il reste 22,3 h jusqu'au 28/11.
 
 ## Ce que j'attends de toi
 
