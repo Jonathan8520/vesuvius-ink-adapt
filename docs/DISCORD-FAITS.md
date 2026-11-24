@@ -186,54 +186,46 @@ Révisé le 23/11 après la vérification d'antériorité (`docs/RESEARCH.md`, s
 - Que PHerc0500P2 ressemble aux rouleaux non lus : Priyank Aranke écrit que 0009B, 0841 et 0814 sont les plus
   proches ; nous n'avons pas de mesure pour 0500P2.
 
-## Message 3 : résultat d'une comparaison d'entraînements (étiquettes humaines contre carte du modèle)
+## Message 3 : la comparaison « étiquettes humaines contre carte du modèle » (soumission de novembre)
 
-Écrit le 23/11. À poster seulement si tu le souhaites ; rien ne presse. Les faits :
+Mis à jour le 24/11. Faits seulement ; c'est à toi d'écrire le message. Où le poster : le canal où les gens
+parlent de détection d'encre ; si c'est #robots, ajoute la ligne « AI disclosure ». Chiffres provisoires jusqu'à la
+fin des runs de consolidation (je te préviens).
 
-### Ce qui a été fait
+### En une phrase
 
-- Départ : checkpoint `scrollprize/ink_9um`, `hybrid_3d2d-seed43/step-075000`.
-- Affinage de 1 000 pas, lot de 64, avec le corpus `ink_9um` en rejeu (69 % du lot) et deux segments nouveaux sur
-  le scan natif (31 %) : PHerc0500P2 `20250825181859--1` (9,362 µm) et PHerc0009B
-  `20250919125754-auto_grown_20250919055754487_inp_hr` (8,64 µm). 4,8 cm² supervisés en tout.
-- Trois branches, 5 graines chacune, mêmes patchs à graine égale :
-  - `C` : corpus seul (témoin) ;
-  - `T` : sur les deux segments, la carte publiée `new_canon_autoresearch_recipe` reportée sur le canevas natif,
-    encre si ≥ 128, fond si ≤ 64, dans le masque de supervision de l'équipe ;
-  - `H` : sur les mêmes pixels, les étiquettes de l'équipe (S3, jeu `20260918`) reportées sur le canevas natif.
-- Mesure : AUC et précision équilibrée sur les 3 segments de PHerc0841 (jamais vu, canevas natif, étiquettes de
-  l'équipe reportées) et sur les 9 zones réservées d'`ink_9um`. Grille de tuiles officielle, fenêtre centrée.
-- Incertitude : bootstrap par blocs de 128 px et par graines, 2 000 tirages. Règle de lecture écrite avant le
-  résultat (historique git de `docs/PLAN.md`).
+Sur les mêmes pixels, affiner `ink_9um` avec les étiquettes humaines de l'équipe ou avec la carte du modèle 2 µm
+de l'équipe (recalée sur la surface 9 µm) donne le même modèle ; ce qui aide, c'est d'ajouter des segments de
+rouleaux nouveaux.
 
 ### Chiffres
 
-| Écart d'AUC | PHerc0841 | 9 zones réservées |
-| --- | --- | --- |
-| `H − T` | +0,0002, IC 95 % [−0,0052 ; +0,0054] | +0,0008, IC 95 % [−0,0026 ; +0,0037] |
-| `H − C` | +0,039, IC 95 % [+0,026 ; +0,054] | −0,002, IC 95 % [−0,011 ; +0,008] |
-| `T − C` | +0,039, IC 95 % [+0,026 ; +0,054] | −0,003, IC 95 % [−0,012 ; +0,009] |
+- Écart humain − carte, en AUC : +0,0002 sur PHerc0841, rouleau jamais vu (intervalle à 95 % : −0,005 à +0,005),
+  +0,0008 sur les 9 zones réservées d'`ink_9um`. 5 graines appariées, mêmes patchs à graine égale.
+- Ajouter les deux segments (PHerc0500P2 `--1` et un segment de PHerc0009B) : +0,04 d'AUC et +0,05 de
+  précision équilibrée sur PHerc0841, avec l'une ou l'autre source d'étiquettes.
+- La carte sur toute la surface des segments, sans aucun choix humain : presque le même gain (+0,032, 2 graines).
+- Calcul : 2 GPU T4 gratuits de Kaggle, environ 2 h 30 pour 3 branches × 5 graines.
 
-Niveaux sur PHerc0841 (moyenne des 3 segments) : checkpoint publié 0,743 d'AUC ; `C` 0,753 ; `T` 0,792 ; `H` 0,792.
+### Ce qui est nouveau (d'après nos recherches du 24/11)
 
-### Ce qu'on peut dire
+- Personne n'a publié la même comparaison sur les mêmes pixels. Les plus proches :
+  - moisescorreo/vesuvius-uncertainty-bench (août) conclut l'inverse (« letter form is learnable from human
+    labels and not from model-generated labels »), mais ses deux sources d'étiquettes sont sur des scans et des
+    segments différents ;
+  - khj1222 (septembre) et protonjls (novembre) comparent l'humain à de l'auto-apprentissage (le modèle 9 µm
+    étiquette lui-même) : là, l'humain gagne nettement. Ce n'est pas la même chose qu'une carte faite sur le scan
+    fin.
+- Le mainteneur bruniss, en fermant la PR villa #2381, demandait justement « a training run comparison ».
 
-- À cette échelle, remplacer la carte du modèle 2 µm par des étiquettes humaines sur les mêmes pixels ne change
-  pas le modèle 9 µm obtenu.
-- Ajouter deux segments natifs de rouleaux nouveaux aide sur un rouleau jamais vu, quelle que soit la source des
-  étiquettes. C'est cohérent avec reader-v2 et reader-v3.
+### Ce qu'il ne faut pas affirmer
 
-### Ce qu'on ne peut pas dire
+- Que les étiquettes humaines ne servent à rien en général (deux segments, recette abrégée, 1 000 pas).
+- Que notre modèle est bon : 0,79 d'AUC sur PHerc0841, sous reader-v2, reader-v3 et hecate.
+- Que PHerc0841 compte trois observations indépendantes : deux de ses segments sont le même papyrus.
 
-- Que les étiquettes humaines sont inutiles en général : deux segments, 1 000 pas, un seul checkpoint, une recette
-  abrégée (augmentations réduites), et une branche `T` qui reste dans l'empreinte dessinée par l'équipe.
-- Que notre modèle est bon : 0,79 d'AUC sur PHerc0841 reste sous les chiffres annoncés pour reader-v2 (0,824),
-  reader-v3 (0,848) et hecate (0,857), mesurés autrement.
-- Les zones réservées sont dans des rouleaux d'entraînement : ce sont des mesures intra-segment.
+### Liens
 
-### Pour vérifier
-
-- Code : `scripts/build_bench.py`, `vesuvius_ink_adapt/finetune.py`, `scripts/run_bench.py`,
-  `scripts/analyze_bench.py` du dépôt https://github.com/Jonathan8520/vesuvius-ink-adapt.
-- Durée : 2 h 27 sur 2 GPU T4 de Kaggle.
-
+- Rapport : https://github.com/Jonathan8520/vesuvius-ink-adapt/blob/main/docs/label-source-comparison.md
+  (après le push sur `main`).
+- Reproduction : `bash scripts/reproduce_bench.sh data`, puis `train` sur GPU.
