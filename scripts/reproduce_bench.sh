@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Rebuild the label-source comparison bench from public data, then run it and analyse it.
-# Data steps run on CPU (about 1 hour, a few GB of downloads); the training step needs a GPU
+# Data steps run on CPU (about 15 minutes on 4 cores, about 5 GB written); the training step needs a GPU
 # (about 18 minutes per arm and seed on a Tesla T4).
 # Usage: bash scripts/reproduce_bench.sh [data|train|all]   (default: data)
 set -euo pipefail

@@ -118,7 +118,7 @@ native canvas, correctly registered.
 
 ```bash
 pip install -r requirements.txt
-bash scripts/reproduce_bench.sh data     # CPU, about 1 hour, public data only
+bash scripts/reproduce_bench.sh data     # CPU, about 15 minutes on 4 cores, public data only
 bash scripts/reproduce_bench.sh train    # GPU, about 18 minutes per arm and seed on a T4
 ```
 

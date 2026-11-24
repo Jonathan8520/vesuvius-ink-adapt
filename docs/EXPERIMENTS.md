@@ -384,4 +384,4 @@ Ne jamais noter ici de découverte de lettres sur un rouleau éligible au First 
   (inventaire, masques des 9 cas réservés, recalage, construction du banc), puis comparaison tableau par tableau
   avec les données ayant servi au pré-test.
 - Résultat : 60 fichiers sur 60 identiques (33 paquets d'entraînement, 27 zones d'évaluation), clés et tableaux.
-  Durée environ 1 h sur CPU.
+  Durée environ 15 minutes sur 4 coeurs, 4,7 Go écrits.
