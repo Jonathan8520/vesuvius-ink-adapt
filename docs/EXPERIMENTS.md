@@ -376,3 +376,12 @@ Ne jamais noter ici de découverte de lettres sur un rouleau éligible au First 
   apportent quelque chose à l'entraînement. La session ne remplace pas Jonathan pour le redessin : ce ne seraient
   plus des étiquettes vérifiées à la main, et un modèle qui « complète » des lettres dans des taches fabriquerait
   des étiquettes plausibles, ce que l'équipe demande justement d'éviter.
+
+## A11 : reproduction du banc depuis un clone neuf (24/11/2026)
+
+- But : vérifier que la soumission se refait à partir des seules données publiques et du code poussé.
+- Méthode : clone neuf de la branche dans le dossier temporaire, `bash scripts/reproduce_bench.sh data`
+  (inventaire, masques des 9 cas réservés, recalage, construction du banc), puis comparaison tableau par tableau
+  avec les données ayant servi au pré-test.
+- Résultat : 60 fichiers sur 60 identiques (33 paquets d'entraînement, 27 zones d'évaluation), clés et tableaux.
+  Durée environ 1 h sur CPU.

@@ -125,7 +125,10 @@ bash scripts/reproduce_bench.sh train    # GPU, about 18 minutes per arm and see
 On Kaggle: put the output of the data step in a dataset and run `kaggle/bench/bench_kernel.py` (two T4, one arm
 and seed per GPU, `PRESET` selects the arms). Analysis: `python scripts/analyze_bench.py <results folder>`.
 
-<!-- REPRO: result of the fresh-clone rebuild check goes here. -->
+Check (24 November 2026): `reproduce_bench.sh data` run from a fresh clone of this repository rebuilt all 60
+bench files (33 training packs, 27 evaluation zones). Every array is identical to the data used for the results
+above. The bucket catalogue (`metadata.json`) and the label sets can change upstream; the label set used is
+`20260918`.
 
 Files:
 
