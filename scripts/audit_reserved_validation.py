@@ -136,7 +136,7 @@ def main():
             json.dump(rows, f, indent=1, ensure_ascii=False)
     pub = sum(r["zone_px"] for r in rows if r["masque_publie_a_9um"])
     hid = sum(r["zone_px"] for r in rows if not r["masque_publie_a_9um"])
-    print(f"zones publiées à 9 µm : {pub} px ({pub * PX_CM2:.2f} cm2) ; zones présentes seulement sur S3 : {hid} px "
+    print(f"zones publiées à 9 µm : {pub} px ({pub * PX_CM2:.2f} cm2) ; zones absentes du dossier 9 µm (publiées dans le repère 2,4 µm) : {hid} px "
           f"({hid * PX_CM2:.2f} cm2) ; {time.time() - t0:.0f} s")
 
 
