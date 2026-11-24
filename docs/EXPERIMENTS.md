@@ -385,3 +385,22 @@ Ne jamais noter ici de découverte de lettres sur un rouleau éligible au First 
   avec les données ayant servi au pré-test.
 - Résultat : 60 fichiers sur 60 identiques (33 paquets d'entraînement, 27 zones d'évaluation), clés et tableaux.
   Durée environ 15 minutes sur 4 coeurs, 4,7 Go écrits.
+
+## A12 : branche `S`, carte du modèle reportée sans recalage (24/11/2026)
+
+- But : tester si le décalage de la carte du modèle 2 µm sur le canevas natif explique le résultat contraire de
+  moisescorreo/vesuvius-uncertainty-bench (« letter form is learnable from human labels and not from
+  model-generated labels », avec la même carte, décalée d'environ 138 µm d'après son audit).
+- Branche `S` : comme `T` (mêmes pixels, même masque, mêmes patchs à graine égale), mais la carte est reportée par
+  simple mise à l'échelle (rapport des tailles de canevas, décalage nul), soit 5 à 10 px (50 à 90 µm) de décalage
+  par rapport au recalage. IoU de l'encre entre `S` et `T` : 0,80 sur PHerc0500P2 `--1`, 0,85 sur PHerc0009B.
+- Kernel `jonathan8520/vesuvius-ink9um-bench-shift`, version 2 (la version 1 a planté sur une ancienne version du
+  jeu de données, sans les étiquettes `s` : le contrôle de `finetune.Pack.labels` l'a arrêtée), 53 min sur 2 T4.
+- Résultat, 5 graines, écart d'AUC au pas 1 000 (intervalle à 95 %) :
+  - `T − S` : 0,0000 [−0,0024 ; +0,0023] sur PHerc0841 ; −0,0013 [−0,0029 ; +0,0003] sur les cas réservés ;
+  - `H − S` : +0,0002 [−0,0055 ; +0,0057] sur PHerc0841 ; −0,0006 [−0,0043 ; +0,0027] sur les cas réservés ;
+  - `S − C` : +0,039 [+0,025 ; +0,054] sur PHerc0841.
+- Lecture : un décalage de 5 à 10 px de la carte ne change rien au modèle obtenu. Le recalage fin n'est donc pas
+  nécessaire pour cet usage. Il n'explique pas non plus, à cette taille, le résultat de moisescorreo ; son décalage
+  annoncé (environ 138 µm, soit 15 px) est plus grand que celui testé ici, et ses deux sources d'étiquettes sont sur
+  des scans différents.
