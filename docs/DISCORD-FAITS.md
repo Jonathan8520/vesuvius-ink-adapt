@@ -188,9 +188,9 @@ Révisé le 23/11 après la vérification d'antériorité (`docs/RESEARCH.md`, s
 
 ## Message 3 : la comparaison « étiquettes humaines contre carte du modèle » (soumission de novembre)
 
-Mis à jour le 24/11. Faits seulement ; c'est à toi d'écrire le message. Où le poster : le canal où les gens
-parlent de détection d'encre ; si c'est #robots, ajoute la ligne « AI disclosure ». Chiffres provisoires jusqu'à la
-fin des runs de consolidation (je te préviens).
+Mis à jour le 24/11 au soir, chiffres définitifs. Faits seulement ; c'est à toi d'écrire le message. Où le
+poster : le canal où les gens parlent de détection d'encre ; si c'est #robots, ajoute la ligne « AI disclosure ».
+Figure à joindre si tu veux : `docs/img/label_source_comparison.png`.
 
 ### En une phrase
 
@@ -204,8 +204,12 @@ rouleaux nouveaux.
   +0,0008 sur les 9 zones réservées d'`ink_9um`. 5 graines appariées, mêmes patchs à graine égale.
 - Ajouter les deux segments (PHerc0500P2 `--1` et un segment de PHerc0009B) : +0,04 d'AUC et +0,05 de
   précision équilibrée sur PHerc0841, avec l'une ou l'autre source d'étiquettes.
-- La carte sur toute la surface des segments, sans aucun choix humain : presque le même gain (+0,032, 2 graines).
-- Calcul : 2 GPU T4 gratuits de Kaggle, environ 2 h 30 pour 3 branches × 5 graines.
+- Refait depuis un second checkpoint de départ (seed42, 3 graines) : écart humain − carte de −0,0009.
+- La carte reportée sans recalage (5 à 10 px de décalage) donne le même modèle : 0,0000 d'écart.
+- La carte sur toute la surface des segments, sans aucun choix humain : à 0,007 près de l'humain sur PHerc0841
+  (intervalle qui contient 0), un peu mieux sur les rouleaux déjà vus.
+- Calcul : 2 GPU T4 gratuits de Kaggle, environ 18 minutes par branche et par graine.
+- Tout se refait depuis un clone neuf : les 60 fichiers du banc reconstruits à l'identique.
 
 ### Ce qui est nouveau (d'après nos recherches du 24/11)
 

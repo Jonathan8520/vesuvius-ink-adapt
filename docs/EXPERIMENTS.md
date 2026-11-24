@@ -404,3 +404,15 @@ Ne jamais noter ici de découverte de lettres sur un rouleau éligible au First 
   nécessaire pour cet usage. Il n'explique pas non plus, à cette taille, le résultat de moisescorreo ; son décalage
   annoncé (environ 138 µm, soit 15 px) est plus grand que celui testé ici, et ses deux sources d'étiquettes sont sur
   des scans différents.
+
+## A13 : consolidation de la comparaison (24/11/2026)
+
+- Kernel `jonathan8520/vesuvius-ink9um-bench-robust` (2 h 05 sur 2 T4) : branche `D` complétée (graines 0, 2, 4),
+  puis `base`, `C`, `T`, `H` depuis un second checkpoint (seed42, step 75k), graines 0 à 2.
+- `D` à 5 graines (seed43) : `D − H` −0,0065 [−0,016 ; +0,004] sur PHerc0841, +0,0061 [+0,001 ; +0,012] sur les
+  cas réservés ; `D − C` +0,033 [+0,020 ; +0,046] sur PHerc0841. La carte sans aucun choix humain fait presque
+  aussi bien que les étiquettes humaines sur le rouleau jamais vu, un peu mieux sur les rouleaux vus.
+- Second checkpoint (seed42) : AUC PHerc0841 `base` 0,740, `C` 0,766, `T` 0,797, `H` 0,796 ; `H − T` −0,0009
+  [−0,0070 ; +0,0053] ; `H − C` +0,030 [+0,013 ; +0,048]. Cas réservés : `H − T` −0,0002 [−0,0041 ; +0,0039].
+  Verdict de la règle : pas de différence mesurable. Le résultat principal se réplique.
+- Figure : `docs/img/label_source_comparison.png`. Rapport : `docs/label-source-comparison.md`.

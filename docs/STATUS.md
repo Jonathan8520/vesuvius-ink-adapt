@@ -7,7 +7,15 @@
 - À partir de décembre : corriger de vrais bugs dans les outils de l'équipe, une PR à la fois, montrée avant.
 - Arrêt si rien n'est accepté ni primé fin janvier.
 
-## En cours
+## Fait le 24/11 au soir
+
+- Soumission prête à relire : rapport `docs/label-source-comparison.md` (anglais, avec figure), réponses du
+  formulaire `docs/SOUMISSION-2026-11.md`, faits Discord `docs/DISCORD-FAITS.md` (message 3).
+- Résultat confirmé : humain et carte donnent le même modèle, depuis deux checkpoints de départ ; la carte marche
+  aussi sans recalage et sans masque humain. Personne n'avait publié cette comparaison.
+- Reproduction vérifiée depuis un clone neuf : 60 fichiers sur 60 identiques.
+
+## Ce qui tournait (terminé)
 
 - Kaggle : `vesuvius-ink9um-bench-robust` (lancé le 24/11 à 20 h 23 UTC). Il complète la branche `D` à 5 graines
   et refait la comparaison depuis un second checkpoint. En file d'attente (la dernière fois : 8 h d'attente).

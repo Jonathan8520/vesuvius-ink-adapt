@@ -5,8 +5,8 @@ Formulaire : https://docs.google.com/forms/d/e/1FAIpQLSeB6MC_--4UCCEGc3zalX57-uE
 (titre « November 2026 Progress Prizes », lu le 24/11).
 
 Ce que tu soumets : le rapport `docs/label-source-comparison.md` et le code du dépôt.
-Chiffres provisoires : ils seront mis à jour avec les runs de consolidation (branche `D` à 5 graines, branche
-`S`, second checkpoint de départ). Je te préviendrai quand le texte est définitif.
+Chiffres définitifs depuis le 24/11 au soir (consolidation faite : branche `D` à 5 graines, branche `S`,
+second checkpoint de départ).
 
 ## Avant d'envoyer
 
@@ -45,24 +45,26 @@ serveur Discord a une règle sur l'IA. À toi de voir la formulation, mais je co
 > validation zones of ink_9um. No prize-eligible scroll was used.
 >
 > (2) It tells labellers and model builders where human effort pays off at 9 µm. Fine-tuning ink_9um with the
-> team's human labels or with the team's registered 2 µm map, on exactly the same pixels and the same patches,
-> gives the same model: +0.0002 AUC on PHerc0841 (95 % interval −0.005 to +0.005, 5 paired seeds), +0.0008 on
-> the reserved zones. What helps is adding native segments from new scrolls: +0.04 AUC and +0.05 balanced
-> accuracy on PHerc0841, whatever the label source. So new 9 µm training segments can be labelled with the
-> registered 2 µm map instead of hours of hand labelling, and the scarce human time can go elsewhere.
+> team's human labels or with the team's 2 µm map, on exactly the same pixels and the same patches, gives the
+> same model: +0.0002 AUC on PHerc0841 (95 % interval −0.005 to +0.005, 5 paired seeds), replicated from a second
+> starting checkpoint (−0.0009). The map works just as well transferred by plain scaling, without registration,
+> and over whole segments with no human mask (within 0.007 AUC). What helps is adding native segments from new
+> scrolls: +0.03 to +0.04 AUC and about +0.05 balanced accuracy on PHerc0841, whatever the labels. So new 9 µm
+> training segments can be labelled with the 2 µm map instead of hours of hand labelling, and the scarce human
+> time can go elsewhere.
 >
 > (3) It is the training-run comparison the maintainers asked for when closing villa PR #2381, and the first one
 > we could find where only the label source changes. It contrasts with an earlier controlled test
 > (moisescorreo/vesuvius-uncertainty-bench) that concluded the opposite, with its two label sources on different
-> scans and segments.
-> It comes with a paired fine-tuning bench for ink_9um (same patches per seed, any label source can be dropped
-> in) and a CT-texture registration of the 2 µm map onto the native canvas (sub-pixel residual, checked against
-> the team's labels published on both canvases), runnable on two free Kaggle T4 GPUs.
+> scans and segments. It comes with a paired fine-tuning bench for ink_9um (same patches per seed, any label
+> source can be dropped in), runnable on two free Kaggle T4 GPUs, and a script that rebuilds the bench from
+> public data.
 >
-> (4) Evidence: per-segment and per-seed scores with paired block bootstrap intervals; controls (the published
-> checkpoint reproduced exactly; a replay-only arm; a dense map arm with no human choice); a decision rule
-> committed in git before the results were read; a script that rebuilds everything from public data; limits
-> stated in the report (two segments, abbreviated recipe, evaluation labels drawn by the same team).
+> (4) Evidence: per-segment and per-seed scores with paired block bootstrap intervals and a figure; controls (the
+> published checkpoint reproduced exactly; a replay-only arm; a misregistered-map arm; a no-human-mask arm; a
+> second starting checkpoint); a decision rule committed in git before the results were read; a rebuild from a
+> fresh clone that reproduces all 60 bench files identically; limits stated in the report (two segments,
+> abbreviated recipe, evaluation labels drawn by the same team).
 
 **Terms and Conditions** : cocher « Yes, I agree » (lis le texte : il faut rendre le code open source sous licence
 permissive si tu gagnes ; c'est déjà le cas, MIT).
