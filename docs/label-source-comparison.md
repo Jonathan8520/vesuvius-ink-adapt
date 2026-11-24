@@ -66,46 +66,64 @@ written and committed before the results were read** (`docs/PLAN.md` history, 22
 
 ## Results
 
-Mean over segments of each group, mean ± sd over seeds, at 1,000 steps.
+![AUC per arm and seed, on the unseen scroll and on the reserved zones](img/label_source_comparison.png)
+
+Mean over segments of each group, mean ± sd over seeds, at 1,000 steps, starting from seed43 step 75k.
 
 | Arm | Seeds | PHerc0841 (unseen scroll): AUC / balanced acc. | 9 reserved zones: AUC / balanced acc. |
 | --- | --- | --- | --- |
-| `base` | 1 | 0.743 / 0.649 | 0.865 / 0.757 |
+| `base` published checkpoint | 1 | 0.743 / 0.649 | 0.865 / 0.757 |
 | `C` replay only | 5 | 0.753 ± 0.009 / 0.682 ± 0.008 | 0.888 ± 0.005 / 0.802 ± 0.004 |
 | `T` 2 µm map | 5 | 0.792 ± 0.005 / 0.730 ± 0.002 | 0.885 ± 0.001 / 0.800 ± 0.002 |
+| `S` 2 µm map, not registered | 5 | 0.792 ± 0.004 / 0.729 ± 0.002 | 0.886 ± 0.002 / 0.800 ± 0.002 |
+| `D` 2 µm map, no human mask | 5 | 0.785 ± 0.007 / 0.720 ± 0.006 | 0.891 ± 0.001 / 0.808 ± 0.001 |
 | `H` human labels | 5 | 0.792 ± 0.003 / 0.729 ± 0.002 | 0.885 ± 0.001 / 0.800 ± 0.002 |
-| `D` 2 µm map, whole segment | 2 | 0.780 ± 0.003 / 0.717 ± 0.004 | 0.892 ± 0.002 / 0.808 ± 0.000 |
 
 Paired differences in AUC (95 % block-and-seed bootstrap interval):
 
 | Difference | PHerc0841 | 9 reserved zones |
 | --- | --- | --- |
 | `H − T` (human vs map, same pixels) | **+0.0002** [−0.0052, +0.0054] | **+0.0008** [−0.0026, +0.0037] |
+| `T − S` (registered vs not) | 0.0000 [−0.0026, +0.0024] | −0.0013 [−0.0029, +0.0004] |
+| `D − H` (map everywhere vs human, in the human mask) | −0.0065 [−0.0158, +0.0035] | +0.0061 [+0.0007, +0.0119] |
 | `H − C` | +0.039 [+0.026, +0.054] | −0.002 [−0.011, +0.008] |
 | `T − C` | +0.039 [+0.026, +0.054] | −0.003 [−0.012, +0.009] |
-| `D − H` (2 seeds) | −0.010 [−0.019, −0.001] | +0.007 [−0.000, +0.014] |
+| `D − C` | +0.033 [+0.020, +0.046] | +0.004 [−0.004, +0.013] |
 
 Same reading at 250 and 500 steps, and in balanced accuracy.
 
-<!-- CONSOLIDATION: results of `D` at 5 seeds, `S`, and the seed42 start go here. -->
+**Replication from a second starting checkpoint** (seed42 step 75k, 3 seeds, open circles in the figure):
+
+| | PHerc0841 | 9 reserved zones |
+| --- | --- | --- |
+| `base` / `C` / `T` / `H`, AUC | 0.740 / 0.766 / 0.797 / 0.796 | 0.839 / 0.882 / 0.881 / 0.880 |
+| `H − T` | −0.0009 [−0.0070, +0.0053] | −0.0002 [−0.0041, +0.0039] |
+| `H − C` | +0.030 [+0.013, +0.048] | −0.002 [−0.013, +0.009] |
 
 ## What this shows
 
-1. **On the same pixels, human labels and the registered 2 µm map give the same model.** The interval excludes
-   any difference larger than about 0.005 AUC on the unseen scroll.
-2. **What helps is adding segments from new scrolls**: +0.04 AUC and +0.05 balanced accuracy on PHerc0841, on every
-   seed and every PHerc0841 segment, whatever the label source. Nothing changes on the scrolls already in the
-   corpus. This agrees with the approach of reader-v2 and reader-v3 (Domenico Russo).
-3. Restricting the map to the region an annotator chose (`T` vs `D`) is worth at most +0.01 on the unseen scroll
-   and costs 0.007 on the seen ones, on 2 seeds: a small effect of mixed sign.
+1. **On the same pixels, human labels and the 2 µm map give the same model.** On the unseen scroll the interval
+   excludes any difference larger than about 0.005 AUC, from both starting checkpoints.
+2. **The map does not need sub-pixel registration for this.** Transferring it by scaling alone (5 to 10 px off,
+   50 to 90 µm) gives the same model as the registered transfer.
+3. **The annotator's choice of where to supervise does not matter much either.** The map over the whole segments,
+   with no human input at all (`D`), is within 0.007 AUC of the human labels on the unseen scroll (interval
+   including 0) and slightly better on the seen ones.
+4. **What helps is adding segments from new scrolls**: +0.03 to +0.04 AUC and about +0.05 balanced accuracy on
+   PHerc0841, from both checkpoints, whatever the labels. Nothing changes on the scrolls already in the corpus.
+   This agrees with the approach of reader-v2 and reader-v3 (Domenico Russo), which distil 2 µm maps onto many
+   native segments.
 
 Practical consequence: at this scale, an hour of human ink labelling on new 9 µm segments buys nothing that the
-registered 2 µm map does not already give. The useful work is getting more segments from more scrolls onto the
-native canvas, correctly registered.
+2 µm map does not already give, and the map can be used without careful registration or masking. Human time is
+better spent elsewhere, and the useful work is getting more segments from more scrolls onto native canvases.
 
 ## What this does not show
 
-- That human labels are useless in general: two segments, 1,000 steps, an abbreviated recipe, one teacher model.
+- That human labels are useless in general: two segments, 1,000 steps, an abbreviated recipe, one teacher model,
+  two starting checkpoints of the same recipe.
+- Why moisescorreo/vesuvius-uncertainty-bench found the opposite with the same 2 µm map. A 5 to 10 px offset does
+  not explain it here; its reported offset (about 138 µm) is larger, and its label sources sit on different scans.
 - That our fine-tuned model is good: 0.79 AUC on PHerc0841 stays below what is reported for reader-v2 (0.824),
   reader-v3 (0.848) and hecate (0.857), measured with other masks.
 - A cross-scroll result on the reserved zones: they are intra-segment measures.
