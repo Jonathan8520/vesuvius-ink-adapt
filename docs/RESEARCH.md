@@ -380,3 +380,28 @@ et on ne s'en sert pas pour entraîner.
    que Jonathan n'y passe du temps.
 3. Un outil au stylet, et le temps de correction par cm².
 
+
+## 11. Antériorité de la comparaison « étiquettes humaines contre carte du modèle » (24 novembre)
+
+Question : quelqu'un a-t-il déjà publié un affinage où seule la source des étiquettes change, humaines contre
+sorties de modèle ? Lu : dépôts déjà clonés et remis à jour le 24/11 (khj1222, ChaseHendrick/Scrolls,
+ibarapascal/ink-disagree, DomRusso2, Nieuwlaar, SirProdigle, Jashann), deux dépôts trouvés par recherche web
+(moisescorreo/vesuvius-uncertainty-bench, protonjls/vesuvius-first-letters), et les balayages du 22/11 (section 10).
+
+| Source | Ce qui est comparé | Résultat publié | Différence avec la nôtre |
+| --- | --- | --- | --- |
+| https://github.com/moisescorreo/vesuvius-uncertainty-bench (29/08), section « 3b. The controlled experiment » [N] | affinage, même recette, étiquettes « model-generated » à 113/116 keV (la même carte `new_canon_autoresearch_recipe`, reportée en aval) contre étiquettes humaines à 54 keV (Scroll 1) | « letter form is learnable from human labels and not from model-generated labels » ; avec les étiquettes du modèle, chaque branche finit sous le checkpoint gelé | pas les mêmes pixels : les deux sources sont sur des scans, des énergies et des segments différents ; son propre audit signale un décalage de la carte d'environ 138 µm sur PHerc0343P ; notation contre des étiquettes dérivées du même générateur |
+| khj1222, `submission/2026-09_progress_prize.md` et docs/18, primé 500 $ en septembre [N] | auto-apprentissage (pseudo-étiquettes du modèle 9 µm lui-même) contre une annotation humaine du même segment | « self-training gains +0.030 F1 … against +0.320 for a human annotation on the same segment » | maître faible (le modèle lui-même), sur le rouleau cible ; nous : maître fort (modèle 2 µm sur le scan fin), segments donneurs, notation sur zones tenues à l'écart et sur un rouleau jamais vu |
+| protonjls/vesuvius-first-letters, `scroll_adapt/` (22/11) [N] | affinage de reader-v3 sur des pseudo-étiquettes de consensus de deux modèles 9 µm, sans humain | ne bat pas ses maîtres ; s'éloigne des étiquettes humaines de PHerc1447 | auto-apprentissage transductif, pas de comparaison appariée avec des étiquettes humaines |
+| PR villa #2512 (DeepakEz) [B, recherche web] | auto-apprentissage et transfert de type de scan | petits gains | même remarque |
+| Domenico Russo (ink9um-dense), Erwin Nieuwlaar (dense-native) [N, 22/11] | cartes denses du modèle 2 µm contre étiquettes manuelles clairsemées | +0,03 à +0,10 pour les cartes denses | surfaces supervisées différentes (dense contre clairsemé) |
+| ChaseHendrick, kit `altrain` ; khj1222, docs/20 [N, 22/11] | où étiqueter (incertitude contre hasard) | le ciblage par incertitude ne gagne pas | autre question |
+
+Conclusion : personne n'a publié la même comparaison (mêmes pixels, seule la source change, maître sur le scan
+fin recalé au pixel près). Le résultat le plus proche (moisescorreo) conclut l'inverse du nôtre avec la même carte
+du modèle, mais sans appariement et avec une carte décalée. D'où la branche `S` du banc (carte reportée sans
+recalage, mêmes pixels), lancée le 24/11 pour tester si le recalage explique l'écart.
+
+Autre point à citer dans la soumission (ChaseHendrick, `docs/FINDINGS.md`, finding 5) : deux des trois segments
+étiquetés de PHerc0841 (w00 et ag896) sont le même papyrus (distance médiane 81 µm sur 98 % de 12,7 cm²). Notre
+groupe « PHerc0841 » compte donc deux observations à peu près indépendantes, pas trois.
