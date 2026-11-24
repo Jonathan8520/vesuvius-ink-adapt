@@ -15,10 +15,13 @@ import time
 
 CONFIG = {
     "branch": "claude/jolly-shannon-2xycqz",
-    "ckpt": "s43-75k",
-    "arms": "D",                # base : checkpoint publié ; C : témoin ; T : carte du modèle 2 µm dans l'empreinte humaine ;
-                                # H : étiquettes humaines ; D : carte du modèle 2 µm sur toute la surface, sans choix humain
-    "seeds": "0,1,2,3,4",
+    # Branches : base = checkpoint publié ; C = témoin ; T = carte du modèle 2 µm dans l'empreinte humaine ;
+    # H = étiquettes humaines ; D = carte du modèle 2 µm sur toute la surface, sans choix humain.
+    # Les travaux tournent l'un après l'autre ; chacun écrit dans results/<nom>.
+    "jobs": [
+        {"nom": "D-s43", "ckpt": "s43-75k", "arms": "D", "seeds": "0,2,4"},          # complète D à 5 graines
+        {"nom": "s42", "ckpt": "s42-75k", "arms": "base,C,T,H", "seeds": "0,1,2"},   # second checkpoint de départ
+    ],
     "steps": 1000,
     "lr": 0.002,
     "warmup": 100,
@@ -79,32 +82,40 @@ def main():
     sh(f"git -C {repo} log -1 --format=%h_%ad --date=short")
     bench = find_bench()
     log("banc :", bench, "| train", len(glob.glob(bench + "/train/*.npz")), "| eval", len(glob.glob(bench + "/eval/*.npz")))
-    out = os.path.join(WORK, "results")
-    os.makedirs(out, exist_ok=True)
     n = max(1, n_gpu)
-    procs = []
-    for i in range(n):
-        cmd = [sys.executable, os.path.join(repo, "scripts", "run_bench.py"), "--bench", bench, "--out", out,
-               "--ckpt", CONFIG["ckpt"], "--arms", CONFIG["arms"], "--seeds", CONFIG["seeds"],
-               "--steps", str(CONFIG["steps"]), "--lr", str(CONFIG["lr"]), "--warmup", str(CONFIG["warmup"]),
-               "--batch", str(CONFIG["batch"]), "--shard", f"{i}/{n}", "--eval-at", CONFIG.get("eval_at", "")]
-        if CONFIG["eval_only"]:
-            cmd += ["--eval-only"] + CONFIG["eval_only"]
-        env = dict(os.environ, CUDA_VISIBLE_DEVICES=str(i), CKPT_DIR="/tmp/ink_9um", PYTHONUNBUFFERED="1")
-        log("lancement", i, " ".join(cmd[2:]))
-        procs.append(subprocess.Popen(cmd, env=env, stdout=open(os.path.join(WORK, f"stdout_{i}.txt"), "w"), stderr=subprocess.STDOUT))
-        time.sleep(20 if i == 0 else 0)   # le premier télécharge le checkpoint
-    codes = [p.wait() for p in procs]
-    log("codes de sortie", codes)
-    for i in range(n):
-        with open(os.path.join(WORK, f"stdout_{i}.txt")) as f:
-            log(f"--- fin de la sortie {i}\n" + f.read()[-3000:])
-    # fusion des résultats de tous les processus
     sys.path.insert(0, os.path.join(repo, "scripts"))
     import run_bench
-    runs = [r for p in sorted(glob.glob(out + "/runs_*.json")) for r in json.load(open(p))]
+    allruns = []
+    for job in CONFIG["jobs"]:
+        out = os.path.join(WORK, "results", job["nom"])
+        os.makedirs(out, exist_ok=True)
+        procs = []
+        for i in range(n):
+            cmd = [sys.executable, os.path.join(repo, "scripts", "run_bench.py"), "--bench", bench, "--out", out,
+                   "--ckpt", job["ckpt"], "--arms", job["arms"], "--seeds", job["seeds"],
+                   "--steps", str(CONFIG["steps"]), "--lr", str(CONFIG["lr"]), "--warmup", str(CONFIG["warmup"]),
+                   "--batch", str(CONFIG["batch"]), "--shard", f"{i}/{n}", "--eval-at", CONFIG.get("eval_at", "")]
+            if CONFIG["eval_only"]:
+                cmd += ["--eval-only"] + CONFIG["eval_only"]
+            env = dict(os.environ, CUDA_VISIBLE_DEVICES=str(i), CKPT_DIR="/tmp/ink_9um", PYTHONUNBUFFERED="1")
+            log("lancement", job["nom"], i, " ".join(cmd[2:]))
+            procs.append(subprocess.Popen(cmd, env=env, stdout=open(os.path.join(WORK, f"stdout_{job['nom']}_{i}.txt"), "w"),
+                                          stderr=subprocess.STDOUT))
+            time.sleep(30 if i == 0 else 0)   # le premier télécharge le checkpoint
+        codes = [p.wait() for p in procs]
+        log("codes de sortie", job["nom"], codes)
+        for i in range(n):
+            with open(os.path.join(WORK, f"stdout_{job['nom']}_{i}.txt")) as f:
+                log(f"--- fin de la sortie {job['nom']} {i}\n" + f.read()[-3000:])
+        runs = [r for p in sorted(glob.glob(out + "/runs_*.json")) for r in json.load(open(p))]
+        for r in runs:
+            r["travail"] = job["nom"]
+        allruns += runs
+        with open(os.path.join(WORK, f"resume_{job['nom']}.json"), "w") as f:
+            json.dump(dict(travail=job, secondes=round(time.time() - T0), runs=len(runs), **run_bench.summarize(runs)), f, indent=1, ensure_ascii=False)
+    runs = allruns
     with open(os.path.join(WORK, "resume.json"), "w") as f:
-        json.dump(dict(config=CONFIG, secondes=round(time.time() - T0), runs=len(runs), **run_bench.summarize(runs)), f, indent=1, ensure_ascii=False)
+        json.dump(dict(config=CONFIG, secondes=round(time.time() - T0), runs=len(runs)), f, indent=1, ensure_ascii=False)
     with open(os.path.join(WORK, "runs.json"), "w") as f:
         json.dump(runs, f, indent=1, ensure_ascii=False)
     log("terminé,", len(runs), "branches")
