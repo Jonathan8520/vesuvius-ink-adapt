@@ -96,7 +96,7 @@ def main():
             print(f"contrôle C - base, {grp} : {d:+.4f}" + ("  (RECETTE TROP BRUTALE)" if d < -0.02 else ""))
     # bootstrap apparié
     rng = np.random.default_rng(a.seed)
-    for hi, lo in (("H", "T"), ("H", "C"), ("T", "C"), ("D", "H"), ("D", "T"), ("D", "C")):
+    for hi, lo in (("H", "T"), ("H", "C"), ("T", "C"), ("D", "H"), ("D", "T"), ("D", "C"), ("T", "S"), ("H", "S"), ("S", "C")):
         seeds = sorted({g for (x, g) in runs if x == hi} & {g for (x, g) in runs if x == lo})
         if not seeds:
             continue

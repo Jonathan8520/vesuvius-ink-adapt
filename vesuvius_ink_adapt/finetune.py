@@ -35,9 +35,11 @@ class Pack:
         self.masks = {k: np.unpackbits(z[k], axis=-1)[..., :TILE].astype(bool) for k in z.files if k not in ("img", "yx", "shape")}
 
     def labels(self, version):
-        """(ink, sup) pour la version demandée : "h" = étiquettes humaines, "t" = carte du modèle 2 µm seuillée."""
-        if version == "t" and "ink_t" in self.masks:
-            return self.masks["ink_t"], self.masks["sup_t"]
+        """(ink, sup) pour la version demandée : "h" = étiquettes humaines, "t" = carte du modèle 2 µm seuillée,
+        "s" = la même carte reportée sans recalage (simple mise à l'échelle)."""
+        if version in ("t", "s") and "ink_" + version in self.masks:
+            return self.masks["ink_" + version], self.masks["sup_" + version]
+        assert version == "h" or "ink_t" not in self.masks, f"version {version} absente du paquet {self.name}"
         return self.masks["ink"], self.masks["sup"]
 
 

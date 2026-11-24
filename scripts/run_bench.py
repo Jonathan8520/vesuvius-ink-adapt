@@ -5,7 +5,8 @@ Branches :
 - `C` : témoin, affinage sur le seul corpus de l'équipe ;
 - `T` : corpus de l'équipe + segments nouveaux étiquetés par la carte du modèle 2 µm seuillée ;
 - `H` : corpus de l'équipe + les mêmes pixels étiquetés à la main (étiquettes de l'équipe reportées) ;
-- `D` : corpus de l'équipe + la carte du modèle 2 µm sur toute la surface des mêmes segments, sans choix humain.
+- `D` : corpus de l'équipe + la carte du modèle 2 µm sur toute la surface des mêmes segments, sans choix humain ;
+- `S` : comme `T`, mais la carte est reportée sans recalage (simple mise à l'échelle, décalage de 5 à 10 px).
 
 Mesure : les 9 zones réservées d'`ink_9um` et PHerc0841, grille de tuiles officielle, fenêtre centrée.
 
@@ -103,7 +104,7 @@ def main():
         if (arm, seed, steps) in done:
             continue
         quotas = scale_quotas(QUOTAS["C" if arm in ("base", "C") else ("D" if arm == "D" else "N")], a.batch)
-        versions = {name: ("t" if arm == "T" else "h") for name in NEW}
+        versions = {name: {"T": "t", "S": "s"}.get(arm, "h") for name in NEW}
         key = tuple(sorted(quotas))
         if steps and key not in packs:
             t0 = time.time()

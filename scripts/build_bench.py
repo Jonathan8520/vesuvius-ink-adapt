@@ -13,7 +13,7 @@ Trois familles de données, décrites dans `data/bench/manifest.json` :
 
 Aucun rouleau éligible à First Letters. Les zones réservées et PHerc0841 ne sont jamais écrites dans `train/`.
 
-Usage : python scripts/build_bench.py --what manifest|train|eval|dense [--only nom ...] [--out data/bench]
+Usage : python scripts/build_bench.py --what manifest|train|eval|dense|shift [--only nom ...] [--out data/bench]
 """
 import argparse
 import json
@@ -115,9 +115,40 @@ def labels_of(rep, cache):
     fit = rep["recalage"]
     to_native = lambda a: R.fine_to_native(a.astype(np.float32), fit)
     ink, sup = to_native(lab["ink"]) >= 0.5, to_native(lab["sup"]) >= 0.999   # supervision : bord exclu
-    teacher = to_native(teacher_level2(rep, cache))
+    teacher2 = teacher_level2(rep, cache)
+    teacher = R.fine_to_native(teacher2, fit)
+    # report naïf, sans recalage : seule la mise à l'échelle par le rapport des tailles de canevas (décalage nul),
+    # comme un simple redimensionnement de la carte du scan fin. Sert à la branche S.
+    naive = dict(fit, A=[[fit["forme_fin"][0] / fit["forme_natif"][0], 0.0], [0.0, fit["forme_fin"][1] / fit["forme_natif"][1]]],
+                 t=[0.0, 0.0])
+    tn = R.fine_to_native(teacher2, naive)
     return dict(ink=ink & sup, sup=sup, val=np.zeros_like(sup),
-                ink_t=(teacher >= T_HI) & sup, sup_t=sup & ((teacher >= T_HI) | (teacher <= T_LO)))
+                ink_t=(teacher >= T_HI) & sup, sup_t=sup & ((teacher >= T_HI) | (teacher <= T_LO)),
+                ink_s=(tn >= T_HI) & sup, sup_s=sup & ((tn >= T_HI) | (tn <= T_LO)))
+
+
+def add_shifted(rep, out, cache):
+    """Ajoute aux paquets des segments nouveaux la version `s` (carte reportée sans recalage, branche S)."""
+    path = os.path.join(out, "train", rep["nom"] + ".npz")
+    z = dict(np.load(path))
+    if "ink_s" in z:
+        return
+    lab = labels_of(rep, cache)
+    T = TILE
+    for key in ("ink_s", "sup_s", "sup"):
+        tiles = []
+        for y, x in z["yx"]:
+            m = lab[key][y:y + T, x:x + T]
+            tiles.append(np.pad(m, ((0, T - m.shape[0]), (0, T - m.shape[1]))))
+        packed = np.packbits(np.stack(tiles), axis=-1)
+        if key == "sup":
+            assert (packed == z["sup"]).all(), "supervision recalculée différente du paquet"
+        else:
+            z[key] = packed
+    np.savez(path + ".part.npz", **z)
+    os.replace(path + ".part.npz", path)
+    ink_t = np.unpackbits(z["ink_t"], axis=-1).astype(bool); ink_s = np.unpackbits(z["ink_s"], axis=-1).astype(bool)
+    print(f"{rep['nom']} : version s ajoutée ; IoU encre s / t = {(ink_s & ink_t).sum() / max(1, (ink_s | ink_t).sum()):.3f}", flush=True)
 
 
 def build_dense(rep, out, cache, rng, cap=300):
@@ -203,7 +234,7 @@ def build_eval(rep, out, cache):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--what", choices=["manifest", "train", "eval", "dense"], required=True)
+    ap.add_argument("--what", choices=["manifest", "train", "eval", "dense", "shift"], required=True)
     ap.add_argument("--only", nargs="*")
     ap.add_argument("--out", default="data/bench")
     a = ap.parse_args()
@@ -222,6 +253,8 @@ def main():
             build_eval(rep, a.out, cache)
         if a.what == "dense" and rep["role"] == "nouveau":
             build_dense(rep, a.out, cache, draw)
+        if a.what == "shift" and rep["role"] == "nouveau":
+            add_shifted(rep, a.out, cache)
 
 
 if __name__ == "__main__":

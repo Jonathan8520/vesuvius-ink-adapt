@@ -18,10 +18,7 @@ CONFIG = {
     # Branches : base = checkpoint publié ; C = témoin ; T = carte du modèle 2 µm dans l'empreinte humaine ;
     # H = étiquettes humaines ; D = carte du modèle 2 µm sur toute la surface, sans choix humain.
     # Les travaux tournent l'un après l'autre ; chacun écrit dans results/<nom>.
-    "jobs": [
-        {"nom": "D-s43", "ckpt": "s43-75k", "arms": "D", "seeds": "0,2,4"},          # complète D à 5 graines
-        {"nom": "s42", "ckpt": "s42-75k", "arms": "base,C,T,H", "seeds": "0,1,2"},   # second checkpoint de départ
-    ],
+    "jobs": None,               # rempli par PRESET ci-dessous
     "steps": 1000,
     "lr": 0.002,
     "warmup": 100,
@@ -29,6 +26,16 @@ CONFIG = {
     "eval_at": "250,500",       # notations intermédiaires
     "eval_only": [],            # liste vide : tous les segments d'évaluation
 }
+# Lots de travaux déjà lancés (journal, entrée A8). Pour lancer un lot, changer PRESET puis pousser.
+PRESETS = {
+    "pretest": [{"nom": "pretest", "ckpt": "s43-75k", "arms": "base,C,T,H", "seeds": "0,1,2,3,4"}],
+    "dense": [{"nom": "dense", "ckpt": "s43-75k", "arms": "D", "seeds": "0,1,2,3,4"}],
+    "robust": [{"nom": "D-s43", "ckpt": "s43-75k", "arms": "D", "seeds": "0,2,4"},          # complète D à 5 graines
+               {"nom": "s42", "ckpt": "s42-75k", "arms": "base,C,T,H", "seeds": "0,1,2"}],   # second checkpoint de départ
+    "shift": [{"nom": "S-s43", "ckpt": "s43-75k", "arms": "S", "seeds": "0,1,2,3,4"}],     # carte non recalée
+}
+PRESET = "robust"
+CONFIG["jobs"] = PRESETS[PRESET]
 WORK = os.environ.get("OUT_DIR", "/kaggle/working")
 T0 = time.time()
 LOG = open(os.path.join(WORK, "log.txt"), "a")
