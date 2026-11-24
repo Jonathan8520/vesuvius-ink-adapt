@@ -2,15 +2,20 @@
 
 Projet de Jonathan (GitHub : Jonathan8520) pour le Vesuvius Challenge (lecture des rouleaux carbonisés d'Herculanum).
 
-**Objectif (cap du 22 novembre 2026) :** publier d'ici le **31 décembre 2026** des étiquettes d'encre vérifiées à
-la main par Jonathan, avec la preuve qu'elles améliorent un modèle, pour la soumission aux **Progress Prizes de
-décembre**. Ensuite, utiliser ce modèle pour **First Letters** (50 000 $ par rouleau, jusqu'au 25 juin 2027).
+**Objectif (cap du 24 novembre 2026) : les petits Progress Prizes, en solo.**
+1. **Avant le 30 novembre 2026** (23 h 59, heure du Pacifique) : une soumission centrée sur la comparaison
+   « étiquettes humaines contre carte du modèle 2 µm, sur les mêmes pixels » (journal, entrée A8), documentée pour
+   être reproduite. Les 6 masques de validation absents du dossier 9 µm n'y figurent qu'en une ligne d'annexe.
+2. **À partir de décembre** : corriger de vrais bugs dans les outils de l'équipe que nous utilisons (chaîne
+   d'encre, téléchargement des données, paquet `vesuvius` de villa). Une correction à la fois, preuve avant/après.
+3. **Critère d'arrêt** : rien d'accepté ni de primé fin janvier 2027.
 
-**Répartition :** Jonathan donne 3 à 5 heures par semaine de correction au stylet sur sa tablette Android
-(Galaxy Tab S6 Lite). La session fait tout le reste : données, pré-étiquettes, appli, export, entraînement, mesure.
+**Répartition :** Jonathan relit, écrit lui-même ses messages Discord et remplit le formulaire de soumission.
+La session fait le reste et lui montre chaque PR avant de l'ouvrir.
 
-Le sprint de novembre (adaptation sans étiquette d'`ink_9um`) a été arrêté le 22 novembre : tout avait déjà été
-publié par d'autres. Ne pas le reprendre.
+Pistes arrêtées, à ne pas reprendre : le sprint de novembre (adaptation sans étiquette d'`ink_9um`, arrêté le
+22/11 : déjà publié par d'autres) ; les étiquettes vérifiées à la main par Jonathan (arrêtées le 23/11 : aucun
+gain mesurable, et la correction demande de connaître les lettres grecques).
 
 À lire avant toute chose :
 1. `docs/STATUS.md` : le point le plus récent, court.
@@ -37,6 +42,9 @@ publié par d'autres. Ne pas le reprendre.
   publique avant l'annonce officielle. Garder ces résultats hors du dépôt et prévenir Jonathan.
 - **Licences** : données CT sous CC BY-NC 4.0 (citer « Vesuvius Challenge - CT Scans of Herculaneum Papyri » ou
   « EduceLab-Scrolls » selon le scan) ; poids `scrollprize/ink_9um` sous licence MIT ; notre code sous MIT.
+- **Pull requests** : jamais ouvertes sans que Jonathan ait vu la PR (titre, description, diff, preuve) et dit
+  oui. Vérifier d'abord les tickets et PR existants de villa, et ce que les mainteneurs refusent
+  (`docs/RESEARCH.md`, section 5). Texte de PR conforme au `CONTRIBUTING.md` de villa.
 - **Discord** : aucun message rédigé par la session. Elle prépare les faits et les chiffres dans
   `docs/DISCORD-FAITS.md`, Jonathan écrit et poste lui-même (règle du serveur du 29/07/2026 ; dans #robots,
   ajouter une ligne « AI disclosure »).
