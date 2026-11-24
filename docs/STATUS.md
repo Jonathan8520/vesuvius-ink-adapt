@@ -15,16 +15,13 @@
   aussi sans recalage et sans masque humain. Personne n'avait publié cette comparaison.
 - Reproduction vérifiée depuis un clone neuf : 60 fichiers sur 60 identiques.
 
-## Ce qui tournait (terminé)
+## Kaggle
 
-- Kaggle : `vesuvius-ink9um-bench-robust` (lancé le 24/11 à 20 h 23 UTC). Il complète la branche `D` à 5 graines
-  et refait la comparaison depuis un second checkpoint. En file d'attente (la dernière fois : 8 h d'attente).
-- Vérification que personne n'a publié la même comparaison.
-- Rapport reproductible, réponses du formulaire, faits Discord.
+Plus rien ne tourne. GPU utilisé cette semaine : environ 7 h ; il reste environ 23 h jusqu'au 28/11.
 
-## Ce que je te demanderai plus tard
+## Ce que j'attends de toi
 
-- Relire la soumission (vers le 28/11) et la remplir toi-même avant le 30/11 à 23 h 59 heure du Pacifique
+- Relire la soumission quand tu veux (c'est prêt), me dire « pousse » pour `main`, puis remplir le formulaire toi-même avant le 30/11 à 23 h 59 heure du Pacifique
   (1er décembre, 8 h 59 à Paris).
 - Pour l'étape de décembre : les mainteneurs ferment les PR qui ne viennent pas d'un usage humain réel. Il faudra
   que tu reproduises toi-même chaque bug et que tu écrives quelques lignes à toi dans chaque PR (`docs/PLAN.md`).
