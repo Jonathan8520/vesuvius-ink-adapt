@@ -351,7 +351,9 @@ et on ne s'en sert pas pour entraîner.
   repeatably visible get labeled. » Encre et fond supervisé vont ensemble, le douteux reste hors supervision.
 - Le mainteneur bruniss a fermé la PR villa #2381 (« suggest where to label next, from where the predictions are
   least sure ») le 01/11 : « without a training run comparison we'd prefer this one stay in a separate repo and
-  linked in community projects ». Notre étape 5 est cette comparaison.
+  linked in community projects ». C'est une demande faite à l'auteur de la PR, pour son outil : pas une demande de
+  notre comparaison. La nôtre est une comparaison d'entraînements sur une question voisine (la source des
+  étiquettes).
 - Ticket villa #1638 (khj1222, 29/08) sur les 3 masques de validation collés à l'entraînement : fermé « not
   planned » et verrouillé le jour même par pmh47 : « "validation mask is disjoint from the supervision mask" --
   indeed, so there is no actual issue. » Présenter les 6 autres masques comme une ressource, pas comme un défaut.
