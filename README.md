@@ -4,20 +4,16 @@ Run the [Vesuvius Challenge](https://scrollprize.org) 9 µm ink-detection pipeli
 Kaggle GPU: stream a scroll's CT volume from the public bucket, render any `tifxyz` surface, and run the
 [`scrollprize/ink_9um`](https://huggingface.co/scrollprize/ink_9um) models, with no C++ build and no local GPU.
 
-**Status (22 November 2026).** The November sprint (label-free adaptation of `ink_9um`) was stopped: a prior-art
-survey showed that every step of that plan had already been published by others, often with negative results
-([`docs/RESEARCH.md`](docs/RESEARCH.md), in French).
+**Status (25 November 2026).** Main result: a paired fine-tuning comparison of the team's human ink labels
+against the team's 2 µm model map as supervision for `ink_9um`, on the same pixels:
+[`docs/label-source-comparison.md`](docs/label-source-comparison.md). Experiment log, research notes and
+inventory of scans and existing labels (in French): [`docs/EXPERIMENTS.md`](docs/EXPERIMENTS.md),
+[`docs/RESEARCH.md`](docs/RESEARCH.md), [`docs/INVENTAIRE.md`](docs/INVENTAIRE.md). No labels are ever made on a
+scroll eligible for the First Letters prize.
 
-**New goal:** publish hand-verified ink labels at ~9 µm by the end of December 2026, together with a labelling
-tool that works with a stylus on a tablet and a measurement of what the labels bring to a model. Hand-corrected
-labels already exist for PHerc0814, PHerc0841 and PHerc0009B (Priyank Aranke); we target objects where only
-model-derived labels exist. Plan: [`docs/PLAN.md`](docs/PLAN.md). Inventory of scans and existing labels:
-[`docs/INVENTAIRE.md`](docs/INVENTAIRE.md). No labels are ever made on a scroll eligible for the First Letters
-prize.
-
-One observation recorded in [`docs/HANDOFF.md`](docs/HANDOFF.md): six of the nine reserved validation masks of
-`ink_9um` are missing from the 9 µm label folder, although they are public in the 2.4 µm frame (folder `ink/` of
-the team's Hugging Face bucket, and the open-data bucket). See `scripts/audit_reserved_validation.py`.
+One observation, in the annex of the report: six of the nine reserved validation masks of `ink_9um` are missing
+from the 9 µm label folder, although they are public in the 2.4 µm frame (folder `ink/` of the team's Hugging
+Face bucket, and the open-data bucket). See `scripts/audit_reserved_validation.py`.
 
 ## What works today
 
@@ -64,7 +60,7 @@ prob, n_patches = core.infer(surface, model, start=6, reverse=False)       # ink
 - `kaggle/`: the self-contained Kaggle script used for the PHerc. 1203 sweep, and a metadata template.
 - `scripts/`: CPU-only tools (S3 listing and download, CPU renderer, CPU inference).
 - `tests/validate_against_official.py`: reproduces the checks above.
-- `docs/`: context, plan, experiment log, hand-off notes (in French).
+- `docs/`: the report (English); experiment log, research notes and inventory (in French).
 
 ## Data and licences
 

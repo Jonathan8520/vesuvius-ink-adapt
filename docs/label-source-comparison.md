@@ -62,7 +62,9 @@ Evaluation, never trained on:
 Scoring follows the official inference (global tile grid, Hann blending, centred 17-layer window, forward
 order). Metrics: AUC and balanced accuracy at 0.5, averaged over the segments of a group. Uncertainty: paired
 bootstrap, resampling 128 px blocks (the same blocks for all arms) and seeds, 2,000 draws. **The decision rule was
-written and committed before the results were read** (`docs/PLAN.md` history, 22 November 2026, 22:28 UTC).
+written and committed before the results were read** (commit
+[6635b42](https://github.com/Jonathan8520/vesuvius-ink-adapt/commit/6635b42fba0cb70309e58941f65f09be005bb8e2),
+22 November 2026, 22:28 UTC).
 
 ## Results
 
