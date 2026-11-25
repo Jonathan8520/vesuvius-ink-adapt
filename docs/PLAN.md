@@ -23,7 +23,9 @@ Obtenir de petits Progress Prizes avec ce qui est déjà fait et avec des correc
 ## Étape 1 : soumission de novembre (échéance : 30/11, 23 h 59 heure du Pacifique)
 
 Sujet : la comparaison « étiquettes humaines contre carte du modèle 2 µm, sur les mêmes pixels » (journal A8).
-C'est la comparaison d'entraînements que le mainteneur de villa demandait en fermant la PR #2381.
+En fermant la PR villa #2381 (un outil qui propose où étiqueter), le mainteneur a demandé à son auteur une
+comparaison d'entraînements pour cet outil. Il n'a pas demandé la nôtre ; la nôtre est une comparaison
+d'entraînements sur une question voisine, la source des étiquettes.
 
 - [ ] a. Vérifier que personne n'a publié la même comparaison (même pixels, affinage apparié). Noter dans
       `docs/RESEARCH.md`. Si quelqu'un l'a publiée : on le dit à Jonathan et on n'envoie pas.

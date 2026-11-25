@@ -53,8 +53,9 @@ serveur Discord a une règle sur l'IA. À toi de voir la formulation, mais je co
 > training segments can be labelled with the 2 µm map instead of hours of hand labelling, and the scarce human
 > time can go elsewhere.
 >
-> (3) It is the training-run comparison the maintainers asked for when closing villa PR #2381, and the first one
-> we could find where only the label source changes. It contrasts with an earlier controlled test
+> (3) When closing villa PR #2381 (a tool suggesting where to label next), the maintainers asked for a
+> training-run comparison; this is one, on the closely related question of label source, and the first we could
+> find where only the label source changes. It contrasts with an earlier controlled test
 > (moisescorreo/vesuvius-uncertainty-bench) that concluded the opposite, with its two label sources on different
 > scans and segments. It comes with a paired fine-tuning bench for ink_9um (same patches per seed, any label
 > source can be dropped in), runnable on two free Kaggle T4 GPUs, and a script that rebuilds the bench from
@@ -72,5 +73,6 @@ permissive si tu gagnes ; c'est déjà le cas, MIT).
 ## Ce que j'attends réalistement
 
 0 à quelques centaines de dollars. L'équipe écrit qu'elle décourage les outils d'audit et d'évaluation seuls. Le
-point fort : c'est exactement la comparaison qu'un mainteneur a demandée, et elle change une décision pratique
-(où mettre le temps humain).
+point fort : en fermant la PR #2381 (un outil qui propose où étiqueter), les mainteneurs ont demandé à son auteur
+une comparaison d'entraînements pour son outil ; la nôtre en est une, sur une question voisine (la source des
+étiquettes), et elle change une décision pratique (où mettre le temps humain).

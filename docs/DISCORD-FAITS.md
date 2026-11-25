@@ -220,7 +220,11 @@ rouleaux nouveaux.
   - khj1222 (septembre) et protonjls (novembre) comparent l'humain à de l'auto-apprentissage (le modèle 9 µm
     étiquette lui-même) : là, l'humain gagne nettement. Ce n'est pas la même chose qu'une carte faite sur le scan
     fin.
-- Le mainteneur bruniss, en fermant la PR villa #2381, demandait justement « a training run comparison ».
+- En fermant la PR villa #2381 (un outil qui propose où étiqueter d'après l'incertitude), le mainteneur bruniss a
+  demandé à son auteur une comparaison d'entraînements pour cet outil (« without a training run comparison we'd
+  prefer this one stay in a separate repo »). Il n'a pas demandé notre comparaison : ne pas dire qu'elle répond à
+  sa demande. On peut dire qu'elle est une comparaison d'entraînements, sur une question voisine (la source des
+  étiquettes).
 
 ### Ce qu'il ne faut pas affirmer
 
