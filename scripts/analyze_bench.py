@@ -1,7 +1,7 @@
 """Analyse d'un run du banc de mesure : écarts appariés entre branches, avec bootstrap par blocs et par graines.
 
 Lit les histogrammes par bloc écrits par `scripts/run_bench.py` (`blocs_<branche>_g<graine>_p<pas>.npz`).
-Règle de lecture : `docs/PLAN.md`, étape 5b (écrite avant le résultat). Mesure principale : AUC, écart H - T,
+Règle de lecture : rapport `docs/label-source-comparison.md`, section Design (écrite avant le résultat). Mesure principale : AUC, écart H - T,
 moyenne sur les segments d'un groupe (cas réservés d'`ink_9um` d'un côté, PHerc0841 de l'autre).
 
 Bootstrap hiérarchique apparié : à chaque tirage, les blocs de chaque segment sont rééchantillonnés avec remise

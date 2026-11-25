@@ -1,4 +1,4 @@
-# Vesuvius Challenge : banc de mesure d'étiquettes d'encre à ~9 µm (docs/PLAN.md, étape 5).
+# Vesuvius Challenge : banc de mesure d'étiquettes d'encre à ~9 µm (rapport docs/label-source-comparison.md).
 #
 # Affine le modèle scrollprize/ink_9um (poids MIT) avec le code du dépôt
 # https://github.com/Jonathan8520/vesuvius-ink-adapt, sur des tuiles préparées par scripts/build_bench.py

@@ -2,8 +2,8 @@
 
 Une entrée par source : lien, ce que ça apporte, décision (réutiliser, s'en inspirer, écarter).
 Dernière mise à jour : 22 novembre 2026 (nuit). Pour le cap « étiquettes vérifiées à la main », aller
-directement à la section 9. Ce fichier fusionne `docs/VEILLE-2026-11-22.md` (veille de
-Jonathan sur Discord et GitHub), nos lectures du dépôt villa et du site, et la lecture de 25 dépôts
+directement à la section 9. Ce fichier fusionne la veille de Jonathan du 22/11 sur Discord et GitHub (retirée
+de `main`, voir le commit 8732c73), nos lectures du dépôt villa et du site, et la lecture de 25 dépôts
 communautaires clonés. Origine de chaque fait : **[V]** veille de Jonathan, **[N]** vérifié par nous sur le code
 ou les données, **[L]** lu dans un dépôt cloné ou une page publique (rapport de lecture, à revérifier avant de
 citer en public).
@@ -137,7 +137,7 @@ la zone à moins de 128 px puis 256 px d'un pixel de supervision d'entraînement
 - Aucune des sources lues ne mentionne ces 6 zones : toutes écrivent que seuls 3 masques sont tenus à l'écart.
 - Test de mémorisation (s43-75k) fait sur les 9 cas : F1 de 0,44 à 0,74 dans les 6 zones non publiées, de 0,71 à
   0,76 dans les 3 zones publiées, de 0,91 à 0,99 sur les pixels d'entraînement des mêmes segments. AUC moyenne
-  pondérée par pixel : 0,83 (non publiées) contre 0,92 (publiées). Tableau : `docs/HANDOFF.md`.
+  pondérée par pixel : 0,83 (non publiées) contre 0,92 (publiées). Tableau complet : commit 8732c73.
 
 ### Jeux étiquetés hors entraînement d'`ink_9um`
 
@@ -215,7 +215,7 @@ réservées d'`ink_9um` ne sont probablement pas tenues à l'écart pour eux. À
 ## 8. Besoin non couvert : décision
 
 Le balayage lancé le 22/11 a été interrompu par l'arrêt du sprint. Le nouveau cap (étiquettes vérifiées à la
-main) est décrit dans `docs/PLAN.md` ; l'état de l'art qui le concerne est en section 9.
+main) est décrit dans le plan de l'époque (commit 8732c73) ; l'état de l'art qui le concerne est en section 9.
 
 ## 9. Étiquettes d'encre à ~9 µm : qui publie quoi (cap du 22 novembre)
 

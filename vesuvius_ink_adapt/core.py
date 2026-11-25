@@ -3,7 +3,7 @@
 Extrait du script Kaggle validé (kaggle/vesuvius_pherc1203_sweep.py). Conventions vérifiées :
 - rendu : normale = -cross(d/dcol, d/drow) (signe de vc_render_tifxyz), décalages -14..13 (28 couches, indice 14 = surface)
 - modèle : fenêtre de 17 couches, normalisation robuste par patch, patchs 128 pas 64, fusion de Hann
-Voir docs/HANDOFF.md pour les chiffres de validation.
+Chiffres de validation : rapport docs/label-source-comparison.md (section Files) et tests/validate_against_official.py.
 """
 import io
 import json
